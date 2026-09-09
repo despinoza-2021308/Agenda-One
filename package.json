@@ -1,0 +1,15 @@
+{
+  "name": "agenda-one",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema Fullstack de Agenda y Control de Horas (AD-RE-11)",
+  "scripts": {
+    "build": "npm --prefix FrontEnd run build"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "pg": "^8.12.0"
+  }
+}

@@ -1,16 +1,26 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-const pool = new Pool({
-  host: process.env.PGHOST || 'localhost',
-  port: parseInt(process.env.PGPORT || '5432', 10),
-  user: process.env.PGUSER || 'postgres',
-  password: process.env.PGPASSWORD || 'postgres',
-  database: process.env.PGDATABASE || 'agenda_db',
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 3000,
-});
+const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+
+const pool = connectionString
+  ? new Pool({
+      connectionString,
+      ssl: { rejectUnauthorized: false },
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    })
+  : new Pool({
+      host: process.env.PGHOST || 'localhost',
+      port: parseInt(process.env.PGPORT || '5432', 10),
+      user: process.env.PGUSER || 'postgres',
+      password: process.env.PGPASSWORD || 'postgres',
+      database: process.env.PGDATABASE || 'agenda_db',
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 3000,
+    });
 
 let isPostgresConnected = false;
 
@@ -49,13 +59,90 @@ const mockStore = {
   }
 };
 
+async function autoInitTables(client) {
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS capacitadores (
+        id SERIAL PRIMARY KEY,
+        nombre_completo VARCHAR(120) NOT NULL,
+        iniciales VARCHAR(5) NOT NULL UNIQUE,
+        color VARCHAR(7) NOT NULL DEFAULT '#3B82F6',
+        activo BOOLEAN NOT NULL DEFAULT TRUE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS clientes (
+        id SERIAL PRIMARY KEY,
+        nombre_empresa VARCHAR(150) NOT NULL UNIQUE,
+        contacto VARCHAR(100),
+        telefono VARCHAR(30),
+        correo VARCHAR(100),
+        activo BOOLEAN NOT NULL DEFAULT TRUE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS citas (
+        id SERIAL PRIMARY KEY,
+        cliente_id INT NOT NULL REFERENCES clientes(id) ON DELETE RESTRICT,
+        capacitador_id INT NOT NULL REFERENCES capacitadores(id) ON DELETE RESTRICT,
+        fecha DATE NOT NULL,
+        hora_inicio TIME NOT NULL,
+        hora_fin TIME NOT NULL,
+        horas NUMERIC(4, 2) NOT NULL CHECK (horas > 0),
+        modalidad VARCHAR(20) NOT NULL CHECK (modalidad IN ('Presencial', 'Virtual', 'Híbrida')),
+        tipo_servicio VARCHAR(30) NOT NULL CHECK (tipo_servicio IN ('Asesoría', 'Curso', 'Auditoría', 'Reunión', 'Seguimiento')),
+        observaciones TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    const capRes = await client.query('SELECT COUNT(*) FROM capacitadores');
+    if (parseInt(capRes.rows[0].count, 10) === 0) {
+      await client.query(`
+        INSERT INTO capacitadores (nombre_completo, iniciales, color) VALUES
+        ('Mauricio Orozco', 'MO', '#2563EB'),
+        ('Olga Quintana', 'OQ', '#7C3AED'),
+        ('Pedro Fernández', 'PF', '#059669'),
+        ('Diana Vargas', 'DV', '#D97706'),
+        ('Carlos Mendoza', 'CM', '#DC2626')
+        ON CONFLICT (iniciales) DO NOTHING;
+
+        INSERT INTO clientes (nombre_empresa, contacto, telefono, correo) VALUES
+        ('Industrias Alimentarias del Norte S.A.', 'Ing. Roberto Silva', '+506 2234-5678', 'rsilva@alimnorte.com'),
+        ('Manufacturas Globales S.A.', 'Lic. Mariana Soto', '+506 2289-9012', 'msoto@manuglobal.com'),
+        ('Distribuidora Logística Central', 'Carlos Alvarado', '+506 2440-1122', 'calvarado@districentral.com'),
+        ('Servicios Médicos Especializados', 'Dra. Andrea Morales', '+506 2520-3344', 'amorales@medicosesp.com'),
+        ('Corporación Financiera del Valle', 'Rodrigo Jiménez', '+506 2201-5566', 'rjimenez@finanzascv.com')
+        ON CONFLICT (nombre_empresa) DO NOTHING;
+
+        INSERT INTO citas (cliente_id, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, observaciones) VALUES
+        (1, 1, '2026-09-07', '08:00', '12:00', 4.00, 'Presencial', 'Curso', 'Módulo 1: Buenas Prácticas de Manufactura.'),
+        (2, 2, '2026-09-07', '09:00', '11:30', 2.50, 'Virtual', 'Asesoría', 'Revisión documental del Sistema de Gestión.'),
+        (3, 3, '2026-09-08', '08:30', '14:30', 6.00, 'Presencial', 'Auditoría', 'Auditoría interna de procesos en planta.'),
+        (4, 1, '2026-09-09', '14:00', '16:00', 2.00, 'Virtual', 'Reunión', 'Reunión de coordinación con gerencia.'),
+        (5, 4, '2026-09-10', '08:00', '13:00', 5.00, 'Presencial', 'Curso', 'Capacitación en Seguridad Ocupacional.'),
+        (1, 2, '2026-09-11', '10:00', '12:00', 2.00, 'Virtual', 'Seguimiento', 'Seguimiento a planes de acción correctiva.'),
+        (2, 5, '2026-09-14', '08:00', '16:00', 8.00, 'Presencial', 'Auditoría', 'Jornada completa de auditoría de calidad.'),
+        (3, 1, '2026-09-15', '09:00', '12:30', 3.50, 'Presencial', 'Asesoría', 'Asesoría en control estadístico de procesos.'),
+        (4, 3, '2026-09-16', '13:00', '17:00', 4.00, 'Virtual', 'Curso', 'Taller virtual de gestión por procesos.'),
+        (5, 2, '2026-09-18', '09:00', '11:00', 2.00, 'Virtual', 'Reunión', 'Cierre de ciclo de capacitación trimestral.');
+      `);
+      console.log('🌱 [DB] Tablas y datos semilla creados exitosamente en PostgreSQL.');
+    }
+  } catch (initErr) {
+    console.warn('⚠️ [DB] Aviso en auto-inicialización de tablas:', initErr.message);
+  }
+}
+
 async function testConnection() {
   try {
     const client = await pool.connect();
     const res = await client.query('SELECT NOW()');
+    console.log('✅ [DB] Conectado exitosamente a PostgreSQL:', res.rows[0].now);
+    await autoInitTables(client);
     client.release();
     isPostgresConnected = true;
-    console.log('✅ [DB] Conectado exitosamente a PostgreSQL:', res.rows[0].now);
   } catch (err) {
     isPostgresConnected = false;
     console.warn('⚠️ [DB] PostgreSQL no disponible localmente (' + err.message + ').');

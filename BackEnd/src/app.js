@@ -15,8 +15,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Rutas de API
+// Rutas de API (soporta tanto prefijo /api como llamadas directas en Vercel Serverless)
 app.use('/api', apiRoutes);
+app.use('/', apiRoutes);
 
 // Ruta raíz de bienvenida
 app.get('/', (req, res) => {
