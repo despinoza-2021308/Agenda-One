@@ -1,0 +1,19 @@
+{
+  "name": "agenda-backend",
+  "version": "1.0.0",
+  "description": "API REST para Agenda Digital Centralizada y Control de Horas (AD-RE-11)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "pg": "^8.12.0"
+  },
+  "keywords": ["agenda", "control-horas", "postgresql", "express", "ad-re-11"],
+  "author": "Antigravity",
+  "license": "ISC"
+}
