@@ -266,7 +266,7 @@ export default function CalendarView({
             ))}
           </div>
 
-          {/* Días del calendario con celdas amplias y citas legibles */}
+          {/* Días del calendario con celdas equilibradas y tarjetas de alta legibilidad */}
           <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-slate-100">
             {calendarDays.map((dayObj, index) => {
               const dayCitas = filteredCitas.filter(c => c.fecha === dayObj.dateString);
@@ -275,20 +275,20 @@ export default function CalendarView({
               return (
                 <div
                   key={index}
-                  className={`min-h-[190px] sm:min-h-[220px] p-2 sm:p-2.5 flex flex-col transition-colors group relative ${
+                  className={`min-h-[140px] sm:min-h-[165px] p-1.5 sm:p-2 flex flex-col transition-colors group relative ${
                     !dayObj.isCurrentMonth
-                      ? 'bg-slate-50/50 text-slate-400'
+                      ? 'bg-slate-50/40 text-slate-400'
                       : dayObj.isToday
-                      ? 'bg-blue-50/40'
-                      : 'hover:bg-slate-50/70'
+                      ? 'bg-blue-50/30'
+                      : 'hover:bg-slate-50/60'
                   }`}
                 >
-                  {/* Fila superior de la celda: Número del día y botón rápido de añadir */}
-                  <div className="flex items-center justify-between mb-2 pb-1 border-b border-slate-100/80">
+                  {/* Cabecera del día: Número y total de horas */}
+                  <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-100">
                     <span
-                      className={`inline-flex items-center justify-center text-sm font-bold rounded-lg w-7 h-7 ${
+                      className={`inline-flex items-center justify-center text-xs sm:text-sm font-bold rounded-md w-6 h-6 ${
                         dayObj.isToday
-                          ? 'bg-blue-600 text-white font-black shadow-sm'
+                          ? 'bg-blue-600 text-white font-black shadow-xs'
                           : !dayObj.isCurrentMonth
                           ? 'text-slate-400'
                           : 'text-slate-800'
@@ -297,92 +297,95 @@ export default function CalendarView({
                       {dayObj.dayNumber}
                     </span>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1">
                       {dayTotalHoras > 0 && (
-                        <span className="text-xs font-black text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-lg shadow-2xs">
+                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-700 bg-slate-100 border border-slate-200/80 px-1.5 py-0.5 rounded shadow-2xs font-mono">
                           {dayTotalHoras}h
                         </span>
                       )}
                       <button
                         onClick={() => onAddCitaDate(dayObj.dateString)}
                         title={`Agendar cita el ${dayObj.dateString}`}
-                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-blue-50 text-blue-600 rounded-lg transition-opacity border border-transparent hover:border-blue-200"
+                        className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-blue-50 text-blue-600 rounded transition-opacity"
                       >
-                        <Plus className="w-4 h-4 stroke-[2.5]" />
+                        <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Lista de citas en el día (Tarjetas grandes y de alta legibilidad) */}
-                  <div className="flex-1 space-y-2 overflow-y-auto max-h-[320px] pr-0.5">
+                  {/* Lista de citas en el día (Diseño limpio, legible y sin sobredimensionar) */}
+                  <div className="flex-1 space-y-1.5 overflow-y-auto max-h-[220px] pr-0.5 scrollbar-thin">
                     {dayCitas.map((cita) => {
                       const color = cita.capacitador_color || '#3B82F6';
+                      const fullTooltip = `${cita.cliente_nombre}\nCapacitador: ${cita.capacitador_nombre} [${cita.capacitador_iniciales}]\nHorario: ${cita.hora_inicio} - ${cita.hora_fin} (${cita.horas}h)\nModalidad: ${cita.modalidad} | Tipo: ${cita.tipo_servicio}${cita.observaciones ? `\nNota: ${cita.observaciones}` : ''}`;
+
                       return (
                         <div
                           key={cita.id}
                           onClick={() => onSelectCita(cita)}
                           role="button"
-                          className="w-full text-left p-2.5 sm:p-3 rounded-xl border border-slate-200/90 shadow-xs hover:shadow-md transition-all transform hover:-translate-y-0.5 bg-white space-y-2 cursor-pointer select-none ring-1 ring-slate-100"
+                          title={fullTooltip}
+                          className="w-full text-left p-1.5 sm:p-2 rounded-lg border border-slate-200/80 shadow-2xs hover:shadow-sm transition-all duration-150 bg-white space-y-1 cursor-pointer select-none group/card hover:border-slate-300"
                           style={{
-                            borderLeftWidth: '5px',
+                            borderLeftWidth: '3.5px',
                             borderLeftColor: color
                           }}
                         >
                           {/* Fila 1: Iniciales del Capacitador, Nombre de Empresa y Horas */}
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex items-center gap-2 min-w-0">
+                          <div className="flex items-center justify-between gap-1.5">
+                            <div className="flex items-center gap-1.5 min-w-0 flex-1">
                               <span
-                                className="w-7 h-7 rounded-lg text-xs font-black text-white flex items-center justify-center shrink-0 shadow-xs"
+                                className="w-5 h-5 rounded text-[10px] font-black text-white flex items-center justify-center shrink-0 shadow-2xs leading-none"
                                 style={{ backgroundColor: color }}
                                 title={`Capacitador: ${cita.capacitador_nombre}`}
                               >
                                 {cita.capacitador_iniciales}
                               </span>
-                              <span className="font-bold text-slate-900 text-xs sm:text-sm leading-tight line-clamp-2">
+                              <span className="font-semibold text-slate-900 text-xs truncate leading-tight">
                                 {cita.cliente_nombre}
                               </span>
                             </div>
                             <span 
-                              className="text-xs font-black px-2 py-0.5 rounded-md text-white shrink-0 shadow-2xs"
-                              style={{ backgroundColor: color }}
+                              className="text-[10px] font-bold px-1.5 py-0.5 rounded font-mono text-slate-700 bg-slate-100 border border-slate-200/60 shrink-0"
                             >
                               {cita.horas}h
                             </span>
                           </div>
 
                           {/* Fila 2: Horario, Modalidad y Tipo de Servicio */}
-                          <div className="flex items-center justify-between gap-1.5 flex-wrap text-xs">
-                            <span className="flex items-center gap-1 font-mono font-bold text-slate-700">
-                              <Clock className="w-3.5 h-3.5 text-slate-400" />
-                              {cita.hora_inicio} - {cita.hora_fin}
+                          <div className="flex items-center justify-between gap-1 text-[10px] text-slate-600">
+                            <span className="flex items-center gap-1 font-mono font-medium text-slate-700 shrink-0">
+                              <Clock className="w-3 h-3 text-slate-400" />
+                              {cita.hora_inicio}-{cita.hora_fin}
                             </span>
 
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1 shrink-0">
                               <span
-                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold ${
+                                className={`inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[10px] font-semibold ${
                                   cita.modalidad === 'Presencial'
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                    : 'bg-blue-50 text-blue-700 border border-blue-200'
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
+                                    : 'bg-blue-50 text-blue-700 border border-blue-200/80'
                                 }`}
                               >
                                 {cita.modalidad === 'Presencial' ? (
-                                  <MapPin className="w-3 h-3 text-emerald-600" />
+                                  <MapPin className="w-2.5 h-2.5 text-emerald-600" />
                                 ) : (
-                                  <Video className="w-3 h-3 text-blue-600" />
+                                  <Video className="w-2.5 h-2.5 text-blue-600" />
                                 )}
                                 {cita.modalidad}
                               </span>
-                              <span className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[11px] font-semibold truncate max-w-[70px]">
+
+                              <span className="bg-slate-50 text-slate-600 px-1 py-0.2 rounded text-[10px] font-medium border border-slate-100 truncate max-w-[65px]">
                                 {cita.tipo_servicio}
                               </span>
                             </div>
                           </div>
 
-                          {/* Fila 3: Descripción u observaciones si existen */}
+                          {/* Fila 3: Observaciones discretas de 1 línea si existen */}
                           {cita.observaciones && (
-                            <div className="text-xs text-slate-600 bg-slate-50/90 p-1.5 rounded-lg border border-slate-100 line-clamp-2 italic font-normal">
+                            <p className="text-[10px] text-slate-500 truncate italic leading-none pt-0.5 font-normal">
                               "{cita.observaciones}"
-                            </div>
+                            </p>
                           )}
                         </div>
                       );
