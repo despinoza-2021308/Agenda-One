@@ -4,7 +4,8 @@
   "private": true,
   "description": "Sistema Fullstack de Agenda y Control de Horas (AD-RE-11)",
   "scripts": {
-    "build": "npm --prefix FrontEnd run build"
+    "build": "npm --prefix FrontEnd run build",
+    "postinstall": "npm --prefix FrontEnd install"
   },
   "dependencies": {
     "cors": "^2.8.5",
