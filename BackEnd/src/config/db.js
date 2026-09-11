@@ -1,9 +1,20 @@
-const { Pool } = require('pg');
+const { Pool, Client } = require('pg');
 require('dotenv').config();
 
 const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
 
-const pool = connectionString
+const poolConfig = {
+  host: process.env.PGHOST || 'localhost',
+  port: parseInt(process.env.PGPORT || '5432', 10),
+  user: process.env.PGUSER || 'postgres',
+  password: process.env.PGPASSWORD || 'postgres',
+  database: process.env.PGDATABASE || 'agenda_db',
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 3000,
+};
+
+let pool = connectionString
   ? new Pool({
       connectionString,
       ssl: { rejectUnauthorized: false },
@@ -11,18 +22,40 @@ const pool = connectionString
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 5000,
     })
-  : new Pool({
-      host: process.env.PGHOST || 'localhost',
-      port: parseInt(process.env.PGPORT || '5432', 10),
-      user: process.env.PGUSER || 'postgres',
-      password: process.env.PGPASSWORD || 'postgres',
-      database: process.env.PGDATABASE || 'agenda_db',
-      max: 10,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 3000,
-    });
+  : new Pool(poolConfig);
 
 let isPostgresConnected = false;
+
+async function ensureDatabaseExists() {
+  if (connectionString) return;
+  const targetDb = process.env.PGDATABASE || 'agenda_db';
+  const adminClient = new Client({
+    host: poolConfig.host,
+    port: poolConfig.port,
+    user: poolConfig.user,
+    password: poolConfig.password,
+    database: 'postgres',
+    connectionTimeoutMillis: 3000,
+  });
+
+  try {
+    await adminClient.connect();
+    const checkDb = await adminClient.query(
+      `SELECT 1 FROM pg_database WHERE datname = $1`,
+      [targetDb]
+    );
+    if (checkDb.rows.length === 0) {
+      console.log(`📦 [DB] Creando base de datos "${targetDb}" automáticamente...`);
+      await adminClient.query(`CREATE DATABASE "${targetDb}"`);
+      console.log(`✅ [DB] Base de datos "${targetDb}" creada.`);
+    }
+  } catch (err) {
+    // Si falla, el intento normal de conexión continuará
+  } finally {
+    try { await adminClient.end(); } catch (_) {}
+  }
+}
+
 
 // Almacén en memoria de respaldo para desarrollo inmediato sin bloqueos
 const mockStore = {
@@ -136,6 +169,7 @@ async function autoInitTables(client) {
 }
 
 async function testConnection() {
+  await ensureDatabaseExists();
   try {
     const client = await pool.connect();
     const res = await client.query('SELECT NOW()');
