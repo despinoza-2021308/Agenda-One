@@ -116,7 +116,8 @@ async function autoInitTables(client) {
 
       CREATE TABLE IF NOT EXISTS citas (
         id SERIAL PRIMARY KEY,
-        cliente_id INT NOT NULL REFERENCES clientes(id) ON DELETE RESTRICT,
+        cliente_id INT REFERENCES clientes(id) ON DELETE RESTRICT,
+        cliente_nombre VARCHAR(150),
         capacitador_id INT NOT NULL REFERENCES capacitadores(id) ON DELETE RESTRICT,
         fecha DATE NOT NULL,
         hora_inicio TIME NOT NULL,
