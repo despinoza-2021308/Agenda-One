@@ -77,20 +77,6 @@ export default function CalendarView({
     return citas.filter(c => String(c.fecha).split('T')[0] === currentDateStr);
   }, [citas, currentDateStr]);
 
-  // Citas del día seleccionado para el modal de detalle
-  const modalDayCitas = useMemo(() => {
-    if (!selectedDayDetails?.dateString) return [];
-    return filteredCitas
-      .filter(c => c.fecha === selectedDayDetails.dateString)
-      .sort((a, b) => (a.hora_inicio || '').localeCompare(b.hora_inicio || ''));
-  }, [filteredCitas, selectedDayDetails]);
-
-  const modalDayTotalHoras = useMemo(() => {
-    return modalDayCitas
-      .filter(c => c.estado !== 'Cancelada')
-      .reduce((acc, c) => acc + (parseFloat(c.horas) || 0), 0);
-  }, [modalDayCitas]);
-
   // Capacitadores a mostrar en la vista diaria según filtro
   const displayedCapacitadores = useMemo(() => {
     if (selectedCapacitadorId === 'ALL') return capacitadores;
@@ -145,6 +131,20 @@ export default function CalendarView({
       .filter(c => c.estado !== 'Cancelada')
       .reduce((acc, c) => acc + (parseFloat(c.horas) || 0), 0);
   }, [filteredCitas]);
+
+  // Citas del día seleccionado para el modal de detalle
+  const modalDayCitas = useMemo(() => {
+    if (!selectedDayDetails?.dateString) return [];
+    return filteredCitas
+      .filter(c => c.fecha === selectedDayDetails.dateString)
+      .sort((a, b) => (a.hora_inicio || '').localeCompare(b.hora_inicio || ''));
+  }, [filteredCitas, selectedDayDetails]);
+
+  const modalDayTotalHoras = useMemo(() => {
+    return modalDayCitas
+      .filter(c => c.estado !== 'Cancelada')
+      .reduce((acc, c) => acc + (parseFloat(c.horas) || 0), 0);
+  }, [modalDayCitas]);
 
   // Estructura de días del mes para el calendario
   const calendarDays = useMemo(() => {
