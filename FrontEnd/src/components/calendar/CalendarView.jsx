@@ -10,7 +10,8 @@ import {
   Plus, 
   Filter, 
   CheckCircle2,
-  Users
+  Users,
+  MessageSquare
 } from 'lucide-react';
 
 const MONTH_NAMES = [
@@ -25,6 +26,7 @@ export default function CalendarView({
   capacitadores = [], 
   onSelectCita, 
   onAddCitaDate,
+  onOpenWhatsApp,
   currentDate,
   setCurrentDate 
 }) {
@@ -197,6 +199,19 @@ export default function CalendarView({
                 Lista
               </button>
             </div>
+
+            {/* Botón WhatsApp */}
+            {onOpenWhatsApp && (
+              <button
+                type="button"
+                onClick={() => onOpenWhatsApp({ capacitadorId: selectedCapacitadorId !== 'ALL' ? selectedCapacitadorId : null })}
+                className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-xs shadow-emerald-600/20 transition-all transform active:scale-95"
+                title="Notificar agenda por WhatsApp"
+              >
+                <MessageSquare className="w-4 h-4 fill-white/25" />
+                <span className="hidden sm:inline">WhatsApp</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -303,6 +318,19 @@ export default function CalendarView({
                           {dayTotalHoras}h
                         </span>
                       )}
+                      {dayCitas.length > 0 && onOpenWhatsApp && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onOpenWhatsApp({ date: dayObj.dateString, capacitadorId: selectedCapacitadorId !== 'ALL' ? selectedCapacitadorId : null });
+                          }}
+                          title={`Enviar agenda del ${dayObj.dateString} por WhatsApp`}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-emerald-50 text-emerald-600 rounded transition-opacity"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 fill-emerald-600/20" />
+                        </button>
+                      )}
                       <button
                         onClick={() => onAddCitaDate(dayObj.dateString)}
                         title={`Agendar cita el ${dayObj.dateString}`}
@@ -346,11 +374,26 @@ export default function CalendarView({
                               </span>
                             </div>
 
-                            <span 
-                              className="text-[10px] font-black px-1.5 py-0.5 rounded font-mono text-slate-800 bg-slate-100 border border-slate-200/80 shrink-0"
-                            >
-                              {cita.horas}h
-                            </span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span 
+                                className="text-[10px] font-black px-1.5 py-0.5 rounded font-mono text-slate-800 bg-slate-100 border border-slate-200/80"
+                              >
+                                {cita.horas}h
+                              </span>
+                              {onOpenWhatsApp && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOpenWhatsApp({ cita });
+                                  }}
+                                  title="Enviar cita por WhatsApp"
+                                  className="opacity-0 group-hover:opacity-100 hover:bg-emerald-100/70 text-emerald-600 p-0.5 rounded transition-opacity"
+                                >
+                                  <MessageSquare className="w-3 h-3 fill-emerald-600/20" />
+                                </button>
+                              )}
+                            </div>
                           </div>
 
                           {/* Fila 2: Etiquetas de Tipo de Servicio y Modalidad */}
@@ -496,16 +539,31 @@ export default function CalendarView({
                         <td className="py-3 px-4 text-slate-500 text-xs max-w-xs truncate">
                           {cita.observaciones || '-'}
                         </td>
-                        <td className="py-3 px-4 text-right">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onSelectCita(cita);
-                            }}
-                            className="text-xs font-semibold text-blue-600 hover:text-blue-800"
-                          >
-                            Editar
-                          </button>
+                        <td className="py-3 px-4 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {onOpenWhatsApp && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onOpenWhatsApp({ cita });
+                                }}
+                                title="Enviar cita por WhatsApp"
+                                className="p-1 hover:bg-emerald-50 text-emerald-600 rounded-lg transition-colors"
+                              >
+                                <MessageSquare className="w-4 h-4 fill-emerald-600/20" />
+                              </button>
+                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectCita(cita);
+                              }}
+                              className="text-xs font-semibold text-blue-600 hover:text-blue-800"
+                            >
+                              Editar
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );

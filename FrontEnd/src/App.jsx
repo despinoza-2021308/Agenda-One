@@ -5,6 +5,7 @@ import MonthlyReportView from './components/reports/MonthlyReportView';
 import CapacitadoresView from './components/catalogs/CapacitadoresView';
 import ClientesView from './components/catalogs/ClientesView';
 import AppointmentModal from './components/appointments/AppointmentModal';
+import WhatsAppModal from './components/whatsapp/WhatsAppModal';
 import { api } from './services/api';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
@@ -21,6 +22,10 @@ export default function App() {
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [modalInitialDate, setModalInitialDate] = useState(null);
+
+  // Estado del Modal de WhatsApp
+  const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
+  const [whatsAppData, setWhatsAppData] = useState({ cita: null, date: null, capacitadorId: null });
 
   // Notificaciones Toast
   const [toast, setToast] = useState(null);
@@ -135,6 +140,21 @@ export default function App() {
     await loadCitas();
   };
 
+  const handleUpdateCapacitadorPhone = async (id, data) => {
+    await api.updateCapacitador(id, data);
+    await loadCapacitadores();
+  };
+
+  // Handler para WhatsApp
+  const handleOpenWhatsApp = (params = {}) => {
+    setWhatsAppData({
+      cita: params.cita || null,
+      date: params.date || currentDate.toISOString().split('T')[0],
+      capacitadorId: params.capacitadorId || null
+    });
+    setIsWhatsAppModalOpen(true);
+  };
+
   // Handlers para Clientes
   const handleSaveCliente = async (data, id) => {
     try {
@@ -205,6 +225,7 @@ export default function App() {
             setCurrentDate={setCurrentDate}
             onSelectCita={handleSelectAppointment}
             onAddCitaDate={handleOpenNewAppointment}
+            onOpenWhatsApp={handleOpenWhatsApp}
           />
         )}
 
@@ -244,6 +265,19 @@ export default function App() {
         allCitas={citas}
         onSave={handleSaveAppointment}
         onDelete={handleDeleteAppointment}
+      />
+
+      {/* Modal de Notificaciones WhatsApp */}
+      <WhatsAppModal
+        isOpen={isWhatsAppModalOpen}
+        onClose={() => setIsWhatsAppModalOpen(false)}
+        capacitadores={capacitadores}
+        citas={citas}
+        initialCapacitadorId={whatsAppData.capacitadorId}
+        initialDate={whatsAppData.date}
+        targetCita={whatsAppData.cita}
+        onUpdateCapacitadorPhone={handleUpdateCapacitadorPhone}
+        onShowToast={showToast}
       />
     </div>
   );

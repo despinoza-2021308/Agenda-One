@@ -60,11 +60,11 @@ async function ensureDatabaseExists() {
 // Almacén en memoria de respaldo para desarrollo inmediato sin bloqueos
 const mockStore = {
   capacitadores: [
-    { id: 1, nombre_completo: 'Mariana Orellana', iniciales: 'MO', color: '#2563EB', activo: true, created_at: new Date() },
-    { id: 2, nombre_completo: 'Oscar Quan', iniciales: 'OQ', color: '#7C3AED', activo: true, created_at: new Date() },
-    { id: 3, nombre_completo: 'Pedro Fuentes', iniciales: 'PF', color: '#059669', activo: true, created_at: new Date() },
-    { id: 4, nombre_completo: 'Zoila Galvez', iniciales: 'ZG', color: '#D97706', activo: true, created_at: new Date() },
-    { id: 5, nombre_completo: 'Josue Bautista', iniciales: 'JB', color: '#DC2626', activo: true, created_at: new Date() }
+    { id: 1, nombre_completo: 'Mariana Orellana', iniciales: 'MO', color: '#2563EB', telefono: '+502 5555-1001', activo: true, created_at: new Date() },
+    { id: 2, nombre_completo: 'Oscar Quan', iniciales: 'OQ', color: '#7C3AED', telefono: '+502 5555-1002', activo: true, created_at: new Date() },
+    { id: 3, nombre_completo: 'Pedro Fuentes', iniciales: 'PF', color: '#059669', telefono: '+502 5555-1003', activo: true, created_at: new Date() },
+    { id: 4, nombre_completo: 'Zoila Galvez', iniciales: 'ZG', color: '#D97706', telefono: '+502 5555-1004', activo: true, created_at: new Date() },
+    { id: 5, nombre_completo: 'Josue Bautista', iniciales: 'JB', color: '#DC2626', telefono: '+502 5555-1005', activo: true, created_at: new Date() }
   ],
   clientes: [
     { id: 1, nombre_empresa: 'Industrias Alimentarias del Norte S.A.', contacto: 'Ing. Roberto Silva', telefono: '+506 2234-5678', correo: 'rsilva@alimnorte.com', activo: true, created_at: new Date() },
@@ -100,9 +100,12 @@ async function autoInitTables(client) {
         nombre_completo VARCHAR(120) NOT NULL,
         iniciales VARCHAR(5) NOT NULL UNIQUE,
         color VARCHAR(7) NOT NULL DEFAULT '#3B82F6',
+        telefono VARCHAR(30),
         activo BOOLEAN NOT NULL DEFAULT TRUE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+
+      ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS telefono VARCHAR(30);
 
       CREATE TABLE IF NOT EXISTS clientes (
         id SERIAL PRIMARY KEY,

@@ -5,7 +5,7 @@ async function getCapacitadores(req, res, next) {
   try {
     if (db.isPostgresConnected()) {
       const result = await db.pool.query(
-        'SELECT id, nombre_completo, iniciales, color, activo, created_at FROM capacitadores ORDER BY nombre_completo ASC'
+        'SELECT id, nombre_completo, iniciales, color, telefono, activo, created_at FROM capacitadores ORDER BY nombre_completo ASC'
       );
       return res.json(result.rows);
     }
@@ -41,7 +41,7 @@ async function getCapacitadorById(req, res, next) {
 // Crear nuevo capacitador
 async function createCapacitador(req, res, next) {
   try {
-    const { nombre_completo, iniciales, color } = req.body;
+    const { nombre_completo, iniciales, color, telefono } = req.body;
 
     if (!nombre_completo || !iniciales) {
       return res.status(400).json({ message: 'El nombre completo y las iniciales son requeridos.' });
@@ -49,6 +49,7 @@ async function createCapacitador(req, res, next) {
 
     const cleanInitials = iniciales.trim().toUpperCase();
     const cleanColor = color ? color.trim() : '#3B82F6';
+    const cleanTel = telefono ? telefono.trim() : null;
 
     if (db.isPostgresConnected()) {
       const checkResult = await db.pool.query('SELECT id FROM capacitadores WHERE iniciales = $1', [cleanInitials]);
@@ -57,8 +58,8 @@ async function createCapacitador(req, res, next) {
       }
 
       const result = await db.pool.query(
-        'INSERT INTO capacitadores (nombre_completo, iniciales, color) VALUES ($1, $2, $3) RETURNING *',
-        [nombre_completo.trim(), cleanInitials, cleanColor]
+        'INSERT INTO capacitadores (nombre_completo, iniciales, color, telefono) VALUES ($1, $2, $3, $4) RETURNING *',
+        [nombre_completo.trim(), cleanInitials, cleanColor, cleanTel]
       );
       return res.status(201).json(result.rows[0]);
     }
@@ -74,6 +75,7 @@ async function createCapacitador(req, res, next) {
       nombre_completo: nombre_completo.trim(),
       iniciales: cleanInitials,
       color: cleanColor,
+      telefono: cleanTel || '',
       activo: true,
       created_at: new Date()
     };
@@ -88,9 +90,10 @@ async function createCapacitador(req, res, next) {
 async function updateCapacitador(req, res, next) {
   try {
     const { id } = req.params;
-    const { nombre_completo, iniciales, color, activo } = req.body;
+    const { nombre_completo, iniciales, color, telefono, activo } = req.body;
 
     const cleanInitials = iniciales ? iniciales.trim().toUpperCase() : undefined;
+    const cleanTel = telefono !== undefined ? (telefono ? telefono.trim() : null) : undefined;
 
     if (db.isPostgresConnected()) {
       if (cleanInitials) {
@@ -108,9 +111,10 @@ async function updateCapacitador(req, res, next) {
          SET nombre_completo = COALESCE($1, nombre_completo),
              iniciales = COALESCE($2, iniciales),
              color = COALESCE($3, color),
-             activo = COALESCE($4, activo)
-         WHERE id = $5 RETURNING *`,
-        [nombre_completo, cleanInitials, color, activo, id]
+             telefono = COALESCE($4, telefono),
+             activo = COALESCE($5, activo)
+         WHERE id = $6 RETURNING *`,
+        [nombre_completo, cleanInitials, color, cleanTel, activo, id]
       );
 
       if (result.rows.length === 0) {
@@ -132,6 +136,7 @@ async function updateCapacitador(req, res, next) {
 
     if (nombre_completo !== undefined) cap.nombre_completo = nombre_completo;
     if (color !== undefined) cap.color = color;
+    if (telefono !== undefined) cap.telefono = telefono;
     if (activo !== undefined) cap.activo = activo;
 
     return res.json(cap);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Plus, Edit2, Trash2, Check, X, AlertCircle, Palette } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, Check, X, AlertCircle, Palette, Phone } from 'lucide-react';
 
 const COLOR_PALETTES = [
   '#2563EB', // Azul Royal
@@ -19,14 +19,15 @@ export default function CapacitadoresView({ capacitadores = [], onSaveCapacitado
   const [formData, setFormData] = useState({
     nombre_completo: '',
     iniciales: '',
-    color: '#2563EB'
+    color: '#2563EB',
+    telefono: ''
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const openNewModal = () => {
     setEditingCap(null);
-    setFormData({ nombre_completo: '', iniciales: '', color: '#2563EB' });
+    setFormData({ nombre_completo: '', iniciales: '', color: '#2563EB', telefono: '' });
     setError(null);
     setIsModalOpen(true);
   };
@@ -36,7 +37,8 @@ export default function CapacitadoresView({ capacitadores = [], onSaveCapacitado
     setFormData({
       nombre_completo: cap.nombre_completo,
       iniciales: cap.iniciales,
-      color: cap.color || '#2563EB'
+      color: cap.color || '#2563EB',
+      telefono: cap.telefono || ''
     });
     setError(null);
     setIsModalOpen(true);
@@ -138,6 +140,12 @@ export default function CapacitadoresView({ capacitadores = [], onSaveCapacitado
                     style={{ backgroundColor: cap.color }}
                     title={`Color: ${cap.color}`}
                   />
+                  {cap.telefono && (
+                    <span className="text-[11px] text-slate-500 flex items-center gap-1 font-mono">
+                      <Phone className="w-3 h-3 text-emerald-600" />
+                      {cap.telefono}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -215,6 +223,23 @@ export default function CapacitadoresView({ capacitadores = [], onSaveCapacitado
                 />
                 <p className="text-[11px] text-slate-500 mt-1">
                   Código de 2 a 4 letras que aparecerá en los bloques de la agenda.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                  Teléfono / WhatsApp
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: +502 5555-1234"
+                  value={formData.telefono}
+                  onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-[10px] text-slate-400 mt-0.5">
+                  Incluye código de país (ej. +502 para Guatemala) para el envío directo por WhatsApp.
                 </p>
               </div>
 
