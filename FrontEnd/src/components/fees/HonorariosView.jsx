@@ -284,20 +284,20 @@ export default function HonorariosView({
     <div className="space-y-6 animate-in fade-in duration-200">
       
       {/* Barra Superior de Control y Navegación */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
         <div>
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
               <Banknote className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                 Control de Honorarios por Capacitador
-                <span className="text-[11px] font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md border border-emerald-200 uppercase">
+                <span className="text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800 uppercase">
                   Quetzales (GTQ)
                 </span>
               </h1>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Cálculo en tiempo real basado en tarifas por hora oficiales y registro de citas del modelo AD-RE-11
               </p>
             </div>
@@ -307,21 +307,21 @@ export default function HonorariosView({
         {/* Selector de Mes/Año y Acciones */}
         <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
           {/* Navegador de Mes */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80">
+          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/80 dark:border-slate-700">
             <button
               onClick={handlePrevMonth}
               title="Mes anterior"
-              className="p-1.5 hover:bg-white rounded-lg text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+              className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <div className="px-3 py-1 text-xs font-bold text-slate-800 min-w-[130px] text-center">
+            <div className="px-3 py-1 text-xs font-bold text-slate-800 dark:text-slate-200 min-w-[130px] text-center">
               {MONTH_NAMES[selectedMonth]} {selectedYear}
             </div>
             <button
               onClick={handleNextMonth}
               title="Mes siguiente"
-              className="p-1.5 hover:bg-white rounded-lg text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+              className="p-1.5 hover:bg-white dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -331,9 +331,9 @@ export default function HonorariosView({
           <button
             onClick={handlePrint}
             title="Imprimir resumen de honorarios"
-            className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-2xs transition-colors cursor-pointer no-print"
+            className="flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold shadow-2xs transition-colors cursor-pointer no-print"
           >
-            <Printer className="w-3.5 h-3.5 text-slate-500" />
+            <Printer className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
             <span className="hidden md:inline">Imprimir</span>
           </button>
         </div>
@@ -361,22 +361,22 @@ export default function HonorariosView({
         </div>
 
         {/* KPI 2: Honorarios Devengados (Impartidas) */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs relative overflow-hidden">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold mb-1">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden transition-colors">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">
             <span>Devengado (Impartidas)</span>
-            <span className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg">
+            <span className="p-1.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-lg">
               <CheckCircle2 className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-1">
+          <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">
             {formatQuetzales(globalKPIs.totalDevengados)}
           </div>
           <div className="mt-2.5">
-            <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+            <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mb-1">
               <span>{globalKPIs.totalHorasImpartidas.toFixed(1)} hrs ejecutadas</span>
-              <span className="font-bold text-emerald-600">{globalKPIs.porcentajeDevengado}%</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">{globalKPIs.porcentajeDevengado}%</span>
             </div>
-            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-emerald-500 rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(globalKPIs.porcentajeDevengado, 100)}%` }}
@@ -386,18 +386,18 @@ export default function HonorariosView({
         </div>
 
         {/* KPI 3: Honorarios Proyectados (Programadas) */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs relative overflow-hidden">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold mb-1">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden transition-colors">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">
             <span>Por Devengar (Programadas)</span>
-            <span className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
+            <span className="p-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-lg">
               <TrendingUp className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-1">
+          <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">
             {formatQuetzales(globalKPIs.totalProyectados)}
           </div>
-          <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
-            <span className="font-semibold text-blue-600">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1">
+            <span className="font-semibold text-blue-600 dark:text-blue-400">
               {(globalKPIs.totalHoras - globalKPIs.totalHorasImpartidas).toFixed(1)} hrs
             </span>
             <span>pendientes de impartir</span>
@@ -405,32 +405,32 @@ export default function HonorariosView({
         </div>
 
         {/* KPI 4: Total Horas Facturables */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs relative overflow-hidden">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold mb-1">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden transition-colors">
+          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">
             <span>Total Horas Facturables</span>
-            <span className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
+            <span className="p-1.5 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-lg">
               <Clock className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-1">
-            {globalKPIs.totalHoras.toFixed(2)} <span className="text-xs font-normal text-slate-500">hrs</span>
+          <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">
+            {globalKPIs.totalHoras.toFixed(2)} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">hrs</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-2">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
             Excluye cancelaciones | En tiempo real
           </p>
         </div>
       </div>
 
       {/* Barra de Filtro de Capacitador y Acciones Rápidas */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-100/70 p-3 rounded-2xl border border-slate-200/80 no-print">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-100/70 dark:bg-slate-900/70 p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 no-print transition-colors">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-bold text-slate-600 uppercase tracking-wider pl-1">
+          <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider pl-1">
             Filtrar Capacitador:
           </span>
           <select
             value={filterCapacitadorId}
             onChange={(e) => setFilterCapacitadorId(e.target.value)}
-            className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
             <option value="all">Todos los Capacitadores ({reportesHonorarios.length})</option>
             {reportesHonorarios.map(t => (
@@ -444,14 +444,14 @@ export default function HonorariosView({
         <div className="flex items-center gap-2 self-end sm:self-auto">
           <button
             onClick={() => toggleAllExpand(true)}
-            className="text-xs font-semibold text-slate-600 hover:text-emerald-700 px-2.5 py-1 hover:bg-white rounded-lg transition-colors cursor-pointer"
+            className="text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 px-2.5 py-1 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
           >
             Desplegar todo
           </button>
-          <span className="text-slate-300">|</span>
+          <span className="text-slate-300 dark:text-slate-700">|</span>
           <button
             onClick={() => toggleAllExpand(false)}
-            className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-2.5 py-1 hover:bg-white rounded-lg transition-colors cursor-pointer"
+            className="text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white px-2.5 py-1 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
           >
             Colapsar todo
           </button>
@@ -461,10 +461,10 @@ export default function HonorariosView({
       {/* Listado de Capacitadores con Tarjetas y Desgloses */}
       <div className="space-y-4">
         {trainersFiltrados.length === 0 ? (
-          <div className="bg-white rounded-2xl p-10 text-center border border-slate-200">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-10 text-center border border-slate-200 dark:border-slate-800">
             <AlertCircle className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-            <p className="text-sm font-bold text-slate-700">No se encontraron capacitadores activos.</p>
-            <p className="text-xs text-slate-500 mt-1">Registra o activa capacitadores en la pestaña de Capacitadores.</p>
+            <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No se encontraron capacitadores activos.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Registra o activa capacitadores en la pestaña de Capacitadores.</p>
           </div>
         ) : (
           trainersFiltrados.map((trainer) => {
@@ -476,10 +476,10 @@ export default function HonorariosView({
             return (
               <div 
                 key={trainer.id}
-                className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition-all overflow-hidden"
+                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs hover:shadow-md transition-all overflow-hidden"
               >
                 {/* Cabecera de la Tarjeta del Capacitador */}
-                <div className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white">
+                <div className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-slate-900">
                   
                   {/* Info del Capacitador */}
                   <div className="flex items-center gap-3.5">
@@ -492,21 +492,21 @@ export default function HonorariosView({
 
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h2 className="font-bold text-slate-900 text-base">
+                        <h2 className="font-bold text-slate-900 dark:text-white text-base">
                           {trainer.nombre_completo}
                         </h2>
                         
                         {/* Tarifa Badge */}
                         <div 
-                          className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/90 px-2.5 py-0.5 rounded-full shadow-2xs"
+                          className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/90 dark:border-emerald-800 px-2.5 py-0.5 rounded-full shadow-2xs"
                           title="Tarifa oficial por hora"
                         >
-                          <Coins className="w-3 h-3 text-emerald-600" />
+                          <Coins className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                           <span>{formatQuetzales(trainer.tarifa_hora)} / hora</span>
                           <button
                             type="button"
                             onClick={() => handleStartEditRate(trainer)}
-                            className="ml-1 p-0.5 hover:text-emerald-950 rounded hover:bg-emerald-200/60 transition-colors cursor-pointer"
+                            className="ml-1 p-0.5 hover:text-emerald-950 dark:hover:text-white rounded hover:bg-emerald-200/60 dark:hover:bg-emerald-900/60 transition-colors cursor-pointer"
                             title="Modificar tarifa horaria"
                           >
                             <Edit3 className="w-3 h-3" />
@@ -514,8 +514,8 @@ export default function HonorariosView({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap">
-                        <span className="font-mono text-slate-600 font-semibold">
+                      <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1 flex-wrap">
+                        <span className="font-mono text-slate-600 dark:text-slate-400 font-semibold">
                           Código: {trainer.iniciales}
                         </span>
                         <span>•</span>
@@ -523,7 +523,7 @@ export default function HonorariosView({
                         {trainer.telefono && (
                           <>
                             <span>•</span>
-                            <span className="font-mono text-emerald-700 font-medium">
+                            <span className="font-mono text-emerald-700 dark:text-emerald-400 font-medium">
                               {trainer.telefono}
                             </span>
                           </>
@@ -533,24 +533,24 @@ export default function HonorariosView({
                   </div>
 
                   {/* Resumen Financiero del Capacitador */}
-                  <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-between lg:justify-end border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100">
+                  <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-between lg:justify-end border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100 dark:border-slate-800">
                     
                     {/* Total Horas */}
                     <div className="text-left sm:text-right">
-                      <span className="text-[11px] font-semibold text-slate-400 block uppercase">
+                      <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 block uppercase">
                         Horas Facturables
                       </span>
-                      <span className="text-base font-extrabold text-slate-800">
-                        {trainer.total_horas.toFixed(2)} <span className="text-xs font-normal text-slate-500">hrs</span>
+                      <span className="text-base font-extrabold text-slate-800 dark:text-slate-200">
+                        {trainer.total_horas.toFixed(2)} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">hrs</span>
                       </span>
                     </div>
 
                     {/* Total a Cobrar (Quetzales) */}
                     <div className="text-left sm:text-right">
-                      <span className="text-[11px] font-semibold text-emerald-600 block uppercase">
+                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 block uppercase">
                         Total Honorarios
                       </span>
-                      <span className="text-xl sm:text-2xl font-black text-emerald-700 tracking-tight">
+                      <span className="text-xl sm:text-2xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">
                         {formatQuetzales(trainer.total_honorarios)}
                       </span>
                     </div>
@@ -570,8 +570,10 @@ export default function HonorariosView({
                       {/* Botón Ver Desglose */}
                       <button
                         onClick={() => toggleExpand(trainer.id)}
-                        className={`p-2 rounded-xl border text-slate-600 transition-colors cursor-pointer ${
-                          isExpanded ? 'bg-slate-100 border-slate-300 text-slate-900' : 'border-slate-200 hover:bg-slate-50'
+                        className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+                          isExpanded 
+                            ? 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white' 
+                            : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                         }`}
                         title={isExpanded ? 'Ocultar desglose' : 'Ver desglose de citas'}
                       >
@@ -582,22 +584,22 @@ export default function HonorariosView({
                 </div>
 
                 {/* Barra de progreso de horas ejecutadas */}
-                <div className="px-5 pb-3 pt-1 bg-slate-50/50 border-t border-slate-100">
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
+                <div className="px-5 pb-3 pt-1 bg-slate-50/50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mb-1">
                     <span className="flex items-center gap-1.5">
-                      <span className="font-semibold text-emerald-700">
+                      <span className="font-semibold text-emerald-700 dark:text-emerald-400">
                         Devengado: {formatQuetzales(trainer.honorarios_devengados)}
                       </span>
                       <span>({trainer.horas_impartidas.toFixed(1)} hrs impartidas)</span>
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <span className="font-semibold text-blue-700">
+                      <span className="font-semibold text-blue-700 dark:text-blue-400">
                         Proyectado: {formatQuetzales(trainer.honorarios_proyectados)}
                       </span>
                       <span>({trainer.horas_proyectadas.toFixed(1)} hrs pendientes)</span>
                     </span>
                   </div>
-                  <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-slate-200/80 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-emerald-500 rounded-full"
                       style={{ width: `${Math.min(pctDevengadoTrainer, 100)}%` }}
@@ -607,13 +609,13 @@ export default function HonorariosView({
 
                 {/* Desglose de Citas del Capacitador (Acordeón) */}
                 {isExpanded && (
-                  <div className="border-t border-slate-200 bg-slate-50/40 p-4 sm:p-5 animate-in slide-in-from-top-2 duration-150">
+                  <div className="border-t border-slate-200 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/40 p-4 sm:p-5 animate-in slide-in-from-top-2 duration-150">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                        <FileSpreadsheet className="w-4 h-4 text-slate-500" />
+                      <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                        <FileSpreadsheet className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                         Desglose de Citas y Cálculo de Honorarios ({trainer.citas_detalle.length})
                       </h3>
-                      <span className="text-[11px] text-slate-500 font-mono">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                         Base: Horas × {formatQuetzales(trainer.tarifa_hora)}/hr
                       </span>
                     </div>
@@ -623,10 +625,10 @@ export default function HonorariosView({
                         No hay citas agendadas para este capacitador en el mes seleccionado.
                       </p>
                     ) : (
-                      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-2xs">
+                      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
-                            <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-bold">
+                            <tr className="bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold">
                               <th className="py-2.5 px-3">Fecha</th>
                               <th className="py-2.5 px-3">Horario</th>
                               <th className="py-2.5 px-3">Cliente / Empresa</th>
@@ -638,50 +640,50 @@ export default function HonorariosView({
                               <th className="py-2.5 px-3 text-right">Subtotal (Q)</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-100 text-slate-700">
+                          <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
                             {trainer.citas_detalle.map((ci) => {
                               const isCanceled = ci.estado === 'Cancelada';
                               const isDone = ci.estado === 'Impartida';
                               return (
                                 <tr 
                                   key={ci.id}
-                                  className={`hover:bg-slate-50/80 transition-colors ${
-                                    isCanceled ? 'bg-rose-50/30 text-slate-400 line-through' : ''
+                                  className={`hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors ${
+                                    isCanceled ? 'bg-rose-50/30 dark:bg-rose-950/20 text-slate-400 dark:text-slate-500 line-through' : ''
                                   }`}
                                 >
                                   <td className="py-2.5 px-3 font-mono font-semibold whitespace-nowrap">
                                     {ci.fecha}
                                   </td>
-                                  <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px] whitespace-nowrap">
+                                  <td className="py-2.5 px-3 text-slate-500 dark:text-slate-400 font-mono text-[11px] whitespace-nowrap">
                                     {ci.hora_inicio || '--:--'} - {ci.hora_fin || '--:--'}
                                   </td>
-                                  <td className="py-2.5 px-3 font-semibold text-slate-900 max-w-[200px] truncate">
+                                  <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-white max-w-[200px] truncate">
                                     {ci.cliente_nombre || 'Cliente General'}
                                   </td>
-                                  <td className="py-2.5 px-3 text-slate-600">
+                                  <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400">
                                     {ci.tipo_servicio || 'Capacitación'}
                                   </td>
                                   <td className="py-2.5 px-3 text-center">
-                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                                       {ci.modalidad}
                                     </span>
                                   </td>
                                   <td className="py-2.5 px-3 text-center">
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                      isDone ? 'bg-emerald-100 text-emerald-800' :
-                                      isCanceled ? 'bg-rose-100 text-rose-700 no-underline inline-block' :
-                                      'bg-blue-50 text-blue-700'
+                                      isDone ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300' :
+                                      isCanceled ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 no-underline inline-block' :
+                                      'bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300'
                                     }`}>
                                       {ci.estado || 'Programada'}
                                     </span>
                                   </td>
-                                  <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-800">
+                                  <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-800 dark:text-slate-200">
                                     {ci.horasNum.toFixed(2)} h
                                   </td>
-                                  <td className="py-2.5 px-3 text-right font-mono text-slate-500">
+                                  <td className="py-2.5 px-3 text-right font-mono text-slate-500 dark:text-slate-400">
                                     {formatQuetzales(trainer.tarifa_hora)}
                                   </td>
-                                  <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-700">
+                                  <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-700 dark:text-emerald-400">
                                     {isCanceled ? 'Q 0.00' : formatQuetzales(ci.subtotal)}
                                   </td>
                                 </tr>
@@ -689,17 +691,17 @@ export default function HonorariosView({
                             })}
                           </tbody>
                           <tfoot>
-                            <tr className="bg-slate-50 font-bold border-t border-slate-200 text-slate-900">
-                              <td colSpan={6} className="py-2.5 px-3 text-right uppercase text-[11px] text-slate-600">
+                            <tr className="bg-slate-50 dark:bg-slate-800/80 font-bold border-t border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
+                              <td colSpan={6} className="py-2.5 px-3 text-right uppercase text-[11px] text-slate-600 dark:text-slate-400">
                                 Total Horas y Honorarios del Mes:
                               </td>
-                              <td className="py-2.5 px-3 text-right font-mono text-slate-900">
+                              <td className="py-2.5 px-3 text-right font-mono text-slate-900 dark:text-white">
                                 {trainer.total_horas.toFixed(2)} h
                               </td>
                               <td className="py-2.5 px-3 text-right font-mono text-slate-400">
                                 --
                               </td>
-                              <td className="py-2.5 px-3 text-right font-mono text-emerald-800 text-sm font-extrabold">
+                              <td className="py-2.5 px-3 text-right font-mono text-emerald-800 dark:text-emerald-400 text-sm font-extrabold">
                                 {formatQuetzales(trainer.total_honorarios)}
                               </td>
                             </tr>
@@ -718,22 +720,22 @@ export default function HonorariosView({
       {/* Modal Rápido de Modificación de Tarifa por Hora */}
       {editingRateTrainer && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
               <div className="flex items-center gap-2">
-                <Coins className="w-4 h-4 text-emerald-600" />
-                <h3 className="text-sm font-bold text-slate-900">Ajustar Tarifa por Hora</h3>
+                <Coins className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Ajustar Tarifa por Hora</h3>
               </div>
               <button
                 onClick={() => setEditingRateTrainer(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
-              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700">
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-extrabold text-white"
                   style={{ backgroundColor: editingRateTrainer.color }}
@@ -741,24 +743,24 @@ export default function HonorariosView({
                   {editingRateTrainer.iniciales}
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-slate-900">{editingRateTrainer.nombre_completo}</h4>
-                  <p className="text-[11px] text-slate-500">Tarifa actual: {formatQuetzales(editingRateTrainer.tarifa_hora)}/hr</p>
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-white">{editingRateTrainer.nombre_completo}</h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Tarifa actual: {formatQuetzales(editingRateTrainer.tarifa_hora)}/hr</p>
                 </div>
               </div>
 
               {rateError && (
-                <div className="p-2.5 bg-rose-50 text-rose-700 text-xs rounded-xl flex items-center gap-2">
+                <div className="p-2.5 bg-rose-50 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900 text-xs rounded-xl flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{rateError}</span>
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   Nueva Tarifa por Hora (Quetzales)
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 font-bold text-xs">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400 font-bold text-xs">
                     Q
                   </div>
                   <input
@@ -769,19 +771,19 @@ export default function HonorariosView({
                     placeholder="200.00"
                     value={newRateValue}
                     onChange={(e) => setNewRateValue(e.target.value)}
-                    className="w-full pl-8 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full pl-8 pr-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1">
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
                   El recálculo de honorarios se aplicará en tiempo real sobre todas las horas del mes.
                 </p>
               </div>
 
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setEditingRateTrainer(null)}
-                  className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                  className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>

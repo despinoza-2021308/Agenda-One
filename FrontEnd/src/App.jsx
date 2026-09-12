@@ -16,6 +16,27 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('calendar'); // 'calendar' | 'reports' | 'fees' | 'trainers' | 'clients'
   const [currentDate, setCurrentDate] = useState(new Date(2026, 8, 9)); // Septiembre 2026
 
+  // Control de Tema (Modo Oscuro / Claro)
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('agenda_theme');
+    if (saved) return saved;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('agenda_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   // Control de Sesión y Autenticación Administrativa
   const [isAdmin, setIsAdmin] = useState(() => !!authStorage.getToken());
   const [isAdminLoginModalOpen, setIsAdminLoginModalOpen] = useState(false);
@@ -360,21 +381,24 @@ export default function App() {
       case 'open-whatsapp':
         handleOpenWhatsApp();
         break;
+      case 'toggle-theme':
+        toggleTheme();
+        break;
       default:
         break;
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col selection:bg-blue-600 selection:text-white transition-colors duration-200">
       
       {/* Toast flotante */}
       {toast && (
         <div
           className={`fixed bottom-5 right-5 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl border text-xs font-bold transition-all animate-in slide-in-from-bottom-5 duration-200 ${
             toast.type === 'error'
-              ? 'bg-rose-50 border-rose-200 text-rose-800'
-              : 'bg-slate-900 border-slate-800 text-white shadow-slate-950/20'
+              ? 'bg-rose-50 dark:bg-rose-950/80 border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200'
+              : 'bg-slate-900 dark:bg-slate-800 border-slate-800 dark:border-slate-700 text-white shadow-slate-950/20'
           }`}
         >
           {toast.type === 'error' ? (
@@ -396,6 +420,8 @@ export default function App() {
         isAdmin={isAdmin}
         onOpenAdminLogin={() => setIsAdminLoginModalOpen(true)}
         onLogoutAdmin={handleLogoutAdmin}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       {/* Contenido Dinámico por Pestaña */}

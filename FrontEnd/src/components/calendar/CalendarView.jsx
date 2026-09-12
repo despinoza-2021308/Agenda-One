@@ -30,11 +30,11 @@ const HOURS_OF_DAY = [
 ];
 
 export const STATUS_CONFIG = {
-  'Programada': { label: 'Programada', emoji: '🗓️', badge: 'bg-blue-50 text-blue-700 border-blue-200/80', dot: 'bg-blue-500' },
-  'En Curso': { label: 'En Curso', emoji: '⏳', badge: 'bg-amber-50 text-amber-700 border-amber-200/80', dot: 'bg-amber-500' },
-  'Impartida': { label: 'Impartida', emoji: '✅', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200/80', dot: 'bg-emerald-500' },
-  'Cancelada': { label: 'Cancelada', emoji: '❌', badge: 'bg-rose-50 text-rose-700 border-rose-200/80 line-through', dot: 'bg-rose-500' },
-  'Reprogramada': { label: 'Reprogramada', emoji: '🔄', badge: 'bg-purple-50 text-purple-700 border-purple-200/80', dot: 'bg-purple-500' }
+  'Programada': { label: 'Programada', emoji: '🗓️', badge: 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800', dot: 'bg-blue-500' },
+  'En Curso': { label: 'En Curso', emoji: '⏳', badge: 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-800', dot: 'bg-amber-500' },
+  'Impartida': { label: 'Impartida', emoji: '✅', badge: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800', dot: 'bg-emerald-500' },
+  'Cancelada': { label: 'Cancelada', emoji: '❌', badge: 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200/80 dark:border-rose-800 line-through', dot: 'bg-rose-500' },
+  'Reprogramada': { label: 'Reprogramada', emoji: '🔄', badge: 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border-purple-200/80 dark:border-purple-800', dot: 'bg-purple-500' }
 };
 
 export default function CalendarView({ 
@@ -203,29 +203,29 @@ export default function CalendarView({
   return (
     <div className="space-y-4 flex-1 flex flex-col">
       {/* Barra de control superior: Filtros de capacitador y navegación */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 transition-colors">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           
           {/* Navegación de mes / año */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center bg-slate-100 p-1 rounded-xl">
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
               <button
                 onClick={handlePrev}
                 title="Mes anterior"
-                className="p-1.5 rounded-lg hover:bg-white text-slate-700 hover:text-slate-900 transition-all"
+                className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={handleToday}
-                className="px-3 py-1 text-xs font-semibold text-slate-700 hover:text-slate-900 rounded-lg hover:bg-white transition-all"
+                className="px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-all"
               >
                 Hoy
               </button>
               <button
                 onClick={handleNext}
                 title="Mes siguiente"
-                className="p-1.5 rounded-lg hover:bg-white text-slate-700 hover:text-slate-900 transition-all"
+                className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -233,42 +233,42 @@ export default function CalendarView({
 
             {calendarMode === 'day' ? (
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight capitalize">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight capitalize">
                   {DAY_NAMES_FULL[currentDate.getDay()]}, {currentDate.getDate()} de {MONTH_NAMES[month]}
                 </h2>
-                <span className="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                   Turnos
                 </span>
               </div>
             ) : (
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight capitalize">
-                {MONTH_NAMES[month]} <span className="text-slate-400 font-normal">{year}</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight capitalize">
+                {MONTH_NAMES[month]} <span className="text-slate-400 dark:text-slate-500 font-normal">{year}</span>
               </h2>
             )}
           </div>
 
           {/* Estadísticas rápidas y selector de vista */}
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="bg-blue-50/80 border border-blue-100 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-600" />
-              <span className="text-xs text-blue-800 font-medium">
+            <div className="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/60 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
+              <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-xs text-blue-800 dark:text-blue-300 font-medium">
                 Total Horas:{' '}
-                <strong className="text-blue-950 font-bold text-sm">{totalHorasFiltradas.toFixed(1)} h</strong>
+                <strong className="text-blue-950 dark:text-blue-100 font-bold text-sm">{totalHorasFiltradas.toFixed(1)} h</strong>
               </span>
-              <span className="text-blue-300">|</span>
-              <span className="text-xs text-blue-700">
+              <span className="text-blue-300 dark:text-blue-700">|</span>
+              <span className="text-xs text-blue-700 dark:text-blue-400">
                 {filteredCitas.length} citas
               </span>
             </div>
 
             {/* Selector de modo: Mes / Día (Turnos) / Lista */}
-            <div className="flex items-center bg-slate-100 p-1 rounded-xl">
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
               <button
                 onClick={() => setCalendarMode('month')}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                   calendarMode === 'month'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 Mes
@@ -277,19 +277,19 @@ export default function CalendarView({
                 onClick={() => setCalendarMode('day')}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
                   calendarMode === 'day'
-                    ? 'bg-white text-blue-700 shadow-sm font-bold'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-sm font-bold'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <span>Día (Turnos)</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
               </button>
               <button
                 onClick={() => setCalendarMode('list')}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                   calendarMode === 'list'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 Lista
@@ -312,8 +312,8 @@ export default function CalendarView({
         </div>
 
         {/* Filtro rápido por Capacitador (Iniciales y Colores) */}
-        <div className="pt-3 border-t border-slate-100 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
-          <span className="text-xs font-semibold text-slate-500 flex items-center gap-1 shrink-0 mr-1">
+        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1 shrink-0 mr-1">
             <Filter className="w-3.5 h-3.5" /> Filtrar:
           </span>
 
@@ -321,8 +321,8 @@ export default function CalendarView({
             onClick={() => setSelectedCapacitadorId('ALL')}
             className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all shrink-0 flex items-center gap-1.5 ${
               selectedCapacitadorId === 'ALL'
-                ? 'bg-slate-900 text-white shadow-sm font-semibold'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-sm font-semibold'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             Todos ({citas.length})
@@ -338,8 +338,8 @@ export default function CalendarView({
                 onClick={() => setSelectedCapacitadorId(isSelected ? 'ALL' : String(cap.id))}
                 className={`px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all shrink-0 flex items-center gap-2 border ${
                   isSelected
-                    ? 'ring-2 ring-offset-1 font-semibold text-slate-900 shadow-sm'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                    ? 'ring-2 ring-offset-1 font-semibold text-slate-900 dark:text-white shadow-sm'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
                 }`}
                 style={{
                   borderColor: isSelected ? cap.color : undefined,
@@ -360,8 +360,8 @@ export default function CalendarView({
         </div>
 
         {/* Filtro rápido por Estado de la Cita */}
-        <div className="pt-2.5 border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-thin">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+        <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-thin">
+          <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
             <span>Estado:</span>
           </span>
 
@@ -369,8 +369,8 @@ export default function CalendarView({
             onClick={() => setSelectedStatus('ALL')}
             className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all shrink-0 ${
               selectedStatus === 'ALL'
-                ? 'bg-slate-900 text-white shadow-xs'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-xs'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             Todos
@@ -390,7 +390,7 @@ export default function CalendarView({
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 border ${
                   isSelected
                     ? `${stCfg.badge} ring-2 ring-offset-1 font-bold shadow-xs`
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
                 }`}
               >
                 <span>{stCfg.emoji}</span>
@@ -404,14 +404,14 @@ export default function CalendarView({
 
       {/* VISTA DE CUADRÍCULA MENSUAL */}
       {calendarMode === 'month' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex-1 flex flex-col transition-colors">
           {/* Cabecera de días de la semana */}
-          <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50/75">
+          <div className="grid grid-cols-7 border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/60">
             {DAYS_OF_WEEK.map((day, idx) => (
               <div 
                 key={day} 
                 className={`py-2.5 text-center text-xs font-bold tracking-wider uppercase ${
-                  idx >= 5 ? 'text-slate-400' : 'text-slate-600'
+                  idx >= 5 ? 'text-slate-400 dark:text-slate-500' : 'text-slate-600 dark:text-slate-300'
                 }`}
               >
                 {day}
@@ -420,7 +420,7 @@ export default function CalendarView({
           </div>
 
           {/* Días del calendario con celdas equilibradas y tarjetas de alta legibilidad */}
-          <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-slate-100 flex-1">
+          <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-slate-100 dark:divide-slate-800/80 flex-1">
             {calendarDays.map((dayObj, index) => {
               const dayCitas = filteredCitas.filter(c => c.fecha === dayObj.dateString);
               const dayTotalHoras = dayCitas
@@ -432,10 +432,10 @@ export default function CalendarView({
                   key={index}
                   className={`min-h-[145px] sm:min-h-[170px] lg:min-h-[185px] xl:min-h-[210px] 2xl:min-h-[240px] p-1.5 sm:p-2 flex flex-col transition-colors group relative ${
                     !dayObj.isCurrentMonth
-                      ? 'bg-slate-50/40 text-slate-400'
+                      ? 'bg-slate-50/40 dark:bg-slate-950/40 text-slate-400 dark:text-slate-600'
                       : dayObj.isToday
-                      ? 'bg-blue-50/30'
-                      : 'hover:bg-slate-50/60'
+                      ? 'bg-blue-50/30 dark:bg-blue-950/20'
+                      : 'hover:bg-slate-50/60 dark:hover:bg-slate-800/40'
                   }`}
                 >
                   {/* Cabecera del día: Número y total de horas */}
@@ -449,8 +449,8 @@ export default function CalendarView({
                         });
                       }
                     }}
-                    className={`flex items-center justify-between mb-1.5 pb-1 border-b border-slate-100 ${
-                      dayCitas.length > 0 ? 'cursor-pointer hover:bg-slate-100/70 rounded px-1 -mx-1 transition-colors' : ''
+                    className={`flex items-center justify-between mb-1.5 pb-1 border-b border-slate-100 dark:border-slate-800 ${
+                      dayCitas.length > 0 ? 'cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/70 rounded px-1 -mx-1 transition-colors' : ''
                     }`}
                     title={dayCitas.length > 0 ? `Ver todas las citas del día (${dayCitas.length})` : undefined}
                   >
@@ -460,14 +460,14 @@ export default function CalendarView({
                           dayObj.isToday
                             ? 'bg-blue-600 text-white font-black shadow-xs'
                             : !dayObj.isCurrentMonth
-                            ? 'text-slate-400'
-                            : 'text-slate-800'
+                            ? 'text-slate-400 dark:text-slate-600'
+                            : 'text-slate-800 dark:text-slate-200'
                         }`}
                       >
                         {dayObj.dayNumber}
                       </span>
                       {dayCitas.length > 2 && (
-                        <span className="text-[10px] font-black text-blue-600 bg-blue-100/80 border border-blue-200 px-1 rounded shadow-2xs">
+                        <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-100/80 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 px-1 rounded shadow-2xs">
                           {dayCitas.length}
                         </span>
                       )}
@@ -475,7 +475,7 @@ export default function CalendarView({
 
                     <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                       {dayTotalHoras > 0 && (
-                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-700 bg-slate-100 border border-slate-200/80 px-1.5 py-0.5 rounded shadow-2xs font-mono">
+                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 px-1.5 py-0.5 rounded shadow-2xs font-mono">
                           {dayTotalHoras}h
                         </span>
                       )}
@@ -487,7 +487,7 @@ export default function CalendarView({
                             onOpenWhatsApp({ date: dayObj.dateString, capacitadorId: selectedCapacitadorId !== 'ALL' ? selectedCapacitadorId : null });
                           }}
                           title={`Enviar agenda del ${dayObj.dateString} por WhatsApp`}
-                          className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-emerald-50 text-emerald-600 rounded transition-opacity"
+                          className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded transition-opacity"
                         >
                           <MessageSquare className="w-3.5 h-3.5 fill-emerald-600/20" />
                         </button>
@@ -495,7 +495,7 @@ export default function CalendarView({
                       <button
                         onClick={() => onAddCitaDate(dayObj.dateString)}
                         title={`Agendar cita el ${dayObj.dateString}`}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-blue-50 text-blue-600 rounded transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-blue-50 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 rounded transition-opacity"
                       >
                         <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                       </button>
@@ -520,10 +520,10 @@ export default function CalendarView({
                           title={fullTooltip}
                           className={`w-full text-left p-2 sm:p-2.5 rounded-xl border shadow-2xs hover:shadow-md transition-all duration-150 space-y-1.5 cursor-pointer select-none group/card ${
                             isCancelada
-                              ? 'bg-slate-50/90 border-dashed border-rose-200 opacity-70 hover:opacity-100 hover:border-rose-300'
+                              ? 'bg-slate-50/90 dark:bg-slate-800/50 border-dashed border-rose-200 dark:border-rose-900/60 opacity-70 hover:opacity-100 hover:border-rose-300'
                               : isImpartida
-                              ? 'bg-emerald-50/20 border-slate-200/85 hover:border-emerald-300'
-                              : 'bg-white border-slate-200/85 hover:border-slate-300'
+                              ? 'bg-emerald-50/20 dark:bg-emerald-950/20 border-slate-200/85 dark:border-slate-700/80 hover:border-emerald-300'
+                              : 'bg-white dark:bg-slate-800/90 border-slate-200/85 dark:border-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600'
                           }`}
                           style={{
                             borderLeftWidth: '4px',
@@ -540,7 +540,7 @@ export default function CalendarView({
                               >
                                 {cita.capacitador_iniciales}
                               </span>
-                              <span className={`text-[11px] font-mono font-bold ${isCancelada ? 'line-through text-slate-400' : 'text-slate-700'}`}>
+                              <span className={`text-[11px] font-mono font-bold ${isCancelada ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-200'}`}>
                                 {cita.hora_inicio} - {cita.hora_fin}
                               </span>
                             </div>
@@ -549,8 +549,8 @@ export default function CalendarView({
                               <span 
                                 className={`text-[10px] font-black px-1.5 py-0.5 rounded font-mono ${
                                   isCancelada
-                                    ? 'text-rose-500 bg-rose-50 border border-rose-200 line-through'
-                                    : 'text-slate-800 bg-slate-100 border border-slate-200/80'
+                                    ? 'text-rose-500 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 line-through'
+                                    : 'text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 border border-slate-200/80 dark:border-slate-600'
                                 }`}
                               >
                                 {cita.horas}h
@@ -563,7 +563,7 @@ export default function CalendarView({
                                     onOpenWhatsApp({ cita });
                                   }}
                                   title="Enviar cita por WhatsApp"
-                                  className="opacity-0 group-hover:opacity-100 hover:bg-emerald-100/70 text-emerald-600 p-0.5 rounded transition-opacity"
+                                  className="opacity-0 group-hover:opacity-100 hover:bg-emerald-100/70 dark:hover:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 p-0.5 rounded transition-opacity"
                                 >
                                   <MessageSquare className="w-3 h-3 fill-emerald-600/20" />
                                 </button>
@@ -578,34 +578,34 @@ export default function CalendarView({
                               <span className="truncate max-w-[90px]">{estadoCfg.label}</span>
                             </span>
 
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200/70 uppercase tracking-wider text-[9px]">
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200/70 dark:border-slate-600 uppercase tracking-wider text-[9px]">
                               {cita.tipo_servicio}
                             </span>
                             <span
                               className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold ${
                                 cita.modalidad === 'Presencial'
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
-                                  : 'bg-blue-50 text-blue-700 border border-blue-200/80'
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800'
+                                  : 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800'
                               }`}
                             >
                               {cita.modalidad === 'Presencial' ? (
-                                <MapPin className="w-2.5 h-2.5 text-emerald-600" />
+                                <MapPin className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" />
                               ) : (
-                                <Video className="w-2.5 h-2.5 text-blue-600" />
+                                <Video className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
                               )}
                               {cita.modalidad}
                             </span>
                           </div>
 
                           {/* Fila 3: Actividad Concreta (Tema específico destacado) */}
-                          <p className={`text-xs font-bold leading-snug line-clamp-2 ${isCancelada ? 'line-through text-slate-400 italic' : 'text-slate-900'}`}>
+                          <p className={`text-xs font-bold leading-snug line-clamp-2 ${isCancelada ? 'line-through text-slate-400 dark:text-slate-500 italic' : 'text-slate-900 dark:text-slate-100'}`}>
                             {cita.observaciones ? cita.observaciones : `${cita.tipo_servicio} Programado`}
                           </p>
 
                           {/* Fila 4: Cliente / Empresa */}
-                          <div className="flex items-center gap-1 text-[11px] text-slate-600 font-medium truncate pt-1 border-t border-slate-100">
+                          <div className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate pt-1 border-t border-slate-100 dark:border-slate-750">
                             <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
-                            <span className="truncate text-slate-700 font-medium" title={cita.cliente_nombre}>
+                            <span className="truncate text-slate-700 dark:text-slate-300 font-medium" title={cita.cliente_nombre}>
                               {cita.cliente_nombre}
                             </span>
                           </div>
@@ -625,15 +625,15 @@ export default function CalendarView({
                             date: dayObj.date
                           });
                         }}
-                        className="w-full mt-1 py-1.5 px-2 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 hover:text-blue-900 border border-blue-200/90 font-bold text-[11px] flex items-center justify-between transition-all duration-150 shadow-2xs hover:shadow-xs cursor-pointer group/more"
+                        className="w-full mt-1 py-1.5 px-2 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-slate-700 dark:hover:to-slate-700 text-blue-700 dark:text-blue-300 border border-blue-200/90 dark:border-blue-800 font-bold text-[11px] flex items-center justify-between transition-all duration-150 shadow-2xs hover:shadow-xs cursor-pointer group/more"
                       >
                         <span className="flex items-center gap-1.5">
-                          <span className="w-4 h-4 rounded bg-blue-600 text-white text-[9px] font-black flex items-center justify-center shadow-2xs">
+                          <span className="w-4 h-4 rounded bg-blue-600 dark:bg-blue-500 text-white text-[9px] font-black flex items-center justify-center shadow-2xs">
                             +{dayCitas.length - 2}
                           </span>
                           <span>más citas</span>
                         </span>
-                        <span className="text-[10px] font-semibold text-blue-600 flex items-center gap-0.5 group-hover/more:translate-x-0.5 transition-transform">
+                        <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-0.5 group-hover/more:translate-x-0.5 transition-transform">
                           Ver todas ({dayCitas.length})
                           <ChevronRight className="w-3 h-3" />
                         </span>
@@ -652,26 +652,26 @@ export default function CalendarView({
         <div className="space-y-4 animate-in fade-in duration-200">
           
           {/* Banner de Resumen del Día */}
-          <div className="bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-slate-50 border border-blue-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-slate-50 dark:from-slate-800 dark:via-slate-850 dark:to-slate-900 border border-blue-100 dark:border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/25 shrink-0">
                 <Users className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
                   <span>Agenda Diaria de Turnos en Paralelo</span>
-                  <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  <span className="text-[10px] bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-blue-200 dark:border-blue-800">
                     {displayedCapacitadores.length} Capacitadores
                   </span>
                 </h3>
-                <p className="text-xs text-slate-500 font-medium">
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                   {dayAppointments.length} actividad(es) agendada(s) hoy · Total de {dayAppointments.reduce((acc, c) => acc + (parseFloat(c.horas) || 0), 0)} hrs asignadas
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-slate-600 bg-white border border-slate-200/80 px-3 py-1.5 rounded-xl shadow-2xs flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 px-3 py-1.5 rounded-xl shadow-2xs flex items-center gap-1.5">
                 💡 <span className="hidden md:inline">Haz clic en cualquier espacio libre para agendar a esa hora</span>
                 <span className="md:hidden">Toca un espacio libre para agendar</span>
               </span>
@@ -679,12 +679,12 @@ export default function CalendarView({
           </div>
 
           {/* Cuadrícula de Turnos Horarios */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden overflow-x-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto transition-colors">
             <div className="min-w-[820px]">
               
               {/* Encabezado de Columnas por Capacitador */}
-              <div className="grid grid-cols-[88px_repeat(auto-fit,minmax(180px,1fr))] border-b border-slate-200 bg-slate-50/90 sticky top-0 z-10">
-                <div className="p-3 text-center text-xs font-bold text-slate-500 border-r border-slate-200 uppercase tracking-wider flex items-center justify-center">
+              <div className="grid grid-cols-[88px_repeat(auto-fit,minmax(180px,1fr))] border-b border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-800/90 sticky top-0 z-10">
+                <div className="p-3 text-center text-xs font-bold text-slate-500 dark:text-slate-400 border-r border-slate-200 dark:border-slate-800 uppercase tracking-wider flex items-center justify-center">
                   Horario
                 </div>
 
@@ -696,7 +696,7 @@ export default function CalendarView({
                   return (
                     <div
                       key={cap.id}
-                      className="p-3 border-r border-slate-200 last:border-r-0 flex flex-col justify-between gap-1.5 bg-slate-50/90"
+                      className="p-3 border-r border-slate-200 dark:border-slate-800 last:border-r-0 flex flex-col justify-between gap-1.5 bg-slate-50/90 dark:bg-slate-800/90"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 truncate">
@@ -706,7 +706,7 @@ export default function CalendarView({
                           >
                             {cap.iniciales}
                           </span>
-                          <span className="font-extrabold text-xs text-slate-900 truncate" title={cap.nombre_completo}>
+                          <span className="font-extrabold text-xs text-slate-900 dark:text-white truncate" title={cap.nombre_completo}>
                             {cap.nombre_completo}
                           </span>
                         </div>
@@ -716,7 +716,7 @@ export default function CalendarView({
                             type="button"
                             onClick={() => onOpenWhatsApp({ date: currentDateStr, capacitadorId: cap.id })}
                             title={`Enviar agenda de hoy a ${cap.nombre_completo.split(' ')[0]} por WhatsApp`}
-                            className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors shrink-0"
+                            className="p-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors shrink-0"
                           >
                             <MessageSquare className="w-3.5 h-3.5 fill-emerald-600/20" />
                           </button>
@@ -725,15 +725,15 @@ export default function CalendarView({
 
                       <div className="flex items-center justify-between">
                         {isFree ? (
-                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full">
+                          <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800 px-2 py-0.5 rounded-full">
                             ✨ Totalmente Libre
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded-full">
+                          <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800 px-2 py-0.5 rounded-full">
                             🕒 {capHoursToday}h ({capCitasToday.length} citas)
                           </span>
                         )}
-                        <span className="text-[10px] font-mono text-slate-400">
+                        <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
                           {cap.iniciales}
                         </span>
                       </div>
@@ -743,7 +743,7 @@ export default function CalendarView({
               </div>
 
               {/* Filas de Horas */}
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {HOURS_OF_DAY.map((hStr) => {
                   const hourNum = parseInt(hStr.split(':')[0], 10);
 
@@ -753,9 +753,9 @@ export default function CalendarView({
                       className="grid grid-cols-[88px_repeat(auto-fit,minmax(180px,1fr))] min-h-[76px]"
                     >
                       {/* Celda de Hora (Eje Izquierdo) */}
-                      <div className="p-2 border-r border-slate-200 bg-slate-50/50 flex flex-col items-center justify-center font-mono text-xs font-bold text-slate-600">
+                      <div className="p-2 border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex flex-col items-center justify-center font-mono text-xs font-bold text-slate-600 dark:text-slate-400">
                         <span>{hStr}</span>
-                        <span className="text-[10px] text-slate-400 font-normal">{hourNum >= 12 ? 'PM' : 'AM'}</span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">{hourNum >= 12 ? 'PM' : 'AM'}</span>
                       </div>
 
                       {/* Celdas por Capacitador */}
@@ -782,7 +782,7 @@ export default function CalendarView({
                         return (
                           <div
                             key={cap.id}
-                            className="border-r border-slate-100 last:border-r-0 p-1.5 flex flex-col justify-center relative group"
+                            className="border-r border-slate-100 dark:border-slate-800 last:border-r-0 p-1.5 flex flex-col justify-center relative group"
                           >
                             {citaIniciando ? (
                               (() => {
@@ -795,21 +795,21 @@ export default function CalendarView({
                                     onClick={() => onSelectCita(citaIniciando)}
                                     className={`w-full border-2 rounded-xl p-2.5 shadow-2xs hover:shadow-md transition-all cursor-pointer space-y-1.5 group/card relative ${
                                       isCanc
-                                        ? 'bg-slate-50/90 border-dashed border-rose-300 opacity-70 hover:opacity-100'
-                                        : 'bg-white border-blue-200 hover:border-blue-400'
+                                        ? 'bg-slate-50/90 dark:bg-slate-800/60 border-dashed border-rose-300 dark:border-rose-900 opacity-70 hover:opacity-100'
+                                        : 'bg-white dark:bg-slate-800 border-blue-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500'
                                     }`}
                                     style={{ borderLeftColor: isCanc ? '#F43F5E' : cap.color, borderLeftWidth: '4px' }}
                                   >
                                     <div className="flex items-center justify-between gap-1">
-                                      <span className="text-[11px] font-mono font-black text-slate-900 flex items-center gap-1">
-                                        <Clock className="w-3 h-3 text-blue-600" />
-                                        <span className={isCanc ? 'line-through text-slate-400' : ''}>
+                                      <span className="text-[11px] font-mono font-black text-slate-900 dark:text-white flex items-center gap-1">
+                                        <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                                        <span className={isCanc ? 'line-through text-slate-400 dark:text-slate-500' : ''}>
                                           {citaIniciando.hora_inicio} - {citaIniciando.hora_fin}
                                         </span>
                                       </span>
                                       <div className="flex items-center gap-1">
                                         <span className={`text-[10px] font-black px-1.5 py-0.5 rounded font-mono ${
-                                          isCanc ? 'bg-rose-50 text-rose-600 border border-rose-200 line-through' : 'text-slate-800 bg-slate-100 border border-slate-200'
+                                          isCanc ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 line-through' : 'text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600'
                                         }`}>
                                           {citaIniciando.horas}h
                                         </span>
@@ -821,7 +821,7 @@ export default function CalendarView({
                                               onOpenWhatsApp({ cita: citaIniciando });
                                             }}
                                             title="Enviar por WhatsApp"
-                                            className="opacity-0 group-hover/card:opacity-100 p-0.5 hover:bg-emerald-50 text-emerald-600 rounded transition-opacity"
+                                            className="opacity-0 group-hover/card:opacity-100 p-0.5 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded transition-opacity"
                                           >
                                             <MessageSquare className="w-3.5 h-3.5 fill-emerald-600/20" />
                                           </button>
@@ -829,21 +829,21 @@ export default function CalendarView({
                                       </div>
                                     </div>
 
-                                    <p className={`font-extrabold text-xs leading-snug line-clamp-2 ${isCanc ? 'line-through text-slate-400 italic' : 'text-slate-900'}`}>
+                                    <p className={`font-extrabold text-xs leading-snug line-clamp-2 ${isCanc ? 'line-through text-slate-400 dark:text-slate-500 italic' : 'text-slate-900 dark:text-white'}`}>
                                       {citaIniciando.observaciones || `${citaIniciando.tipo_servicio} Programado`}
                                     </p>
 
-                                    <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 gap-1">
-                                      <span className="text-slate-600 font-medium truncate flex items-center gap-1" title={citaIniciando.cliente_nombre}>
+                                    <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 dark:border-slate-700 gap-1">
+                                      <span className="text-slate-600 dark:text-slate-400 font-medium truncate flex items-center gap-1" title={citaIniciando.cliente_nombre}>
                                         <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
-                                        <strong className="truncate text-slate-800">{citaIniciando.cliente_nombre}</strong>
+                                        <strong className="truncate text-slate-800 dark:text-slate-200">{citaIniciando.cliente_nombre}</strong>
                                       </span>
                                       <div className="flex items-center gap-1 shrink-0">
                                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${estCfg.badge}`}>
                                           {estCfg.emoji} {estCfg.label}
                                         </span>
                                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
-                                          citaIniciando.modalidad === 'Presencial' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'
+                                          citaIniciando.modalidad === 'Presencial' ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300' : 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300'
                                         }`}>
                                           {citaIniciando.modalidad}
                                         </span>
@@ -855,14 +855,14 @@ export default function CalendarView({
                             ) : citaEnCurso ? (
                               <div
                                 onClick={() => onSelectCita(citaEnCurso)}
-                                className="w-full h-full bg-blue-50/50 border-l-4 border-dashed border-blue-300 rounded-lg p-2 text-[11px] text-blue-800/80 font-medium flex items-center justify-between hover:bg-blue-100/50 transition-colors cursor-pointer"
+                                className="w-full h-full bg-blue-50/50 dark:bg-blue-950/40 border-l-4 border-dashed border-blue-300 dark:border-blue-700 rounded-lg p-2 text-[11px] text-blue-800/80 dark:text-blue-300 font-medium flex items-center justify-between hover:bg-blue-100/50 dark:hover:bg-blue-900/40 transition-colors cursor-pointer"
                               >
                                 <span className="truncate flex items-center gap-1">
                                   <span>↳</span>
-                                  <span className="font-bold text-slate-800 truncate">{citaEnCurso.cliente_nombre}</span>
-                                  <span className="text-slate-500 text-[10px]">({citaEnCurso.hora_inicio}-{citaEnCurso.hora_fin})</span>
+                                  <span className="font-bold text-slate-800 dark:text-slate-200 truncate">{citaEnCurso.cliente_nombre}</span>
+                                  <span className="text-slate-500 dark:text-slate-400 text-[10px]">({citaEnCurso.hora_inicio}-{citaEnCurso.hora_fin})</span>
                                 </span>
-                                <span className="text-[10px] text-blue-600 font-bold bg-white/70 px-1.5 py-0.5 rounded shrink-0">
+                                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold bg-white/70 dark:bg-slate-800 px-1.5 py-0.5 rounded shrink-0">
                                   En curso
                                 </span>
                               </div>
@@ -879,10 +879,10 @@ export default function CalendarView({
                                     fecha: currentDateStr
                                   });
                                 }}
-                                className="w-full h-full min-h-[60px] rounded-xl border border-transparent hover:border-emerald-300 hover:border-dashed hover:bg-emerald-50/40 transition-all flex items-center justify-center group/slot cursor-pointer"
+                                className="w-full h-full min-h-[60px] rounded-xl border border-transparent hover:border-emerald-300 hover:border-dashed hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 transition-all flex items-center justify-center group/slot cursor-pointer"
                                 title={`Agendar a ${cap.nombre_completo.split(' ')[0]} el ${currentDateStr} a las ${hStr}`}
                               >
-                                <div className="opacity-0 group-hover/slot:opacity-100 flex items-center gap-1.5 bg-white border border-emerald-300 px-2.5 py-1 rounded-lg text-emerald-700 text-xs font-bold shadow-xs transition-opacity transform group-hover/slot:scale-105">
+                                <div className="opacity-0 group-hover/slot:opacity-100 flex items-center gap-1.5 bg-white dark:bg-slate-800 border border-emerald-300 dark:border-emerald-700 px-2.5 py-1 rounded-lg text-emerald-700 dark:text-emerald-300 text-xs font-bold shadow-xs transition-opacity transform group-hover/slot:scale-105">
                                   <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                                   <span>Agendar {hStr}</span>
                                 </div>
@@ -904,23 +904,23 @@ export default function CalendarView({
 
       {/* VISTA DE LISTA DETALLADA */}
       {calendarMode === 'list' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="font-bold text-slate-900">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
+          <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <h3 className="font-bold text-slate-900 dark:text-white">
               Listado de Citas Agendadas ({filteredCitas.length})
             </h3>
-            <span className="text-xs text-slate-500 font-medium">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               Ordenadas por fecha ascendente
             </span>
           </div>
 
           {filteredCitas.length === 0 ? (
-            <div className="py-12 text-center text-slate-400">
-              <CalendarIcon className="w-12 h-12 mx-auto mb-2 text-slate-300" />
-              <p className="font-medium text-slate-600">No hay citas registradas para este periodo o filtro.</p>
+            <div className="py-12 text-center text-slate-400 dark:text-slate-500">
+              <CalendarIcon className="w-12 h-12 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
+              <p className="font-medium text-slate-600 dark:text-slate-400">No hay citas registradas para este periodo o filtro.</p>
               <button
                 onClick={() => onAddCitaDate(new Date().toISOString().split('T')[0])}
-                className="mt-3 text-xs font-semibold text-blue-600 hover:text-blue-700 underline"
+                className="mt-3 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
               >
                 + Registrar la primera cita
               </button>
@@ -928,7 +928,7 @@ export default function CalendarView({
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 text-slate-600 text-xs font-semibold border-b border-slate-200">
+                <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold border-b border-slate-200 dark:border-slate-800">
                   <tr>
                     <th className="py-3 px-4">Fecha</th>
                     <th className="py-3 px-4">Horario</th>
@@ -942,7 +942,7 @@ export default function CalendarView({
                     <th className="py-3 px-4 text-right">Acción</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {filteredCitas.map((cita) => {
                     const color = cita.capacitador_color || '#3B82F6';
                     const estKey = cita.estado || 'Programada';
@@ -953,19 +953,19 @@ export default function CalendarView({
                       <tr
                         key={cita.id}
                         onClick={() => onSelectCita(cita)}
-                        className={`hover:bg-slate-50 cursor-pointer transition-colors ${
-                          isCancelada ? 'bg-slate-50/60 opacity-75' : ''
+                        className={`hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition-colors ${
+                          isCancelada ? 'bg-slate-50/60 dark:bg-slate-900/40 opacity-75' : ''
                         }`}
                       >
-                        <td className="py-3 px-4 font-medium text-slate-900 whitespace-nowrap">
+                        <td className="py-3 px-4 font-medium text-slate-900 dark:text-white whitespace-nowrap">
                           {cita.fecha}
                         </td>
-                        <td className={`py-3 px-4 font-mono text-xs whitespace-nowrap ${isCancelada ? 'line-through text-slate-400' : 'text-slate-600'}`}>
+                        <td className={`py-3 px-4 font-mono text-xs whitespace-nowrap ${isCancelada ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-600 dark:text-slate-300'}`}>
                           {cita.hora_inicio} - {cita.hora_fin}
                         </td>
                         <td className="py-3 px-4 whitespace-nowrap">
                           <span className={`font-bold px-2 py-0.5 rounded-md ${
-                            isCancelada ? 'bg-rose-50 text-rose-600 line-through' : 'text-slate-900 bg-slate-100'
+                            isCancelada ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 line-through' : 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800'
                           }`}>
                             {cita.horas} hrs
                           </span>
@@ -978,20 +978,20 @@ export default function CalendarView({
                             >
                               {cita.capacitador_iniciales}
                             </span>
-                            <span className="font-medium text-slate-800 text-xs">
+                            <span className="font-medium text-slate-800 dark:text-slate-200 text-xs">
                               {cita.capacitador_nombre}
                             </span>
                           </div>
                         </td>
-                        <td className={`py-3 px-4 font-medium text-slate-900 ${isCancelada ? 'line-through text-slate-400' : ''}`}>
+                        <td className={`py-3 px-4 font-medium text-slate-900 dark:text-white ${isCancelada ? 'line-through text-slate-400 dark:text-slate-500' : ''}`}>
                           {cita.cliente_nombre}
                         </td>
                         <td className="py-3 px-4 whitespace-nowrap">
                           <span
                             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
                               cita.modalidad === 'Presencial'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                : 'bg-blue-50 text-blue-700 border border-blue-200'
+                                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                : 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
                             }`}
                           >
                             {cita.modalidad === 'Presencial' ? (
@@ -1003,7 +1003,7 @@ export default function CalendarView({
                           </span>
                         </td>
                         <td className="py-3 px-4 whitespace-nowrap">
-                          <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-xs font-medium">
+                          <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md text-xs font-medium">
                             {cita.tipo_servicio}
                           </span>
                         </td>
@@ -1013,7 +1013,7 @@ export default function CalendarView({
                             <span>{estCfg.label}</span>
                           </span>
                         </td>
-                        <td className={`py-3 px-4 text-xs max-w-xs truncate ${isCancelada ? 'line-through text-slate-400 italic' : 'text-slate-500'}`}>
+                        <td className={`py-3 px-4 text-xs max-w-xs truncate ${isCancelada ? 'line-through text-slate-400 dark:text-slate-500 italic' : 'text-slate-500 dark:text-slate-400'}`}>
                           {cita.observaciones || '-'}
                         </td>
                         <td className="py-3 px-4 text-right whitespace-nowrap">
@@ -1026,7 +1026,7 @@ export default function CalendarView({
                                   onOpenWhatsApp({ cita });
                                 }}
                                 title="Enviar cita por WhatsApp"
-                                className="p-1 hover:bg-emerald-50 text-emerald-600 rounded-lg transition-colors"
+                                className="p-1 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-lg transition-colors"
                               >
                                 <MessageSquare className="w-4 h-4 fill-emerald-600/20" />
                               </button>
@@ -1036,7 +1036,7 @@ export default function CalendarView({
                                 e.stopPropagation();
                                 onSelectCita(cita);
                               }}
-                              className="text-xs font-semibold text-blue-600 hover:text-blue-800"
+                              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                             >
                               Editar
                             </button>
@@ -1055,15 +1055,15 @@ export default function CalendarView({
       {/* MODAL DE DETALLE COMPLETO DEL DÍA (Apertura al hacer clic en un día con múltiples citas) */}
       {selectedDayDetails && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150"
           onClick={() => setSelectedDayDetails(null)}
         >
           <div 
-            className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Cabecera del Modal */}
-            <div className="px-5 py-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-between gap-4">
+            <div className="px-5 py-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-white flex items-center justify-between gap-4 border-b border-slate-800">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center shrink-0">
                   <CalendarIcon className="w-5 h-5 text-blue-400" />
@@ -1110,7 +1110,7 @@ export default function CalendarView({
             </div>
 
             {/* Barra de Acciones Rápidas */}
-            <div className="px-5 py-2.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+            <div className="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -1134,7 +1134,7 @@ export default function CalendarView({
                         capacitadorId: selectedCapacitadorId !== 'ALL' ? selectedCapacitadorId : null 
                       });
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 text-xs font-bold transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 text-xs font-bold transition-colors"
                   >
                     <MessageSquare className="w-3.5 h-3.5 fill-emerald-600/20" />
                     <span>WhatsApp del Día</span>
@@ -1151,7 +1151,7 @@ export default function CalendarView({
                   setCalendarMode('day');
                   setSelectedDayDetails(null);
                 }}
-                className="sm:hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-200 text-slate-700 text-xs font-semibold"
+                className="sm:hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold"
               >
                 <span>Vista Turnos</span>
                 <ArrowRight className="w-3 h-3" />
@@ -1161,11 +1161,11 @@ export default function CalendarView({
             {/* Lista Scrollable de Citas del Día */}
             <div className="p-4 sm:p-5 overflow-y-auto max-h-[58vh] space-y-3 scrollbar-thin">
               {modalDayCitas.length === 0 ? (
-                <div className="py-12 text-center text-slate-500 space-y-3">
-                  <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto text-slate-400">
+                <div className="py-12 text-center text-slate-500 dark:text-slate-400 space-y-3">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500">
                     <CalendarIcon className="w-7 h-7" />
                   </div>
-                  <p className="font-bold text-slate-700 text-sm">No hay citas registradas en este día</p>
+                  <p className="font-bold text-slate-700 dark:text-slate-300 text-sm">No hay citas registradas en este día</p>
                   <button
                     type="button"
                     onClick={() => {
@@ -1192,10 +1192,10 @@ export default function CalendarView({
                       key={cita.id}
                       className={`p-3.5 sm:p-4 rounded-xl border transition-all duration-150 space-y-2.5 ${
                         isCancelada
-                          ? 'bg-rose-50/20 border-dashed border-rose-200 opacity-75'
+                          ? 'bg-rose-50/20 dark:bg-rose-950/20 border-dashed border-rose-200 dark:border-rose-900 opacity-75'
                           : isImpartida
-                          ? 'bg-emerald-50/20 border-emerald-200/80 shadow-2xs hover:shadow-xs'
-                          : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs hover:shadow-xs'
+                          ? 'bg-emerald-50/20 dark:bg-emerald-950/20 border-emerald-200/80 dark:border-emerald-800 shadow-2xs hover:shadow-xs'
+                          : 'bg-white dark:bg-slate-800/90 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs hover:shadow-xs'
                       }`}
                       style={{
                         borderLeftWidth: '5px',
@@ -1215,20 +1215,20 @@ export default function CalendarView({
                               {cita.capacitador_iniciales}
                             </span>
                             <div className="min-w-0">
-                              <p className="text-xs font-bold text-slate-800 truncate">
+                              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
                                 {cita.capacitador_nombre}
                               </p>
                             </div>
                           </div>
 
                           {/* Horario y Horas */}
-                          <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/80 font-mono text-xs">
-                            <Clock className="w-3.5 h-3.5 text-slate-500" />
-                            <span className={`font-bold ${isCancelada ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700/80 px-2 py-1 rounded-lg border border-slate-200/80 dark:border-slate-600 font-mono text-xs">
+                            <Clock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                            <span className={`font-bold ${isCancelada ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'}`}>
                               {cita.hora_inicio} - {cita.hora_fin}
                             </span>
-                            <span className="text-slate-400 font-normal">|</span>
-                            <span className="font-bold text-blue-700">
+                            <span className="text-slate-400 dark:text-slate-500 font-normal">|</span>
+                            <span className="font-bold text-blue-700 dark:text-blue-300">
                               {cita.horas}h
                             </span>
                           </div>
@@ -1241,7 +1241,7 @@ export default function CalendarView({
                               type="button"
                               onClick={() => onOpenWhatsApp({ cita })}
                               title="Enviar por WhatsApp"
-                              className="p-1.5 hover:bg-emerald-50 text-emerald-600 rounded-lg transition-colors"
+                              className="p-1.5 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-lg transition-colors"
                             >
                               <MessageSquare className="w-4 h-4 fill-emerald-600/20" />
                             </button>
@@ -1252,7 +1252,7 @@ export default function CalendarView({
                               setSelectedDayDetails(null);
                               onSelectCita(cita);
                             }}
-                            className="px-2.5 py-1 text-xs font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors border border-blue-200/60"
+                            className="px-2.5 py-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg transition-colors border border-blue-200/60 dark:border-blue-800"
                           >
                             Editar
                           </button>
@@ -1266,41 +1266,41 @@ export default function CalendarView({
                           <span>{estadoCfg.label}</span>
                         </span>
 
-                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200 uppercase tracking-wider text-[10px]">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-600 uppercase tracking-wider text-[10px]">
                           {cita.tipo_servicio}
                         </span>
 
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold border ${
                             cita.modalidad === 'Presencial'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80'
-                              : 'bg-blue-50 text-blue-700 border-blue-200/80'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800'
+                              : 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800'
                           }`}
                         >
                           {cita.modalidad === 'Presencial' ? (
-                            <MapPin className="w-3 h-3 text-emerald-600" />
+                            <MapPin className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                           ) : (
-                            <Video className="w-3 h-3 text-blue-600" />
+                            <Video className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                           )}
                           {cita.modalidad}
                         </span>
                       </div>
 
                       {/* Fila 3: Tema / Actividad concreta */}
-                      <div className="bg-slate-50/80 p-2.5 rounded-lg border border-slate-100">
-                        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Actividad / Tema</p>
+                      <div className="bg-slate-50/80 dark:bg-slate-850 p-2.5 rounded-lg border border-slate-100 dark:border-slate-750">
+                        <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Actividad / Tema</p>
                         <p className={`text-xs sm:text-sm font-semibold leading-relaxed ${
-                          isCancelada ? 'line-through text-slate-400 italic' : 'text-slate-800'
+                          isCancelada ? 'line-through text-slate-400 dark:text-slate-500 italic' : 'text-slate-800 dark:text-slate-200'
                         }`}>
                           {cita.observaciones || `${cita.tipo_servicio} Programado`}
                         </p>
                       </div>
 
                       {/* Fila 4: Cliente */}
-                      <div className="flex items-center gap-1.5 text-xs text-slate-700 pt-1 border-t border-slate-100">
+                      <div className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 pt-1 border-t border-slate-100 dark:border-slate-750">
                         <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span className="font-medium text-slate-500">Cliente:</span>
-                        <span className="font-bold text-slate-800 truncate" title={cita.cliente_nombre}>
+                        <span className="font-medium text-slate-500 dark:text-slate-400">Cliente:</span>
+                        <span className="font-bold text-slate-800 dark:text-slate-200 truncate" title={cita.cliente_nombre}>
                           {cita.cliente_nombre}
                         </span>
                       </div>
@@ -1311,14 +1311,14 @@ export default function CalendarView({
             </div>
 
             {/* Pie del Modal */}
-            <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-              <div className="text-xs text-slate-500">
-                Mostrando <span className="font-bold text-slate-800">{modalDayCitas.length}</span> citas
+            <div className="px-5 py-3 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                Mostrando <span className="font-bold text-slate-800 dark:text-slate-200">{modalDayCitas.length}</span> citas
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedDayDetails(null)}
-                className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold transition-colors"
+                className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors"
               >
                 Cerrar
               </button>

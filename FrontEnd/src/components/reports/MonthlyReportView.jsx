@@ -103,14 +103,14 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
     <div className="space-y-6">
       
       {/* Barra de Filtros de Periodo y Acciones */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 no-print transition-colors">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Mes:</span>
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mes:</span>
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))}
-              className="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {MONTH_NAMES.map((name, idx) => (
                 <option key={idx + 1} value={idx + 1}>{name}</option>
@@ -120,7 +120,7 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(parseInt(e.target.value, 10))}
-              className="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {[2024, 2025, 2026, 2027, 2028].map((y) => (
                 <option key={y} value={y}>{y}</option>
@@ -128,11 +128,13 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
             </select>
           </div>
 
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl">
+          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
             <button
               onClick={() => setActiveSubTab('monthly')}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                activeSubTab === 'monthly' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                activeSubTab === 'monthly' 
+                  ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 shadow-sm' 
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Mes Actual
@@ -140,7 +142,9 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
             <button
               onClick={() => setActiveSubTab('history')}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                activeSubTab === 'history' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                activeSubTab === 'history' 
+                  ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 shadow-sm' 
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Histórico
@@ -152,14 +156,14 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
         <div className="flex items-center gap-2">
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all shadow-xs"
           >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>Exportar Excel</span>
           </button>
           <button
             onClick={handlePrint}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs"
           >
             <Printer className="w-4 h-4" />
             <span>Imprimir Reporte</span>
@@ -183,31 +187,31 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
 
       {/* TABLA PRINCIPAL: REPORTE DE HORAS POR CAPACITADOR */}
       {activeSubTab === 'monthly' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
+          <div className="px-6 py-4.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
             <div>
-              <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-                <UserCheck className="w-5 h-5 text-blue-600" />
+              <h3 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                <UserCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 Reporte de Horas por Capacitador ({MONTH_NAMES[selectedMonth - 1]} {selectedYear})
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Desglose de horas trabajadas discriminadas por modalidad (Presencial vs Virtual)
               </p>
             </div>
 
-            <div className="flex items-center gap-3 text-xs font-bold text-slate-600 hidden sm:flex flex-wrap justify-end">
-              <span className="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
+            <div className="flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-300 hidden sm:flex flex-wrap justify-end">
+              <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-800">
                 ✅ {kpis.citasImpartidas || 0} impartidas
               </span>
-              <span className="flex items-center gap-1 text-blue-700 bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200">
+              <span className="flex items-center gap-1 text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-lg border border-blue-200 dark:border-blue-800">
                 🗓️ {kpis.citasProgramadas || 0} programadas
               </span>
               {kpis.citasCanceladas > 0 && (
-                <span className="flex items-center gap-1 text-rose-700 bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-200 line-through">
+                <span className="flex items-center gap-1 text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-lg border border-rose-200 dark:border-rose-900 line-through">
                   ❌ {kpis.citasCanceladas} canceladas
                 </span>
               )}
-              <span className="bg-slate-900 text-white px-2.5 py-1 rounded-lg font-black" title="Total de horas efectivas (excluye canceladas)">
+              <span className="bg-slate-900 dark:bg-slate-800 text-white px-2.5 py-1 rounded-lg font-black border border-transparent dark:border-slate-700" title="Total de horas efectivas (excluye canceladas)">
                 Total: {kpis.totalHorasMes}h
               </span>
             </div>
@@ -215,38 +219,38 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-slate-700 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+              <thead className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   <th className="py-4 px-6">Capacitador</th>
                   <th className="py-4 px-4 text-center">Código</th>
                   <th className="py-4 px-4 text-center">Citas / Estado</th>
-                  <th className="py-4 px-6 text-right text-emerald-700">
+                  <th className="py-4 px-6 text-right text-emerald-700 dark:text-emerald-400">
                     <span className="inline-flex items-center gap-1">
                       <MapPin className="w-3.5 h-3.5" /> Horas Presenciales
                     </span>
                   </th>
-                  <th className="py-4 px-6 text-right text-purple-700">
+                  <th className="py-4 px-6 text-right text-purple-700 dark:text-purple-400">
                     <span className="inline-flex items-center gap-1">
                       <Video className="w-3.5 h-3.5" /> Horas Virtuales
                     </span>
                   </th>
-                  <th className="py-4 px-6 text-right font-black text-slate-900 text-sm">
+                  <th className="py-4 px-6 text-right font-black text-slate-900 dark:text-white text-sm">
                     <span className="inline-flex items-center gap-1">
-                      <Clock className="w-4 h-4 text-blue-600" /> Total Horas (H)
+                      <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Total Horas (H)
                     </span>
                   </th>
-                  <th className="py-4 px-6 text-right font-black text-emerald-800 text-sm">
+                  <th className="py-4 px-6 text-right font-black text-emerald-800 dark:text-emerald-400 text-sm">
                     <span className="inline-flex items-center gap-1">
-                      <Banknote className="w-4 h-4 text-emerald-600" /> Honorarios (Q)
+                      <Banknote className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Honorarios (Q)
                     </span>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-medium">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
                 {resumen.map((cap) => {
                   return (
-                    <tr key={cap.capacitador_id} className="hover:bg-slate-50/90 transition-colors">
-                      <td className="py-4 px-6 font-bold text-slate-900 text-sm">
+                    <tr key={cap.capacitador_id} className="hover:bg-slate-50/90 dark:hover:bg-slate-800/60 transition-colors">
+                      <td className="py-4 px-6 font-bold text-slate-900 dark:text-white text-sm">
                         <div className="flex items-center gap-3">
                           <span
                             className="w-3.5 h-3.5 rounded-full shrink-0 shadow-2xs"
@@ -266,39 +270,39 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
                       </td>
 
                       <td className="py-4 px-4 text-center">
-                        <div className="font-extrabold text-slate-900 text-sm">{cap.total_citas}</div>
+                        <div className="font-extrabold text-slate-900 dark:text-white text-sm">{cap.total_citas}</div>
                         <div className="flex items-center justify-center gap-1 text-[10px] font-bold mt-0.5 flex-wrap">
                           {(cap.citas_impartidas > 0) && (
-                            <span className="text-emerald-700 bg-emerald-50 px-1 rounded" title="Impartidas">
+                            <span className="text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1 rounded" title="Impartidas">
                               ✅{cap.citas_impartidas}
                             </span>
                           )}
                           {(cap.citas_programadas > 0) && (
-                            <span className="text-blue-700 bg-blue-50 px-1 rounded" title="Programadas">
+                            <span className="text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-1 rounded" title="Programadas">
                               🗓️{cap.citas_programadas}
                             </span>
                           )}
                           {(cap.citas_canceladas > 0) && (
-                            <span className="text-rose-600 bg-rose-50 px-1 rounded line-through" title="Canceladas">
+                            <span className="text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-1 rounded line-through" title="Canceladas">
                               ❌{cap.citas_canceladas}
                             </span>
                           )}
                         </div>
                       </td>
 
-                      <td className="py-4 px-6 text-right font-mono font-bold text-emerald-700 text-sm">
+                      <td className="py-4 px-6 text-right font-mono font-bold text-emerald-700 dark:text-emerald-400 text-sm">
                         {cap.horas_presencial} hrs
                       </td>
 
-                      <td className="py-4 px-6 text-right font-mono font-bold text-purple-700 text-sm">
+                      <td className="py-4 px-6 text-right font-mono font-bold text-purple-700 dark:text-purple-400 text-sm">
                         {cap.horas_virtual} hrs
                       </td>
 
-                      <td className="py-4 px-6 text-right font-mono font-black text-slate-950 text-base">
+                      <td className="py-4 px-6 text-right font-mono font-black text-slate-950 dark:text-white text-base">
                         {cap.total_horas} hrs
                       </td>
 
-                      <td className="py-4 px-6 text-right font-mono font-black text-emerald-700 text-base">
+                      <td className="py-4 px-6 text-right font-mono font-black text-emerald-700 dark:text-emerald-400 text-base">
                         Q {(cap.total_honorarios !== undefined ? cap.total_honorarios : 0).toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                     </tr>
@@ -307,25 +311,25 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
               </tbody>
 
               {/* Fila de Totales Generales */}
-              <tfoot className="bg-slate-100 font-black border-t-2 border-slate-300 text-slate-900">
+              <tfoot className="bg-slate-100 dark:bg-slate-800/90 font-black border-t-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
                 <tr>
-                  <td className="py-4 px-6 uppercase tracking-wider text-xs font-extrabold text-slate-700">
+                  <td className="py-4 px-6 uppercase tracking-wider text-xs font-extrabold text-slate-700 dark:text-slate-300">
                     TOTAL GENERAL ACUMULADO
                   </td>
-                  <td className="py-4 px-4 text-center text-slate-400">-</td>
-                  <td className="py-4 px-4 text-center text-slate-900 font-black text-base">
+                  <td className="py-4 px-4 text-center text-slate-400 dark:text-slate-500">-</td>
+                  <td className="py-4 px-4 text-center text-slate-900 dark:text-white font-black text-base">
                     {kpis.totalCitasMes}
                   </td>
-                  <td className="py-4 px-6 text-right font-mono text-emerald-800 text-base font-black">
+                  <td className="py-4 px-6 text-right font-mono text-emerald-800 dark:text-emerald-400 text-base font-black">
                     {kpis.horasPresenciales} hrs
                   </td>
-                  <td className="py-4 px-6 text-right font-mono text-purple-800 text-base font-black">
+                  <td className="py-4 px-6 text-right font-mono text-purple-800 dark:text-purple-400 text-base font-black">
                     {kpis.horasVirtuales} hrs
                   </td>
-                  <td className="py-4 px-6 text-right font-mono font-black text-blue-700 text-lg">
+                  <td className="py-4 px-6 text-right font-mono font-black text-blue-700 dark:text-blue-400 text-lg">
                     {kpis.totalHorasMes} hrs
                   </td>
-                  <td className="py-4 px-6 text-right font-mono font-black text-emerald-800 text-lg">
+                  <td className="py-4 px-6 text-right font-mono font-black text-emerald-800 dark:text-emerald-400 text-lg">
                     Q {(kpis.totalHonorariosMes !== undefined ? kpis.totalHonorariosMes : 0).toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                 </tr>
@@ -337,30 +341,30 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
 
       {/* PESTAÑA HISTÓRICO GENERAL */}
       {activeSubTab === 'history' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-            <h3 className="font-bold text-slate-900 text-base">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
+          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+            <h3 className="font-bold text-slate-900 dark:text-white text-base">
               Histórico Acumulado por Capacitador
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Total acumulado de citas y horas desde el inicio de operaciones
             </p>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-slate-700 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+              <thead className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   <th className="py-4 px-6">Capacitador</th>
                   <th className="py-4 px-4 text-center">Código</th>
                   <th className="py-4 px-4 text-center">Total Citas Históricas</th>
-                  <th className="py-4 px-6 text-right font-black text-slate-900">Total Horas Acumuladas</th>
+                  <th className="py-4 px-6 text-right font-black text-slate-900 dark:text-white">Total Horas Acumuladas</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {historicoData.map((item) => (
-                  <tr key={item.capacitador_id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-4 px-6 font-bold text-slate-900">
+                  <tr key={item.capacitador_id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+                    <td className="py-4 px-6 font-bold text-slate-900 dark:text-white">
                       <div className="flex items-center gap-3">
                         <span className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: item.color }} />
                         <span>{item.nombre_completo}</span>
@@ -374,10 +378,10 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
                         {item.iniciales}
                       </span>
                     </td>
-                    <td className="py-4 px-4 text-center font-bold text-slate-700">
+                    <td className="py-4 px-4 text-center font-bold text-slate-700 dark:text-slate-300">
                       {item.total_citas_historico}
                     </td>
-                    <td className="py-4 px-6 text-right font-mono font-black text-blue-700 text-base">
+                    <td className="py-4 px-6 text-right font-mono font-black text-blue-700 dark:text-blue-400 text-base">
                       {item.total_horas_historico} hrs
                     </td>
                   </tr>

@@ -15,16 +15,17 @@ import {
   BarChart3, 
   MessageSquare,
   CornerDownLeft,
-  Banknote
+  Banknote,
+  Moon
 } from 'lucide-react';
 import { api } from '../../services/api';
 
 const ESTADO_BADGES = {
-  'Programada': { label: 'Programada', emoji: '🗓️', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
-  'En Curso': { label: 'En Curso', emoji: '⏳', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
-  'Impartida': { label: 'Impartida', emoji: '✅', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
-  'Cancelada': { label: 'Cancelada', emoji: '❌', bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200' },
-  'Reprogramada': { label: 'Reprogramada', emoji: '🔄', bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' }
+  'Programada': { label: 'Programada', emoji: '🗓️', bg: 'bg-blue-50 dark:bg-blue-950/50', text: 'text-blue-700 dark:text-blue-300', border: 'border-blue-200 dark:border-blue-800' },
+  'En Curso': { label: 'En Curso', emoji: '⏳', bg: 'bg-amber-50 dark:bg-amber-950/50', text: 'text-amber-700 dark:text-amber-300', border: 'border-amber-200 dark:border-amber-800' },
+  'Impartida': { label: 'Impartida', emoji: '✅', bg: 'bg-emerald-50 dark:bg-emerald-950/50', text: 'text-emerald-700 dark:text-emerald-300', border: 'border-emerald-200 dark:border-emerald-800' },
+  'Cancelada': { label: 'Cancelada', emoji: '❌', bg: 'bg-rose-50 dark:bg-rose-950/50', text: 'text-rose-700 dark:text-rose-300', border: 'border-rose-200 dark:border-rose-800' },
+  'Reprogramada': { label: 'Reprogramada', emoji: '🔄', bg: 'bg-purple-50 dark:bg-purple-950/50', text: 'text-purple-700 dark:text-purple-300', border: 'border-purple-200 dark:border-purple-800' }
 };
 
 const SYSTEM_ACTIONS = [
@@ -33,7 +34,7 @@ const SYSTEM_ACTIONS = [
     title: 'Nueva Cita de Capacitación',
     subtitle: 'Registrar una nueva capacitación en la agenda',
     icon: Plus,
-    color: 'text-blue-600 bg-blue-50',
+    color: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60',
     type: 'accion',
     actionId: 'new-appointment'
   },
@@ -42,7 +43,7 @@ const SYSTEM_ACTIONS = [
     title: 'Ir al Calendario Mensual / Turnos',
     subtitle: 'Vista de turnos y cuadrícula de capacitación',
     icon: Calendar,
-    color: 'text-indigo-600 bg-indigo-50',
+    color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60',
     type: 'accion',
     actionId: 'nav-calendar'
   },
@@ -51,7 +52,7 @@ const SYSTEM_ACTIONS = [
     title: 'Reporte de Horas (AD-RE-11)',
     subtitle: 'Auditoría mensual de horas efectivas y exportación',
     icon: BarChart3,
-    color: 'text-emerald-600 bg-emerald-50',
+    color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60',
     type: 'accion',
     actionId: 'nav-reports'
   },
@@ -60,7 +61,7 @@ const SYSTEM_ACTIONS = [
     title: 'Control de Honorarios por Capacitador',
     subtitle: 'Cálculo en tiempo real en Quetzales y liquidaciones',
     icon: Banknote,
-    color: 'text-teal-600 bg-teal-50',
+    color: 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60',
     type: 'accion',
     actionId: 'nav-fees'
   },
@@ -69,7 +70,7 @@ const SYSTEM_ACTIONS = [
     title: 'Catálogo de Capacitadores',
     subtitle: 'Administrar instructores, tarifas, teléfonos y códigos',
     icon: Users,
-    color: 'text-purple-600 bg-purple-50',
+    color: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/60',
     type: 'accion',
     actionId: 'nav-trainers'
   },
@@ -78,7 +79,7 @@ const SYSTEM_ACTIONS = [
     title: 'Catálogo de Empresas Clientes',
     subtitle: 'Administrar empresas, contactos y teléfonos',
     icon: Building2,
-    color: 'text-amber-600 bg-amber-50',
+    color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60',
     type: 'accion',
     actionId: 'nav-clients'
   },
@@ -87,9 +88,18 @@ const SYSTEM_ACTIONS = [
     title: 'Notificaciones por WhatsApp',
     subtitle: 'Enviar itinerarios y recordatorios directos',
     icon: MessageSquare,
-    color: 'text-emerald-600 bg-emerald-50',
+    color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60',
     type: 'accion',
     actionId: 'open-whatsapp'
+  },
+  {
+    id: 'act-toggle-theme',
+    title: 'Cambiar Modo Oscuro / Claro',
+    subtitle: 'Alternar la apariencia visual entre modo oscuro y claro',
+    icon: Moon,
+    color: 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/60',
+    type: 'accion',
+    actionId: 'toggle-theme'
   }
 ];
 
@@ -321,17 +331,17 @@ export default function CommandPalette({
     <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 md:p-20 flex items-start justify-center animate-in fade-in duration-150">
       {/* Backdrop con efecto blur */}
       <div 
-        className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Tarjeta Principal de la Paleta */}
       <div 
-        className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden transform transition-all animate-in zoom-in-95 duration-150"
+        className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden transform transition-all animate-in zoom-in-95 duration-150"
         onKeyDown={handleKeyDown}
       >
         {/* Cabecera con Input de Búsqueda */}
-        <div className="relative flex items-center border-b border-slate-200 px-4 py-3.5 bg-slate-50/50">
+        <div className="relative flex items-center border-b border-slate-200 dark:border-slate-800 px-4 py-3.5 bg-slate-50/50 dark:bg-slate-900/50">
           <Search className="w-5 h-5 text-slate-400 shrink-0 ml-1 mr-3" />
           <input
             ref={inputRef}
@@ -339,24 +349,24 @@ export default function CommandPalette({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar por curso, cliente, capacitador o fecha..."
-            className="w-full bg-transparent text-slate-900 placeholder-slate-400 text-base font-medium outline-none focus:ring-0 border-none p-0"
+            className="w-full bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-base font-medium outline-none focus:ring-0 border-none p-0"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 hover:bg-slate-200/60 rounded-lg text-slate-400 hover:text-slate-600 transition-colors mr-2"
+              className="p-1 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors mr-2"
               title="Limpiar búsqueda"
             >
               <X className="w-4 h-4" />
             </button>
           )}
-          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 bg-white border border-slate-200 px-2 py-0.5 rounded-md shadow-xs">
+          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-md shadow-xs">
             ESC
           </span>
         </div>
 
         {/* Barra de Filtros por Categoría */}
-        <div className="flex items-center gap-1.5 px-4 py-2 border-b border-slate-100 bg-white overflow-x-auto text-xs">
+        <div className="flex items-center gap-1.5 px-4 py-2 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-x-auto text-xs">
           {[
             { id: 'all', label: 'Todos', count: flatResults.length },
             { id: 'citas', label: 'Citas', count: filteredItems.citas.length, icon: Calendar },
@@ -373,13 +383,13 @@ export default function CommandPalette({
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-medium transition-colors shrink-0 ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {Icon && <Icon className="w-3.5 h-3.5" />}
                 <span>{cat.label}</span>
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                  isActive ? 'bg-blue-500 text-white' : 'bg-slate-200/70 text-slate-600'
+                  isActive ? 'bg-blue-500 text-white' : 'bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                 }`}>
                   {cat.count}
                 </span>
@@ -387,8 +397,8 @@ export default function CommandPalette({
             );
           })}
           {isSearchingServer && (
-            <div className="ml-auto flex items-center gap-1 text-[11px] text-blue-600 font-medium animate-pulse shrink-0">
-              <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
+            <div className="ml-auto flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 font-medium animate-pulse shrink-0">
+              <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 animate-ping" />
               Buscando globalmente...
             </div>
           )}
@@ -397,25 +407,25 @@ export default function CommandPalette({
         {/* Contenedor de Resultados */}
         <div 
           ref={listRef}
-          className="max-h-[60vh] overflow-y-auto p-2 divide-y divide-slate-100 focus:outline-none"
+          className="max-h-[60vh] overflow-y-auto p-2 divide-y divide-slate-100 dark:divide-slate-800/80 focus:outline-none"
         >
           {flatResults.length === 0 ? (
             <div className="py-12 px-4 text-center">
-              <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-3">
                 <Search className="w-6 h-6" />
               </div>
-              <h4 className="text-sm font-semibold text-slate-800">
+              <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                 No se encontraron resultados
               </h4>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                No encontramos coincidencias para "<span className="font-medium text-slate-700">{query}</span>". Intenta con otro término o crea una nueva cita.
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+                No encontramos coincidencias para "<span className="font-medium text-slate-700 dark:text-slate-300">{query}</span>". Intenta con otro término o crea una nueva cita.
               </p>
               <button
                 onClick={() => {
                   onClose();
                   onExecuteAction?.('new-appointment');
                 }}
-                className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-semibold transition-colors"
+                className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-xs font-semibold transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Agendar Nueva Cita
@@ -438,8 +448,8 @@ export default function CommandPalette({
                     onMouseEnter={() => setSelectedIndex(index)}
                     className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${
                       isSelected 
-                        ? 'bg-blue-50/90 text-blue-950 ring-1 ring-blue-500/30' 
-                        : 'hover:bg-slate-50 text-slate-700'
+                        ? 'bg-blue-50/90 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200 ring-1 ring-blue-500/30 dark:ring-blue-500/50' 
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -454,7 +464,7 @@ export default function CommandPalette({
 
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="text-xs font-bold text-slate-900 truncate">
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
                             {cita.tipo_servicio}
                           </h4>
                           {/* Badge de Estado Oficial */}
@@ -464,8 +474,8 @@ export default function CommandPalette({
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-0.5 flex-wrap">
-                          <span className="font-semibold text-slate-700 flex items-center gap-1">
+                        <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 flex-wrap">
+                          <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
                             <Building2 className="w-3 h-3 text-slate-400" />
                             {cita.cliente_nombre}
                           </span>
@@ -475,7 +485,7 @@ export default function CommandPalette({
                             {formatFriendlyDate(cita.fecha)} ({cita.hora_inicio} - {cita.hora_fin})
                           </span>
                           <span>•</span>
-                          <span className="font-bold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded">
+                          <span className="font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.2 rounded">
                             {cita.horas}h
                           </span>
                           <span>•</span>
@@ -492,10 +502,10 @@ export default function CommandPalette({
                     </div>
 
                     <div className="shrink-0 ml-3 flex items-center gap-2">
-                      <span className="text-[10px] font-medium text-slate-400 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-xs hidden sm:inline">
+                      <span className="text-[10px] font-medium text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded shadow-xs hidden sm:inline">
                         Abrir Cita
                       </span>
-                      <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-blue-600 translate-x-0.5' : 'text-slate-300'} transition-transform`} />
+                      <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-blue-600 dark:text-blue-400 translate-x-0.5' : 'text-slate-300 dark:text-slate-600'} transition-transform`} />
                     </div>
                   </div>
                 );
@@ -511,21 +521,21 @@ export default function CommandPalette({
                     onMouseEnter={() => setSelectedIndex(index)}
                     className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${
                       isSelected 
-                        ? 'bg-blue-50/90 text-blue-950 ring-1 ring-blue-500/30' 
-                        : 'hover:bg-slate-50 text-slate-700'
+                        ? 'bg-blue-50/90 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200 ring-1 ring-blue-500/30 dark:ring-blue-500/50' 
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200 shadow-xs">
+                      <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200 dark:border-amber-800 shadow-xs">
                         <Building2 className="w-4 h-4" />
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-slate-900 truncate">
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
                           {cliente.nombre_empresa}
                         </h4>
-                        <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-0.5 flex-wrap">
+                        <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 flex-wrap">
                           {cliente.contacto_nombre && (
-                            <span>Contacto: <strong className="text-slate-700">{cliente.contacto_nombre}</strong></span>
+                            <span>Contacto: <strong className="text-slate-700 dark:text-slate-300">{cliente.contacto_nombre}</strong></span>
                           )}
                           {cliente.contacto_telefono && (
                             <span className="flex items-center gap-1">
@@ -541,10 +551,10 @@ export default function CommandPalette({
                     </div>
 
                     <div className="shrink-0 ml-3 flex items-center gap-2">
-                      <span className="text-[10px] font-medium text-slate-400 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-xs hidden sm:inline">
+                      <span className="text-[10px] font-medium text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded shadow-xs hidden sm:inline">
                         Ver Empresa
                       </span>
-                      <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-blue-600 translate-x-0.5' : 'text-slate-300'} transition-transform`} />
+                      <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-blue-600 dark:text-blue-400 translate-x-0.5' : 'text-slate-300 dark:text-slate-600'} transition-transform`} />
                     </div>
                   </div>
                 );
@@ -560,8 +570,8 @@ export default function CommandPalette({
                     onMouseEnter={() => setSelectedIndex(index)}
                     className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${
                       isSelected 
-                        ? 'bg-blue-50/90 text-blue-950 ring-1 ring-blue-500/30' 
-                        : 'hover:bg-slate-50 text-slate-700'
+                        ? 'bg-blue-50/90 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200 ring-1 ring-blue-500/30 dark:ring-blue-500/50' 
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -573,14 +583,14 @@ export default function CommandPalette({
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <h4 className="text-xs font-bold text-slate-900 truncate">
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
                             {cp.nombre_completo}
                           </h4>
-                          <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded border border-slate-200">
+                          <span className="text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.2 rounded border border-slate-200 dark:border-slate-700">
                             [{cp.iniciales}]
                           </span>
                         </div>
-                        <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-0.5">
+                        <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                           {cp.telefono ? (
                             <span className="flex items-center gap-1">
                               <Phone className="w-3 h-3 text-slate-400" />
@@ -590,7 +600,7 @@ export default function CommandPalette({
                             <span className="text-slate-400">Sin teléfono registrado</span>
                           )}
                           <span>•</span>
-                          <span className={cp.activo ? 'text-emerald-600 font-semibold' : 'text-slate-400'}>
+                          <span className={cp.activo ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-400'}>
                             {cp.activo ? 'Activo' : 'Inactivo'}
                           </span>
                         </div>
@@ -598,10 +608,10 @@ export default function CommandPalette({
                     </div>
 
                     <div className="shrink-0 ml-3 flex items-center gap-2">
-                      <span className="text-[10px] font-medium text-slate-400 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-xs hidden sm:inline">
+                      <span className="text-[10px] font-medium text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded shadow-xs hidden sm:inline">
                         Ver Perfil
                       </span>
-                      <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-blue-600 translate-x-0.5' : 'text-slate-300'} transition-transform`} />
+                      <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-blue-600 dark:text-blue-400 translate-x-0.5' : 'text-slate-300 dark:text-slate-600'} transition-transform`} />
                     </div>
                   </div>
                 );
@@ -618,8 +628,8 @@ export default function CommandPalette({
                     onMouseEnter={() => setSelectedIndex(index)}
                     className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${
                       isSelected 
-                        ? 'bg-blue-50/90 text-blue-950 ring-1 ring-blue-500/30' 
-                        : 'hover:bg-slate-50 text-slate-700'
+                        ? 'bg-blue-50/90 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200 ring-1 ring-blue-500/30 dark:ring-blue-500/50' 
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -627,16 +637,16 @@ export default function CommandPalette({
                         <Icon className="w-4 h-4" />
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-slate-900 truncate">
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
                           {act.title}
                         </h4>
-                        <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                           {act.subtitle}
                         </p>
                       </div>
                     </div>
 
-                    <div className="shrink-0 ml-3 flex items-center gap-1.5 text-xs font-semibold text-slate-400">
+                    <div className="shrink-0 ml-3 flex items-center gap-1.5 text-xs font-semibold text-slate-400 dark:text-slate-400">
                       <span className="text-[10px] hidden sm:inline">Ejecutar</span>
                       <CornerDownLeft className="w-3.5 h-3.5" />
                     </div>
@@ -650,24 +660,24 @@ export default function CommandPalette({
         </div>
 
         {/* Pie de Página con Atajos de Teclado */}
-        <div className="border-t border-slate-100 bg-slate-50 px-4 py-2.5 flex items-center justify-between text-[11px] text-slate-500">
+        <div className="border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 px-4 py-2.5 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700 shadow-2xs">↑</kbd>
-              <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700 shadow-2xs">↓</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[10px] text-slate-700 dark:text-slate-300 shadow-2xs">↑</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[10px] text-slate-700 dark:text-slate-300 shadow-2xs">↓</kbd>
               <span>Navegar</span>
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700 shadow-2xs">↵</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[10px] text-slate-700 dark:text-slate-300 shadow-2xs">↵</kbd>
               <span>Seleccionar</span>
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700 shadow-2xs">ESC</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[10px] text-slate-700 dark:text-slate-300 shadow-2xs">ESC</kbd>
               <span>Cerrar</span>
             </span>
           </div>
 
-          <div className="text-[11px] text-slate-400 font-medium hidden sm:block">
+          <div className="text-[11px] text-slate-400 dark:text-slate-500 font-medium hidden sm:block">
             Agenda One • Búsqueda Global
           </div>
         </div>

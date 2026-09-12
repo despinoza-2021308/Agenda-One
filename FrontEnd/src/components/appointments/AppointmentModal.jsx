@@ -28,11 +28,11 @@ const TIPOS_SERVICIO = ['Curso', 'Asesoría', 'Auditoría', 'Reunión', 'Seguimi
 const MODALIDADES = ['Presencial', 'Virtual', 'Híbrida'];
 
 export const ESTADOS = [
-  { id: 'Programada', label: 'Programada', emoji: '🗓️', colorClass: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100/70', activeClass: 'bg-blue-600 text-white shadow-sm shadow-blue-500/30 border-blue-600' },
-  { id: 'En Curso', label: 'En Curso', emoji: '⏳', colorClass: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100/70', activeClass: 'bg-amber-500 text-white shadow-sm shadow-amber-500/30 border-amber-500' },
-  { id: 'Impartida', label: 'Impartida', emoji: '✅', colorClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/70', activeClass: 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/30 border-emerald-600' },
-  { id: 'Cancelada', label: 'Cancelada', emoji: '❌', colorClass: 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100/70', activeClass: 'bg-rose-600 text-white shadow-sm shadow-rose-500/30 border-rose-600' },
-  { id: 'Reprogramada', label: 'Reprogramada', emoji: '🔄', colorClass: 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100/70', activeClass: 'bg-purple-600 text-white shadow-sm shadow-purple-500/30 border-purple-600' }
+  { id: 'Programada', label: 'Programada', emoji: '🗓️', colorClass: 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 hover:bg-blue-100/70', activeClass: 'bg-blue-600 text-white shadow-sm shadow-blue-500/30 border-blue-600' },
+  { id: 'En Curso', label: 'En Curso', emoji: '⏳', colorClass: 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 hover:bg-amber-100/70', activeClass: 'bg-amber-500 text-white shadow-sm shadow-amber-500/30 border-amber-500' },
+  { id: 'Impartida', label: 'Impartida', emoji: '✅', colorClass: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100/70', activeClass: 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/30 border-emerald-600' },
+  { id: 'Cancelada', label: 'Cancelada', emoji: '❌', colorClass: 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:bg-rose-100/70', activeClass: 'bg-rose-600 text-white shadow-sm shadow-rose-500/30 border-rose-600' },
+  { id: 'Reprogramada', label: 'Reprogramada', emoji: '🔄', colorClass: 'bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-100/70', activeClass: 'bg-purple-600 text-white shadow-sm shadow-purple-500/30 border-purple-600' }
 ];
 
 export default function AppointmentModal({
@@ -426,25 +426,25 @@ export default function AppointmentModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-150">
         
         {/* Cabecera del modal */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/60">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/60">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm shadow-blue-500/30">
               <CalendarIcon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 {appointment?.id ? 'Editar Cita Agendada' : 'Agendar Nueva Cita'}
               </h3>
-              <p className="text-xs text-slate-500">Agenda Digital y Control de Horas</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Agenda Digital y Control de Horas</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -452,7 +452,7 @@ export default function AppointmentModal({
 
         {/* Mensaje de error si ocurre */}
         {error && (
-          <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+          <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span className="font-medium">{error}</span>
           </div>
@@ -464,25 +464,25 @@ export default function AppointmentModal({
           {/* Nombre del Cliente / Empresa con Autocompletado Inteligente */}
           <div ref={clientInputWrapperRef} className="relative">
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <Building2 className="w-4 h-4 text-blue-600" />
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span>Cliente o Empresa <span className="text-rose-500">*</span></span>
               </label>
 
               {matchedClient ? (
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-full">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                   Catálogo Oficial
                 </span>
               ) : formData.cliente_nombre.trim() ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-full">
                   Empresa Personalizada
                 </span>
               ) : null}
             </div>
 
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 required
@@ -499,7 +499,7 @@ export default function AppointmentModal({
                   }));
                   setClientDropdownOpen(true);
                 }}
-                className="w-full pl-10 pr-20 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                className="w-full pl-10 pr-20 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
 
               <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -510,7 +510,7 @@ export default function AppointmentModal({
                       setFormData(prev => ({ ...prev, cliente_nombre: '', cliente_id: null }));
                       setClientDropdownOpen(false);
                     }}
-                    className="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-200/60"
+                    className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-700"
                     title="Limpiar"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -519,20 +519,20 @@ export default function AppointmentModal({
                 <button
                   type="button"
                   onClick={() => setClientDropdownOpen(prev => !prev)}
-                  className="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-200/60"
+                  className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-700"
                   title="Ver clientes del catálogo"
                 >
-                  <ChevronDown className={`w-4 h-4 transition-transform ${clientDropdownOpen ? 'rotate-180 text-blue-600' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 transition-transform ${clientDropdownOpen ? 'rotate-180 text-blue-600 dark:text-blue-400' : ''}`} />
                 </button>
               </div>
             </div>
 
             {/* Menú Desplegable de Sugerencias */}
             {clientDropdownOpen && (
-              <div className="absolute left-0 right-0 z-40 mt-1.5 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden max-h-56 overflow-y-auto divide-y divide-slate-100 animate-in fade-in zoom-in-95 duration-150">
-                <div className="p-2 bg-slate-50 text-[11px] font-bold text-slate-500 flex items-center justify-between">
+              <div className="absolute left-0 right-0 z-40 mt-1.5 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-56 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 animate-in fade-in zoom-in-95 duration-150">
+                <div className="p-2 bg-slate-50 dark:bg-slate-800/80 text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
                   <span>Catálogo de Clientes ({filteredClients.length})</span>
-                  <span className="text-[10px] text-slate-400 font-normal">Haz clic para autocompletar</span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">Haz clic para autocompletar</span>
                 </div>
 
                 {filteredClients.length > 0 ? (
@@ -543,26 +543,26 @@ export default function AppointmentModal({
                         key={client.id}
                         type="button"
                         onClick={() => handleSelectClient(client)}
-                        className={`w-full text-left px-3.5 py-2.5 flex items-start gap-3 hover:bg-blue-50/70 transition-colors ${
-                          isSelected ? 'bg-blue-50 font-bold text-blue-900' : 'text-slate-800'
+                        className={`w-full text-left px-3.5 py-2.5 flex items-start gap-3 hover:bg-blue-50/70 dark:hover:bg-slate-800/70 transition-colors ${
+                          isSelected ? 'bg-blue-50 dark:bg-blue-950/40 font-bold text-blue-900 dark:text-blue-200' : 'text-slate-800 dark:text-slate-200'
                         }`}
                       >
                         <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
-                          isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'
+                          isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                         }`}>
                           <Building2 className="w-4 h-4" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-bold truncate">{client.nombre_empresa}</p>
                           {(client.contacto || client.telefono) && (
-                            <p className="text-[11px] text-slate-500 truncate flex items-center gap-1.5 mt-0.5">
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate flex items-center gap-1.5 mt-0.5">
                               {client.contacto && <span>👤 {client.contacto}</span>}
                               {client.telefono && <span>📞 {client.telefono}</span>}
                             </p>
                           )}
                         </div>
                         {isSelected && (
-                          <span className="text-[10px] font-bold text-blue-600 bg-white border border-blue-200 px-1.5 py-0.5 rounded shadow-2xs">
+                          <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 px-1.5 py-0.5 rounded shadow-2xs">
                             ✓ Activo
                           </span>
                         )}
@@ -570,7 +570,7 @@ export default function AppointmentModal({
                     );
                   })
                 ) : (
-                  <div className="p-3 text-center text-xs text-slate-500">
+                  <div className="p-3 text-center text-xs text-slate-500 dark:text-slate-400">
                     No se encontró ninguna empresa con ese nombre en el catálogo.
                   </div>
                 )}
@@ -581,10 +581,10 @@ export default function AppointmentModal({
                     type="button"
                     onClick={handleQuickRegister}
                     disabled={isRegisteringClient}
-                    className="w-full text-left px-3.5 py-2.5 bg-blue-50/60 hover:bg-blue-100/80 text-blue-700 font-semibold flex items-center justify-between transition-colors border-t border-blue-100"
+                    className="w-full text-left px-3.5 py-2.5 bg-blue-50/60 dark:bg-blue-950/40 hover:bg-blue-100/80 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-semibold flex items-center justify-between transition-colors border-t border-blue-100 dark:border-blue-900"
                   >
                     <div className="flex items-center gap-2 truncate">
-                      <Plus className="w-4 h-4 text-blue-600 shrink-0" />
+                      <Plus className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                       <span className="text-xs truncate">
                         Registrar <strong>"{formData.cliente_nombre.trim()}"</strong> en el catálogo
                       </span>
@@ -600,13 +600,13 @@ export default function AppointmentModal({
             {/* Chips Rápidos de Empresas Frecuentes */}
             {clientes.length > 0 && !matchedClient && (
               <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sugerencias:</span>
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Sugerencias:</span>
                 {clientes.slice(0, 4).map(c => (
                   <button
                     key={c.id}
                     type="button"
                     onClick={() => handleSelectClient(c)}
-                    className="text-[11px] px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 hover:text-blue-700 font-semibold transition-all shadow-2xs"
+                    className="text-[11px] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-950/50 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-all shadow-2xs"
                   >
                     {c.nombre_empresa.length > 22 ? c.nombre_empresa.slice(0, 22) + '…' : c.nombre_empresa}
                   </button>
@@ -616,20 +616,20 @@ export default function AppointmentModal({
 
             {/* Detalle verificado de la empresa seleccionada */}
             {matchedClient && (
-              <div className="mt-2 p-2.5 rounded-xl bg-blue-50/50 border border-blue-100 text-xs text-slate-600 flex items-center justify-between animate-in fade-in duration-150">
+              <div className="mt-2 p-2.5 rounded-xl bg-blue-50/50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/60 text-xs text-slate-600 dark:text-slate-300 flex items-center justify-between animate-in fade-in duration-150">
                 <div className="flex items-center gap-2 truncate">
                   <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
                     <Building2 className="w-3.5 h-3.5" />
                   </div>
                   <div className="truncate">
-                    <p className="font-bold text-slate-900 text-xs truncate">{matchedClient.nombre_empresa}</p>
-                    <p className="text-[10px] text-slate-500 truncate flex items-center gap-2">
-                      {matchedClient.contacto && <span>Contacto: <strong className="text-slate-700">{matchedClient.contacto}</strong></span>}
+                    <p className="font-bold text-slate-900 dark:text-white text-xs truncate">{matchedClient.nombre_empresa}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate flex items-center gap-2">
+                      {matchedClient.contacto && <span>Contacto: <strong className="text-slate-700 dark:text-slate-300">{matchedClient.contacto}</strong></span>}
                       {matchedClient.telefono && <span>· Tel: {matchedClient.telefono}</span>}
                     </p>
                   </div>
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded-full shrink-0">
+                <span className="text-[10px] font-black uppercase tracking-wider text-blue-700 dark:text-blue-300 bg-blue-100/70 dark:bg-blue-950/80 px-2 py-0.5 rounded-full shrink-0 border border-blue-200 dark:border-blue-800">
                   Enlazado
                 </span>
               </div>
@@ -638,8 +638,8 @@ export default function AppointmentModal({
 
           {/* Selección de Capacitador (con iniciales y color distintivo) */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-              <User className="w-4 h-4 text-blue-600" />
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               Capacitador Asignado <span className="text-rose-500">*</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -652,8 +652,8 @@ export default function AppointmentModal({
                     onClick={() => setFormData({ ...formData, capacitador_id: cap.id })}
                     className={`p-2.5 rounded-xl text-left border text-xs font-semibold flex items-center gap-2.5 transition-all ${
                       isSelected
-                        ? 'ring-2 ring-blue-500 border-transparent shadow-sm bg-blue-50/60'
-                        : 'border-slate-200 bg-white hover:border-slate-300'
+                        ? 'ring-2 ring-blue-500 border-transparent shadow-sm bg-blue-50/60 dark:bg-blue-950/50'
+                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
                     }`}
                   >
                     <span
@@ -662,13 +662,13 @@ export default function AppointmentModal({
                     >
                       {cap.iniciales}
                     </span>
-                    <span className="truncate text-slate-800 font-bold">{cap.nombre_completo.split(' ')[0]}</span>
+                    <span className="truncate text-slate-800 dark:text-slate-200 font-bold">{cap.nombre_completo.split(' ')[0]}</span>
                   </button>
                 );
               })}
             </div>
             {isTrainerInactive && (
-              <p className="text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-2.5 py-1 mt-1.5 flex items-center gap-1">
+              <p className="text-[11px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 rounded-lg px-2.5 py-1 mt-1.5 flex items-center gap-1">
                 ⚠️ Este capacitador se encuentra inactivo y no puede recibir nuevas citas.
               </p>
             )}
@@ -677,7 +677,7 @@ export default function AppointmentModal({
           {/* Fecha, Horarios y Cálculo de Horas */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                 Fecha <span className="text-rose-500">*</span>
               </label>
               <input
@@ -685,17 +685,17 @@ export default function AppointmentModal({
                 value={formData.fecha}
                 onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
                 required
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
               {isWeekend && (
-                <p className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-0.5 mt-1 flex items-center gap-1">
+                <p className="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 rounded-lg px-2 py-0.5 mt-1 flex items-center gap-1">
                   🗓️ Fin de semana
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                 Hora Inicio
               </label>
               <input
@@ -703,14 +703,14 @@ export default function AppointmentModal({
                 value={formData.hora_inicio}
                 onChange={(e) => handleTimeChange('hora_inicio', e.target.value)}
                 required
-                className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 ${
-                  isTimeRangeInvalid ? 'border-rose-400 focus:ring-rose-200' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-500'
+                className={`w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border rounded-xl text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 ${
+                  isTimeRangeInvalid ? 'border-rose-400 focus:ring-rose-200' : 'border-slate-200 dark:border-slate-700 focus:ring-blue-500/20 focus:border-blue-500'
                 }`}
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                 Hora Fin
               </label>
               <input
@@ -718,12 +718,12 @@ export default function AppointmentModal({
                 value={formData.hora_fin}
                 onChange={(e) => handleTimeChange('hora_fin', e.target.value)}
                 required
-                className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 ${
-                  isTimeRangeInvalid ? 'border-rose-400 focus:ring-rose-200 text-rose-700' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-500'
+                className={`w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border rounded-xl text-sm font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 ${
+                  isTimeRangeInvalid ? 'border-rose-400 focus:ring-rose-200 text-rose-700 dark:text-rose-400' : 'border-slate-200 dark:border-slate-700 focus:ring-blue-500/20 focus:border-blue-500'
                 }`}
               />
               {isTimeRangeInvalid && (
-                <p className="text-[10px] font-bold text-rose-600 mt-1 flex items-center gap-0.5">
+                <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-0.5">
                   ⚠️ Fin debe ser posterior a inicio.
                 </p>
               )}
@@ -731,12 +731,12 @@ export default function AppointmentModal({
           </div>
 
           {/* Control de Horas Calculadas (H) */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-center justify-between">
+          <div className="bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <Calculator className="w-5 h-5 text-blue-600" />
+              <Calculator className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               <div>
-                <span className="text-xs font-bold text-slate-900">Horas Totales (H)</span>
-                <p className="text-[11px] text-slate-500">
+                <span className="text-xs font-bold text-slate-900 dark:text-white">Horas Totales (H)</span>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   {isManualHours ? 'Ajuste manual habilitado' : 'Calculado automáticamente de los horarios'}
                 </p>
               </div>
@@ -753,8 +753,8 @@ export default function AppointmentModal({
                 onChange={(e) => setFormData({ ...formData, horas: e.target.value })}
                 className={`w-24 px-3 py-1.5 rounded-xl text-base font-extrabold text-center border transition-all ${
                   isManualHours
-                    ? 'bg-white border-blue-500 text-blue-700 ring-2 ring-blue-500/20 shadow-xs'
-                    : 'bg-slate-200/80 border-slate-300 text-slate-900'
+                    ? 'bg-white dark:bg-slate-900 border-blue-500 text-blue-700 dark:text-blue-400 ring-2 ring-blue-500/20 shadow-xs'
+                    : 'bg-slate-200/80 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white'
                 }`}
               />
               <button
@@ -766,7 +766,7 @@ export default function AppointmentModal({
                   }
                   setIsManualHours(!isManualHours);
                 }}
-                className="text-xs font-bold text-blue-600 hover:text-blue-800 px-2.5 py-1.5 rounded-lg hover:bg-blue-50 border border-blue-200"
+                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 px-2.5 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-700 border border-blue-200 dark:border-blue-800"
               >
                 {isManualHours ? 'Auto' : 'Ajustar'}
               </button>
@@ -775,38 +775,38 @@ export default function AppointmentModal({
 
           {/* ALERTA PREVENTIVA EN ROJO: Detección inteligente de traslapes/conflictos */}
           {conflictingCita && (
-            <div className="bg-rose-50 border-2 border-rose-300 rounded-2xl p-4 flex items-start gap-3.5 text-rose-950 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="w-9 h-9 rounded-xl bg-rose-100 border border-rose-200 text-rose-600 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
-                <AlertTriangle className="w-5 h-5 text-rose-600 stroke-[2.5]" />
+            <div className="bg-rose-50 dark:bg-rose-950/50 border-2 border-rose-300 dark:border-rose-900 rounded-2xl p-4 flex items-start gap-3.5 text-rose-950 dark:text-rose-200 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-900/60 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 stroke-[2.5]" />
               </div>
               <div className="text-xs space-y-1.5 flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1">
-                  <p className="font-black text-sm text-rose-700 flex items-center gap-1.5">
+                  <p className="font-black text-sm text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
                     🚨 Conflicto de Horario Detectado
                   </p>
-                  <span className="bg-rose-200 text-rose-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  <span className="bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                     Empalme
                   </span>
                 </div>
-                <p className="text-slate-700 font-medium leading-relaxed">
-                  <strong className="text-rose-900 font-bold">
+                <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
+                  <strong className="text-rose-900 dark:text-rose-200 font-bold">
                     {selectedTrainer ? selectedTrainer.nombre_completo : 'El capacitador'}
                   </strong> ya tiene otra actividad asignada en este mismo horario el {formData.fecha}:
                 </p>
-                <div className="bg-white/90 rounded-xl p-2.5 border border-rose-200 text-slate-800 space-y-1 shadow-2xs">
-                  <p className="font-extrabold text-xs text-slate-900">
+                <div className="bg-white/90 dark:bg-slate-850 rounded-xl p-2.5 border border-rose-200 dark:border-rose-900 text-slate-800 dark:text-slate-200 space-y-1 shadow-2xs">
+                  <p className="font-extrabold text-xs text-slate-900 dark:text-white">
                     📌 {conflictingCita.observaciones || `${conflictingCita.tipo_servicio} Programado`}
                   </p>
-                  <p className="text-slate-600 text-[11px] flex items-center gap-1">
+                  <p className="text-slate-600 dark:text-slate-400 text-[11px] flex items-center gap-1">
                     <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>Empresa: <strong className="text-slate-800">{conflictingCita.cliente_nombre}</strong></span>
+                    <span>Empresa: <strong className="text-slate-800 dark:text-slate-200">{conflictingCita.cliente_nombre}</strong></span>
                   </p>
-                  <p className="font-mono text-rose-700 font-bold text-[11px] flex items-center gap-1">
+                  <p className="font-mono text-rose-700 dark:text-rose-400 font-bold text-[11px] flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                     <span>Horario ocupado: {conflictingCita.hora_inicio} - {conflictingCita.hora_fin} ({conflictingCita.horas}h)</span>
                   </p>
                 </div>
-                <p className="text-[11px] text-rose-600 font-semibold italic">
+                <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold italic">
                   ⚠️ Modifica el horario o asigna a otro capacitador disponible para poder guardar.
                 </p>
               </div>
@@ -815,36 +815,36 @@ export default function AppointmentModal({
 
           {/* ALERTA PREVENTIVA: Doble Agendamiento del Cliente en el mismo horario con otro capacitador */}
           {clientConflictCita && !conflictingCita && (
-            <div className="bg-amber-50/90 border-2 border-amber-300 rounded-2xl p-4 flex items-start gap-3.5 text-amber-950 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
-                <Building2 className="w-5 h-5 text-amber-700" />
+            <div className="bg-amber-50/90 dark:bg-amber-950/50 border-2 border-amber-300 dark:border-amber-900 rounded-2xl p-4 flex items-start gap-3.5 text-amber-950 dark:text-amber-200 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/60 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                <Building2 className="w-5 h-5 text-amber-700 dark:text-amber-400" />
               </div>
               <div className="text-xs space-y-1.5 flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1">
-                  <p className="font-black text-sm text-amber-900 flex items-center gap-1.5">
+                  <p className="font-black text-sm text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
                     🏢 Doble Agendamiento de Empresa Detectado
                   </p>
-                  <span className="bg-amber-200 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  <span className="bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-200 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                     Aviso
                   </span>
                 </div>
-                <p className="text-slate-700 font-medium leading-relaxed">
-                  La empresa <strong className="text-amber-950 font-bold">{formData.cliente_nombre}</strong> ya tiene otra sesión programada en este mismo intervalo horario con otro capacitador:
+                <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
+                  La empresa <strong className="text-amber-950 dark:text-amber-200 font-bold">{formData.cliente_nombre}</strong> ya tiene otra sesión programada en este mismo intervalo horario con otro capacitador:
                 </p>
-                <div className="bg-white/90 rounded-xl p-2.5 border border-amber-200 text-slate-800 space-y-1 shadow-2xs">
-                  <p className="font-extrabold text-xs text-slate-900">
+                <div className="bg-white/90 dark:bg-slate-850 rounded-xl p-2.5 border border-amber-200 dark:border-amber-900 text-slate-800 dark:text-slate-200 space-y-1 shadow-2xs">
+                  <p className="font-extrabold text-xs text-slate-900 dark:text-white">
                     📌 {clientConflictCita.observaciones || `${clientConflictCita.tipo_servicio} Programado`}
                   </p>
-                  <p className="text-slate-600 text-[11px] flex items-center gap-1">
+                  <p className="text-slate-600 dark:text-slate-400 text-[11px] flex items-center gap-1">
                     <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>Capacitador: <strong className="text-slate-800">{clientConflictCita.capacitador_nombre} [{clientConflictCita.capacitador_iniciales}]</strong></span>
+                    <span>Capacitador: <strong className="text-slate-800 dark:text-slate-200">{clientConflictCita.capacitador_nombre} [{clientConflictCita.capacitador_iniciales}]</strong></span>
                   </p>
-                  <p className="font-mono text-amber-800 font-bold text-[11px] flex items-center gap-1">
+                  <p className="font-mono text-amber-800 dark:text-amber-400 font-bold text-[11px] flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                     <span>Horario: {clientConflictCita.hora_inicio} - {clientConflictCita.hora_fin} ({clientConflictCita.horas}h)</span>
                   </p>
                 </div>
-                <p className="text-[11px] text-amber-800 font-medium">
+                <p className="text-[11px] text-amber-800 dark:text-amber-400 font-medium">
                   💡 Si la empresa organizó dos capacitaciones en simultáneo para grupos separados puedes guardar; de lo contrario, coordina con la empresa para evitar empalmes.
                 </p>
               </div>
@@ -855,11 +855,11 @@ export default function AppointmentModal({
           {trainerDailyStats.isOverloaded && !conflictingCita && (
             <div className={`border rounded-2xl p-3.5 flex items-start gap-3 shadow-2xs animate-in fade-in duration-150 ${
               trainerDailyStats.isExtreme
-                ? 'bg-rose-50/80 border-rose-300 text-rose-950'
-                : 'bg-amber-50/80 border-amber-300 text-amber-950'
+                ? 'bg-rose-50/80 dark:bg-rose-950/50 border-rose-300 dark:border-rose-900 text-rose-950 dark:text-rose-200'
+                : 'bg-amber-50/80 dark:bg-amber-950/50 border-amber-300 dark:border-amber-900 text-amber-950 dark:text-amber-200'
             }`}>
               <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
-                trainerDailyStats.isExtreme ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'
+                trainerDailyStats.isExtreme ? 'bg-rose-100 dark:bg-rose-900/60 text-rose-600 dark:text-rose-400' : 'bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-400'
               }`}>
                 <AlertTriangle className="w-4 h-4" />
               </div>
@@ -868,12 +868,12 @@ export default function AppointmentModal({
                   <span className="font-bold">
                     {trainerDailyStats.isExtreme ? '🚨 Jornada Extrema del Capacitador' : '⚠️ Aviso de Sobrecarga de Horas Diarias'}
                   </span>
-                  <span className="font-mono font-black px-2 py-0.5 rounded-full bg-white/90 border text-[11px]">
+                  <span className="font-mono font-black px-2 py-0.5 rounded-full bg-white/90 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px]">
                     {trainerDailyStats.totalHours}h en el día
                   </span>
                 </div>
-                <p className="text-slate-600 leading-relaxed">
-                  Con esta cita, <strong className="text-slate-900">{selectedTrainer?.nombre_completo || 'el capacitador'}</strong> sumará <strong>{trainerDailyStats.totalHours} horas</strong> de capacitación en la fecha {formData.fecha} (la jornada recomendada es de 8h).
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Con esta cita, <strong className="text-slate-900 dark:text-white">{selectedTrainer?.nombre_completo || 'el capacitador'}</strong> sumará <strong>{trainerDailyStats.totalHours} horas</strong> de capacitación en la fecha {formData.fecha} (la jornada recomendada es de 8h).
                 </p>
               </div>
             </div>
@@ -881,16 +881,16 @@ export default function AppointmentModal({
 
           {/* AVISO: Traslado Inmediato / Citas Presenciales Consecutivas entre Distintas Empresas */}
           {transitWarning && !conflictingCita && (
-            <div className="bg-blue-50/80 border border-blue-200 rounded-2xl p-3.5 flex items-start gap-3 text-blue-950 shadow-2xs animate-in fade-in duration-150">
-              <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+            <div className="bg-blue-50/80 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-2xl p-3.5 flex items-start gap-3 text-blue-950 dark:text-blue-200 shadow-2xs animate-in fade-in duration-150">
+              <div className="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
                 <Car className="w-4 h-4" />
               </div>
               <div className="text-xs space-y-1 min-w-0 flex-1">
-                <p className="font-bold text-blue-900 flex items-center gap-1.5">
+                <p className="font-bold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
                   🚗 Aviso de Desplazamiento Presencial Continuo
                 </p>
-                <p className="text-slate-600 leading-relaxed">
-                  El capacitador tiene otra cita presencial continua con <strong className="text-slate-900">{transitWarning.cliente_nombre}</strong> ({transitWarning.hora_inicio} - {transitWarning.hora_fin}). Asegúrate de prever tiempo suficiente de traslado entre ambas empresas.
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                  El capacitador tiene otra cita presencial continua con <strong className="text-slate-900 dark:text-white">{transitWarning.cliente_nombre}</strong> ({transitWarning.hora_inicio} - {transitWarning.hora_fin}). Asegúrate de prever tiempo suficiente de traslado entre ambas empresas.
                 </p>
               </div>
             </div>
@@ -898,34 +898,34 @@ export default function AppointmentModal({
 
           {/* SUGERENCIA: Cita en Fecha Pasada */}
           {isPastDateWarning && (
-            <div className="bg-slate-100/90 border border-slate-200 rounded-2xl p-3 flex items-start gap-2.5 text-slate-700 text-xs animate-in fade-in duration-150">
+            <div className="bg-slate-100/90 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-3 flex items-start gap-2.5 text-slate-700 dark:text-slate-300 text-xs animate-in fade-in duration-150">
               <span className="text-sm">💡</span>
               <p className="leading-relaxed">
-                Esta cita está agendada para una fecha anterior a hoy (<strong className="text-slate-900">{formData.fecha}</strong>). Si la capacitación ya fue impartida con éxito, considera seleccionar el estado <strong className="text-emerald-700 font-bold">Impartida ✅</strong>.
+                Esta cita está agendada para una fecha anterior a hoy (<strong className="text-slate-900 dark:text-white">{formData.fecha}</strong>). Si la capacitación ya fue impartida con éxito, considera seleccionar el estado <strong className="text-emerald-700 dark:text-emerald-400 font-bold">Impartida ✅</strong>.
               </p>
             </div>
           )}
 
           {/* Estado de la Cita (Ciclo de Vida de la Capacitación) */}
-          <div className="bg-slate-50/80 border border-slate-200 rounded-2xl p-3.5 space-y-2">
+          <div className="bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-3.5 space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+              <label className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                 <span>Estado de la Cita</span>
-                <span className="text-[10px] font-normal text-slate-400">· Ciclo AD-RE-11</span>
+                <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500">· Ciclo AD-RE-11</span>
               </label>
 
               {formData.estado === 'Cancelada' && (
-                <span className="text-[10px] font-bold text-rose-700 bg-rose-100/90 border border-rose-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 bg-rose-100/90 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-900 px-2 py-0.5 rounded-full flex items-center gap-1">
                   <span>Libera horario y no suma horas</span>
                 </span>
               )}
               {formData.estado === 'Impartida' && (
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
                   <span>Computa 100% de horas</span>
                 </span>
               )}
               {formData.estado === 'En Curso' && (
-                <span className="text-[10px] font-bold text-amber-700 bg-amber-100/90 border border-amber-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-100/90 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-full flex items-center gap-1">
                   <span>En desarrollo activo</span>
                 </span>
               )}
@@ -940,7 +940,7 @@ export default function AppointmentModal({
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, estado: est.id }))}
                     className={`px-2 py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
-                      isActive ? est.activeClass : `${est.colorClass} border-slate-200 bg-white`
+                      isActive ? est.activeClass : `${est.colorClass} border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800`
                     }`}
                   >
                     <span>{est.emoji}</span>
@@ -954,10 +954,10 @@ export default function AppointmentModal({
           {/* Modalidad y Tipo de Servicio */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Modalidad
               </label>
-              <div className="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl">
+              <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                 {MODALIDADES.map((m) => {
                   const active = formData.modalidad === m;
                   return (
@@ -966,7 +966,7 @@ export default function AppointmentModal({
                       type="button"
                       onClick={() => setFormData({ ...formData, modalidad: m })}
                       className={`py-2 text-xs font-bold rounded-lg transition-all ${
-                        active ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                        active ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
                       {m}
@@ -977,13 +977,13 @@ export default function AppointmentModal({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Tipo de Servicio
               </label>
               <select
                 value={formData.tipo_servicio}
                 onChange={(e) => setFormData({ ...formData, tipo_servicio: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               >
                 {TIPOS_SERVICIO.map((ts) => (
                   <option key={ts} value={ts}>{ts}</option>
@@ -995,12 +995,12 @@ export default function AppointmentModal({
           {/* Descripción / Observaciones de la cita */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <AlignLeft className="w-4 h-4 text-slate-500" />
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <AlignLeft className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                 Descripción / Observaciones de la Cita
               </label>
               <span className={`text-[10px] font-mono font-bold ${
-                (formData.descripcion || '').length > 500 ? 'text-rose-600' : 'text-slate-400'
+                (formData.descripcion || '').length > 500 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-400 dark:text-slate-500'
               }`}>
                 {(formData.descripcion || '').length} / 500
               </span>
@@ -1010,27 +1010,27 @@ export default function AppointmentModal({
               value={formData.descripcion}
               onChange={(e) => setFormData({ ...formData, descripcion: e.target.value, observaciones: e.target.value })}
               placeholder="Escribe la descripción de los temas a tratar, sala, detalles o notas..."
-              className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm font-normal text-slate-900 focus:bg-white focus:outline-none focus:ring-2 resize-none ${
+              className={`w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border rounded-xl text-sm font-normal text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 resize-none ${
                 (formData.descripcion || '').length > 500
                   ? 'border-rose-400 focus:ring-rose-200'
-                  : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-500'
+                  : 'border-slate-200 dark:border-slate-700 focus:ring-blue-500/20 focus:border-blue-500'
               }`}
             />
             {(formData.descripcion || '').length > 500 && (
-              <p className="text-[10px] font-bold text-rose-600 mt-1">
+              <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 mt-1">
                 ⚠️ Las observaciones no deben superar los 500 caracteres.
               </p>
             )}
           </div>
 
           {/* Botones de acción */}
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
             {appointment?.id ? (
               <button
                 type="button"
                 onClick={handleDelete}
                 disabled={loading}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Eliminar Cita
@@ -1042,7 +1042,7 @@ export default function AppointmentModal({
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 Cancelar
               </button>
@@ -1060,7 +1060,7 @@ export default function AppointmentModal({
                 }
                 className={`inline-flex items-center gap-2 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all transform active:scale-95 ${
                   conflictingCita || isTimeRangeInvalid || isTrainerInactive || (formData.descripcion || '').length > 500
-                    ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+                    ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600 cursor-not-allowed shadow-none'
                     : 'bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/25'
                 }`}
               >

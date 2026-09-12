@@ -162,13 +162,13 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
   return (
     <div className="space-y-6">
       {/* Barra superior de catálogo */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <Users className="w-5 h-5 text-blue-600" />
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+            <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             Catálogo de Capacitadores ({capacitadores.length})
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Personal docente con iniciales y color asignado para distinción en la agenda
           </p>
         </div>
@@ -187,7 +187,7 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
         {capacitadores.map((cap) => (
           <div
             key={cap.id}
-            className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:shadow-md transition-all flex items-center justify-between group"
+            className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs hover:shadow-md transition-all flex items-center justify-between group"
           >
             <div className="flex items-center gap-3.5">
               <div
@@ -198,11 +198,11 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
               </div>
 
               <div>
-                <h3 className="font-bold text-slate-900 text-sm">
+                <h3 className="font-bold text-slate-900 dark:text-white text-sm">
                   {cap.nombre_completo}
                 </h3>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-[11px] font-mono font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                  <span className="text-[11px] font-mono font-bold text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
                     Código: {cap.iniciales}
                   </span>
                   <span
@@ -210,13 +210,13 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                     style={{ backgroundColor: cap.color }}
                     title={`Color: ${cap.color}`}
                   />
-                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
-                    <Banknote className="w-3 h-3 text-emerald-600" />
+                  <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                    <Banknote className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                     Q {Number(cap.tarifa_hora || 150).toFixed(2)}/hr
                   </span>
                   {cap.telefono && (
-                    <span className="text-[11px] text-slate-500 flex items-center gap-1 font-mono">
-                      <Phone className="w-3 h-3 text-emerald-600" />
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 font-mono">
+                      <Phone className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                       {cap.telefono}
                     </span>
                   )}
@@ -228,14 +228,14 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
               <button
                 onClick={() => openEditModal(cap)}
                 title="Editar"
-                className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                className="p-2 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-xl transition-colors"
               >
                 <Edit2 className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handleDelete(cap.id)}
                 title="Eliminar"
-                className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-xl transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -246,22 +246,22 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
 
       {/* Modal Crear / Editar */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-              <h3 className="text-sm font-bold text-slate-900">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                 {editingCap ? 'Editar Capacitador' : 'Registrar Nuevo Capacitador'}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {error && (
-              <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-50 text-rose-700 text-xs flex items-center gap-2">
+              <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -269,7 +269,7 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   Nombre Completo <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -278,12 +278,12 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                   placeholder="Ej: Mauricio Orozco"
                   value={formData.nombre_completo}
                   onChange={(e) => handleNameChange(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
                   Iniciales / Código de Agenda <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -293,16 +293,16 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                   placeholder="Ej: MO, OQ, PF"
                   value={formData.iniciales}
                   onChange={(e) => setFormData({ ...formData, iniciales: e.target.value.toUpperCase() })}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="text-[11px] text-slate-500 mt-1">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                   Código de 2 a 4 letras que aparecerá en los bloques de la agenda.
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   Teléfono / WhatsApp
                 </label>
                 <input
@@ -310,20 +310,20 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                   placeholder="Ej: +502 5555-1234"
                   value={formData.telefono}
                   onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="text-[10px] text-slate-400 mt-0.5">
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
                   Incluye código de país (ej. +502 para Guatemala) para el envío directo por WhatsApp.
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <Banknote className="w-3.5 h-3.5 text-emerald-600" />
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <Banknote className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   Honorarios por Hora (Quetzales) <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 font-bold text-xs">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400 font-bold text-xs">
                     Q
                   </div>
                   <input
@@ -334,18 +334,18 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                     placeholder="150.00"
                     value={formData.tarifa_hora}
                     onChange={(e) => setFormData({ ...formData, tarifa_hora: e.target.value })}
-                    className="w-full pl-8 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-8 pr-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                <p className="text-[10px] text-slate-400 mt-0.5">
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
                   Tarifa por hora utilizada para computar los honorarios devengados y proyectados en tiempo real.
                 </p>
               </div>
 
               {/* Selector de color */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Palette className="w-3.5 h-3.5 text-blue-600" />
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Palette className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                   Color Distintivo
                 </label>
                 <div className="flex items-center gap-2 flex-wrap mb-2">
@@ -355,7 +355,7 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                       type="button"
                       onClick={() => setFormData({ ...formData, color })}
                       className={`w-7 h-7 rounded-xl transition-all ${
-                        formData.color === color ? 'ring-2 ring-offset-2 ring-slate-800 scale-110' : 'hover:scale-105'
+                        formData.color === color ? 'ring-2 ring-offset-2 ring-slate-800 dark:ring-slate-300 scale-110' : 'hover:scale-105'
                       }`}
                       style={{ backgroundColor: color }}
                     />
@@ -366,17 +366,17 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                     type="color"
                     value={formData.color}
                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-200 p-0"
+                    className="w-8 h-8 rounded-lg cursor-pointer border border-slate-200 dark:border-slate-700 p-0"
                   />
-                  <span className="text-xs font-mono text-slate-600 uppercase font-semibold">
+                  <span className="text-xs font-mono text-slate-600 dark:text-slate-300 uppercase font-semibold">
                     {formData.color}
                   </span>
                 </div>
               </div>
 
               {/* Previsualización del Badge */}
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center gap-3">
-                <span className="text-xs font-semibold text-slate-600">Vista previa en calendario:</span>
+              <div className="bg-slate-50 dark:bg-slate-800/70 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-3">
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Vista previa en calendario:</span>
                 <div
                   className="px-2.5 py-1 rounded-md text-xs font-extrabold text-white flex items-center gap-1 shadow-xs"
                   style={{ backgroundColor: formData.color }}
@@ -385,11 +385,11 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 >
                   Cancelar
                 </button>
