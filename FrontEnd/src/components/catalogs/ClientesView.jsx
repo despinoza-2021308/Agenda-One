@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Building2, Plus, Search, Phone, Mail, User, Edit2, Trash2, Check, X, AlertCircle } from 'lucide-react';
 
-export default function ClientesView({ clientes = [], onSaveCliente, onDeleteCliente }) {
+export default function ClientesView({ clientes = [], citas = [], onSaveCliente, onDeleteCliente }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCliente, setEditingCliente] = useState(null);
@@ -104,68 +104,84 @@ export default function ClientesView({ clientes = [], onSaveCliente, onDeleteCli
 
       {/* Grid de Clientes */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredClientes.map((cliente) => (
-          <div
-            key={cliente.id}
-            className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
-          >
-            <div>
-              <div className="flex items-start justify-between gap-2 mb-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
-                  <Building2 className="w-5 h-5" />
+        {filteredClientes.map((cliente) => {
+          const clientCitas = citas.filter(c =>
+            Number(c.cliente_id) === Number(cliente.id) ||
+            (c.cliente_nombre && c.cliente_nombre.trim().toLowerCase() === cliente.nombre_empresa.trim().toLowerCase())
+          );
+          const totalHoras = clientCitas.reduce((sum, c) => sum + (parseFloat(c.horas) || 0), 0);
+
+          return (
+            <div
+              key={cliente.id}
+              className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
+            >
+              <div>
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+                    <Building2 className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => openEditModal(cliente)}
+                      title="Editar"
+                      className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(cliente.id)}
+                      title="Eliminar"
+                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={() => openEditModal(cliente)}
-                    title="Editar"
-                    className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(cliente.id)}
-                    title="Eliminar"
-                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+
+                <h3 className="font-bold text-slate-900 text-sm mb-2 line-clamp-2">
+                  {cliente.nombre_empresa}
+                </h3>
+
+                <div className="space-y-1.5 text-xs text-slate-600">
+                  {cliente.contacto && (
+                    <div className="flex items-center gap-2">
+                      <User className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="truncate">{cliente.contacto}</span>
+                    </div>
+                  )}
+                  {cliente.telefono && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{cliente.telefono}</span>
+                    </div>
+                  )}
+                  {cliente.correo && (
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="truncate">{cliente.correo}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Métricas de horas de capacitación */}
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                  <span className="text-slate-500 font-medium">Actividad:</span>
+                  <span className={`font-bold px-2 py-0.5 rounded-full ${clientCitas.length > 0 ? 'bg-blue-50 text-blue-700 border border-blue-200/60' : 'bg-slate-100 text-slate-500'}`}>
+                    {clientCitas.length} {clientCitas.length === 1 ? 'cita' : 'citas'} ({totalHoras}h)
+                  </span>
                 </div>
               </div>
 
-              <h3 className="font-bold text-slate-900 text-sm mb-2 line-clamp-2">
-                {cliente.nombre_empresa}
-              </h3>
-
-              <div className="space-y-1.5 text-xs text-slate-600">
-                {cliente.contacto && (
-                  <div className="flex items-center gap-2">
-                    <User className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="truncate">{cliente.contacto}</span>
-                  </div>
-                )}
-                {cliente.telefono && (
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{cliente.telefono}</span>
-                  </div>
-                )}
-                {cliente.correo && (
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="truncate">{cliente.correo}</span>
-                  </div>
-                )}
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                <span>ID #{cliente.id}</span>
+                <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                  ● Activo
+                </span>
               </div>
             </div>
-
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-              <span>ID #{cliente.id}</span>
-              <span className="text-emerald-600 font-semibold flex items-center gap-1">
-                ● Activo
-              </span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Modal para Crear / Editar Cliente */}

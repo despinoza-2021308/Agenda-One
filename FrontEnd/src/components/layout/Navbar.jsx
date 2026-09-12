@@ -1,11 +1,12 @@
 import React from 'react';
-import { Calendar, BarChart3, Users, Plus } from 'lucide-react';
+import { Calendar, BarChart3, Users, Building2, Plus } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab, onNewAppointment, capacitadores = [] }) {
   const tabs = [
     { id: 'calendar', label: 'Calendario', icon: Calendar },
     { id: 'reports', label: 'Reporte de Horas', icon: BarChart3 },
     { id: 'trainers', label: 'Capacitadores', icon: Users },
+    { id: 'clients', label: 'Clientes', icon: Building2 },
   ];
 
   return (

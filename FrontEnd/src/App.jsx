@@ -3,16 +3,18 @@ import Navbar from './components/layout/Navbar';
 import CalendarView from './components/calendar/CalendarView';
 import MonthlyReportView from './components/reports/MonthlyReportView';
 import CapacitadoresView from './components/catalogs/CapacitadoresView';
+import ClientesView from './components/catalogs/ClientesView';
 import AppointmentModal from './components/appointments/AppointmentModal';
 import { api } from './services/api';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('calendar'); // 'calendar' | 'reports' | 'trainers'
+  const [activeTab, setActiveTab] = useState('calendar'); // 'calendar' | 'reports' | 'trainers' | 'clients'
   const [currentDate, setCurrentDate] = useState(new Date(2026, 8, 9)); // Septiembre 2026
 
-  // Catálogo de Capacitadores y Citas
+  // Catálogos y Citas
   const [capacitadores, setCapacitadores] = useState([]);
+  const [clientes, setClientes] = useState([]);
   const [citas, setCitas] = useState([]);
 
   // Estado del Modal de Cita
@@ -40,6 +42,16 @@ export default function App() {
     }
   }, []);
 
+  // Cargar catálogo de clientes
+  const loadClientes = useCallback(async () => {
+    try {
+      const clientsData = await api.getClientes();
+      setClientes(clientsData);
+    } catch (err) {
+      console.error('Error al cargar clientes:', err);
+    }
+  }, []);
+
   // Cargar citas del mes
   const loadCitas = useCallback(async () => {
     try {
@@ -54,7 +66,8 @@ export default function App() {
 
   useEffect(() => {
     loadCapacitadores();
-  }, [loadCapacitadores]);
+    loadClientes();
+  }, [loadCapacitadores, loadClientes]);
 
   useEffect(() => {
     loadCitas();
@@ -83,6 +96,8 @@ export default function App() {
         showToast(`Cita registrada con éxito (${formData.horas} hrs).`);
       }
       await loadCitas();
+      // Recargar clientes por si se creó uno nuevo o cambió
+      await loadClientes();
     } catch (err) {
       showToast(err.message || 'Error al guardar cita', 'error');
       throw err;
@@ -118,6 +133,37 @@ export default function App() {
     showToast('Capacitador actualizado/eliminado.');
     await loadCapacitadores();
     await loadCitas();
+  };
+
+  // Handlers para Clientes
+  const handleSaveCliente = async (data, id) => {
+    try {
+      let result;
+      if (id) {
+        result = await api.updateCliente(id, data);
+        showToast('Cliente actualizado correctamente.');
+      } else {
+        result = await api.createCliente(data);
+        showToast(`Empresa "${data.nombre_empresa}" registrada con éxito.`);
+      }
+      await loadClientes();
+      return result;
+    } catch (err) {
+      showToast(err.message || 'Error al guardar cliente', 'error');
+      throw err;
+    }
+  };
+
+  const handleDeleteCliente = async (id) => {
+    try {
+      await api.deleteCliente(id);
+      showToast('Cliente eliminado del catálogo.');
+      await loadClientes();
+      await loadCitas();
+    } catch (err) {
+      showToast(err.message || 'Error al eliminar cliente', 'error');
+      throw err;
+    }
   };
 
   return (
@@ -175,6 +221,15 @@ export default function App() {
             onDeleteCapacitador={handleDeleteCapacitador}
           />
         )}
+
+        {activeTab === 'clients' && (
+          <ClientesView
+            clientes={clientes}
+            citas={citas}
+            onSaveCliente={handleSaveCliente}
+            onDeleteCliente={handleDeleteCliente}
+          />
+        )}
       </main>
 
       {/* Modal de Agendamiento / Edición de Cita */}
@@ -184,6 +239,8 @@ export default function App() {
         appointment={selectedAppointment}
         initialDate={modalInitialDate}
         capacitadores={capacitadores}
+        clientes={clientes}
+        onQuickCreateCliente={handleSaveCliente}
         allCitas={citas}
         onSave={handleSaveAppointment}
         onDelete={handleDeleteAppointment}
