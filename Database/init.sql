@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS capacitadores (
     nombre_completo VARCHAR(120) NOT NULL,
     iniciales VARCHAR(5) NOT NULL UNIQUE CONSTRAINT chk_iniciales_val CHECK (length(trim(iniciales)) BETWEEN 2 AND 5),
     color VARCHAR(7) NOT NULL DEFAULT '#3B82F6' CONSTRAINT chk_color_hex CHECK (color ~* '^#[0-9A-Fa-f]{6}$'),
+    telefono VARCHAR(30),
     activo BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -38,6 +39,7 @@ CREATE TABLE IF NOT EXISTS citas (
     horas NUMERIC(4, 2) NOT NULL CONSTRAINT chk_horas_limite CHECK (horas > 0 AND horas <= 24),
     modalidad VARCHAR(20) NOT NULL CHECK (modalidad IN ('Presencial', 'Virtual', 'Híbrida')),
     tipo_servicio VARCHAR(30) NOT NULL CHECK (tipo_servicio IN ('Asesoría', 'Curso', 'Auditoría', 'Reunión', 'Seguimiento')),
+    estado VARCHAR(25) NOT NULL DEFAULT 'Programada' CHECK (estado IN ('Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada')),
     observaciones TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -48,6 +50,7 @@ CREATE TABLE IF NOT EXISTS citas (
 CREATE INDEX IF NOT EXISTS idx_citas_fecha ON citas(fecha);
 CREATE INDEX IF NOT EXISTS idx_citas_capacitador_fecha ON citas(capacitador_id, fecha);
 CREATE INDEX IF NOT EXISTS idx_citas_cliente ON citas(cliente_id);
+CREATE INDEX IF NOT EXISTS idx_citas_estado ON citas(estado);
 CREATE INDEX IF NOT EXISTS idx_capacitadores_activo ON capacitadores(activo);
 CREATE INDEX IF NOT EXISTS idx_clientes_activo ON clientes(activo);
 

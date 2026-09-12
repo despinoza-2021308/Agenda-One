@@ -25,6 +25,14 @@ import {
 const TIPOS_SERVICIO = ['Curso', 'Asesoría', 'Auditoría', 'Reunión', 'Seguimiento'];
 const MODALIDADES = ['Presencial', 'Virtual', 'Híbrida'];
 
+export const ESTADOS = [
+  { id: 'Programada', label: 'Programada', emoji: '🗓️', colorClass: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100/70', activeClass: 'bg-blue-600 text-white shadow-sm shadow-blue-500/30 border-blue-600' },
+  { id: 'En Curso', label: 'En Curso', emoji: '⏳', colorClass: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100/70', activeClass: 'bg-amber-500 text-white shadow-sm shadow-amber-500/30 border-amber-500' },
+  { id: 'Impartida', label: 'Impartida', emoji: '✅', colorClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100/70', activeClass: 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/30 border-emerald-600' },
+  { id: 'Cancelada', label: 'Cancelada', emoji: '❌', colorClass: 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100/70', activeClass: 'bg-rose-600 text-white shadow-sm shadow-rose-500/30 border-rose-600' },
+  { id: 'Reprogramada', label: 'Reprogramada', emoji: '🔄', colorClass: 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100/70', activeClass: 'bg-purple-600 text-white shadow-sm shadow-purple-500/30 border-purple-600' }
+];
+
 export default function AppointmentModal({
   isOpen,
   onClose,
@@ -47,6 +55,7 @@ export default function AppointmentModal({
     horas: '4',
     modalidad: 'Presencial',
     tipo_servicio: 'Curso',
+    estado: 'Programada',
     descripcion: '',
     observaciones: ''
   });
@@ -81,6 +90,7 @@ export default function AppointmentModal({
         horas: appointment.horas ? String(appointment.horas) : '4',
         modalidad: appointment.modalidad || 'Presencial',
         tipo_servicio: appointment.tipo_servicio || 'Curso',
+        estado: appointment.estado || 'Programada',
         descripcion: appointment.observaciones || '',
         observaciones: appointment.observaciones || ''
       });
@@ -98,6 +108,7 @@ export default function AppointmentModal({
         horas: String(initialHoras),
         modalidad: 'Presencial',
         tipo_servicio: 'Curso',
+        estado: 'Programada',
         descripcion: '',
         observaciones: ''
       });
@@ -191,6 +202,9 @@ export default function AppointmentModal({
       return null;
     }
 
+    // Si la cita que se está editando o creando es Cancelada, no genera conflicto
+    if (formData.estado === 'Cancelada') return null;
+
     const fStart = String(formData.hora_inicio).slice(0, 5);
     const fEnd = String(formData.hora_fin).slice(0, 5);
 
@@ -201,6 +215,7 @@ export default function AppointmentModal({
       const sameDate = String(c.fecha).split('T')[0] === String(formData.fecha).split('T')[0];
       const notSelf = !appointment || Number(c.id) !== Number(appointment.id);
       if (!sameCap || !sameDate || !notSelf) return false;
+      if (c.estado === 'Cancelada') return false; // Citas canceladas liberan el horario
 
       const cStart = String(c.hora_inicio).slice(0, 5);
       const cEnd = String(c.hora_fin).slice(0, 5);
@@ -208,7 +223,7 @@ export default function AppointmentModal({
       // Interval overlap: inicioA < finB && finA > inicioB
       return cStart < fEnd && cEnd > fStart;
     });
-  }, [allCitas, formData.capacitador_id, formData.fecha, formData.hora_inicio, formData.hora_fin, appointment]);
+  }, [allCitas, formData.capacitador_id, formData.fecha, formData.hora_inicio, formData.hora_fin, formData.estado, appointment]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -638,6 +653,51 @@ export default function AppointmentModal({
               </div>
             </div>
           )}
+
+          {/* Estado de la Cita (Ciclo de Vida de la Capacitación) */}
+          <div className="bg-slate-50/80 border border-slate-200 rounded-2xl p-3.5 space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <span>Estado de la Cita</span>
+                <span className="text-[10px] font-normal text-slate-400">· Ciclo AD-RE-11</span>
+              </label>
+
+              {formData.estado === 'Cancelada' && (
+                <span className="text-[10px] font-bold text-rose-700 bg-rose-100/90 border border-rose-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <span>Libera horario y no suma horas</span>
+                </span>
+              )}
+              {formData.estado === 'Impartida' && (
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/90 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <span>Computa 100% de horas</span>
+                </span>
+              )}
+              {formData.estado === 'En Curso' && (
+                <span className="text-[10px] font-bold text-amber-700 bg-amber-100/90 border border-amber-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <span>En desarrollo activo</span>
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
+              {ESTADOS.map((est) => {
+                const isActive = (formData.estado || 'Programada') === est.id;
+                return (
+                  <button
+                    key={est.id}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, estado: est.id }))}
+                    className={`px-2 py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
+                      isActive ? est.activeClass : `${est.colorClass} border-slate-200 bg-white`
+                    }`}
+                  >
+                    <span>{est.emoji}</span>
+                    <span className="truncate">{est.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Modalidad y Tipo de Servicio */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

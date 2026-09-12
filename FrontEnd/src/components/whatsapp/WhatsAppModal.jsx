@@ -123,10 +123,20 @@ export default function WhatsAppModal({
     return [];
   }, [mode, targetCita, selectedTrainerId, selectedDate, citas]);
 
-  // Horas totales
+  // Horas totales efectivas (excluye canceladas)
   const totalHoras = useMemo(() => {
-    return relevantCitas.reduce((acc, c) => acc + (parseFloat(c.horas) || 0), 0);
+    return relevantCitas
+      .filter(c => c.estado !== 'Cancelada')
+      .reduce((acc, c) => acc + (parseFloat(c.horas) || 0), 0);
   }, [relevantCitas]);
+
+  const STATUS_EMOJI = {
+    'Programada': '🗓️',
+    'En Curso': '⏳',
+    'Impartida': '✅',
+    'Cancelada': '❌',
+    'Reprogramada': '🔄'
+  };
 
   // Generador del mensaje de WhatsApp
   const generatedMessage = useMemo(() => {
@@ -134,12 +144,14 @@ export default function WhatsAppModal({
     const trainerFirst = trainerName.split(' ')[0];
 
     if (mode === 'single' && targetCita) {
+      const stEmoji = STATUS_EMOJI[targetCita.estado] || '🗓️';
       return (
 `👋 *Hola ${trainerFirst}*, te comparto los detalles de tu capacitación asignada:
 
 🏢 *Empresa:* ${targetCita.cliente_nombre || 'Cliente asignado'}
 📅 *Fecha:* ${formatFriendlyDate(String(targetCita.fecha).split('T')[0])}
 ⏰ *Horario:* ${targetCita.hora_inicio} - ${targetCita.hora_fin} (${targetCita.horas} hrs)
+🏷️ *Estado:* ${stEmoji} *${targetCita.estado || 'Programada'}*
 📌 *Servicio:* ${targetCita.tipo_servicio}
 📍 *Modalidad:* ${targetCita.modalidad}${targetCita.observaciones ? `\n📝 *Observaciones:* ${targetCita.observaciones}` : ''}
 
@@ -163,14 +175,16 @@ export default function WhatsAppModal({
 
       relevantCitas.forEach((c, idx) => {
         const num = relevantCitas.length > 1 ? `${idx + 1}️⃣ ` : '';
-        text += `${num}🏢 *${c.cliente_nombre}*\n`;
-        text += `   ⏰ *${c.hora_inicio} - ${c.hora_fin}* (${c.horas} hrs)\n`;
+        const stEmoji = STATUS_EMOJI[c.estado] || '🗓️';
+        const isCanc = c.estado === 'Cancelada';
+        text += `${num}🏢 *${c.cliente_nombre}* ${isCanc ? '_(CANCELADA)_' : ''}\n`;
+        text += `   ⏰ *${c.hora_inicio} - ${c.hora_fin}* (${c.horas} hrs) · ${stEmoji} *${c.estado || 'Programada'}*\n`;
         text += `   📌 *${c.tipo_servicio}*${c.observaciones ? `: ${c.observaciones}` : ''}\n`;
         text += `   📍 Modalidad: ${c.modalidad}\n\n`;
       });
 
       text += `━━━━━━━━━━━━━━━━━━━\n`;
-      text += `📊 *Total asignado:* ${relevantCitas.length} actividad(es) | *${totalHoras} hrs*\n`;
+      text += `📊 *Total asignado:* ${relevantCitas.length} actividad(es) | *${totalHoras} hrs efectivas*\n`;
       text += `✨ *Agenda One - One Consulting*`;
       return text;
     }
@@ -198,13 +212,15 @@ export default function WhatsAppModal({
       Object.entries(groups).forEach(([dateKey, list]) => {
         text += `📅 *${formatFriendlyDate(dateKey)}:*\n`;
         list.forEach(c => {
-          text += `  • *${c.hora_inicio} - ${c.hora_fin}* (${c.horas}h) | ${c.cliente_nombre} (${c.tipo_servicio} - ${c.modalidad})\n`;
+          const stEmoji = STATUS_EMOJI[c.estado] || '🗓️';
+          const isCanc = c.estado === 'Cancelada';
+          text += `  • *${c.hora_inicio} - ${c.hora_fin}* (${c.horas}h) | [${stEmoji} ${c.estado || 'Programada'}] ${c.cliente_nombre} ${isCanc ? '(Cancelada)' : ''} (${c.tipo_servicio} - ${c.modalidad})\n`;
         });
         text += `\n`;
       });
 
       text += `━━━━━━━━━━━━━━━━━━━\n`;
-      text += `📊 *Total semanal:* ${relevantCitas.length} actividad(es) | *${totalHoras} horas*\n`;
+      text += `📊 *Total semanal:* ${relevantCitas.length} actividad(es) | *${totalHoras} horas efectivas*\n`;
       text += `✨ *Agenda One - One Consulting*`;
       return text;
     }

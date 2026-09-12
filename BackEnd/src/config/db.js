@@ -74,16 +74,16 @@ const mockStore = {
     { id: 5, nombre_empresa: 'Corporación Financiera del Valle', contacto: 'Rodrigo Jiménez', telefono: '+506 2201-5566', correo: 'rjimenez@finanzascv.com', activo: true, created_at: new Date() }
   ],
   citas: [
-    { id: 1, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 1, fecha: '2026-09-07', hora_inicio: '08:00', hora_fin: '12:00', horas: 4.00, modalidad: 'Presencial', tipo_servicio: 'Curso', observaciones: 'Módulo 1: Buenas Prácticas de Manufactura.' },
-    { id: 2, cliente_nombre: 'Manufacturas Globales S.A.', capacitador_id: 2, fecha: '2026-09-07', hora_inicio: '09:00', hora_fin: '11:30', horas: 2.50, modalidad: 'Virtual', tipo_servicio: 'Asesoría', observaciones: 'Revisión documental del Sistema de Gestión.' },
-    { id: 3, cliente_nombre: 'Distribuidora Logística Central', capacitador_id: 3, fecha: '2026-09-08', hora_inicio: '08:30', hora_fin: '14:30', horas: 6.00, modalidad: 'Presencial', tipo_servicio: 'Auditoría', observaciones: 'Auditoría interna de procesos en planta.' },
-    { id: 4, cliente_nombre: 'Servicios Médicos Especializados', capacitador_id: 1, fecha: '2026-09-09', hora_inicio: '14:00', hora_fin: '16:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Reunión', observaciones: 'Reunión de coordinación con gerencia.' },
-    { id: 5, cliente_nombre: 'Corporación Financiera del Valle', capacitador_id: 4, fecha: '2026-09-10', hora_inicio: '08:00', hora_fin: '13:00', horas: 5.00, modalidad: 'Presencial', tipo_servicio: 'Curso', observaciones: 'Capacitación en Seguridad Ocupacional.' },
-    { id: 6, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 2, fecha: '2026-09-11', hora_inicio: '10:00', hora_fin: '12:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Seguimiento', observaciones: 'Seguimiento a planes de acción correctiva.' },
-    { id: 7, cliente_nombre: 'Manufacturas Globales S.A.', capacitador_id: 5, fecha: '2026-09-14', hora_inicio: '08:00', hora_fin: '16:00', horas: 8.00, modalidad: 'Presencial', tipo_servicio: 'Auditoría', observaciones: 'Jornada completa de auditoría de calidad.' },
-    { id: 8, cliente_nombre: 'Distribuidora Logística Central', capacitador_id: 1, fecha: '2026-09-15', hora_inicio: '09:00', hora_fin: '12:30', horas: 3.50, modalidad: 'Presencial', tipo_servicio: 'Asesoría', observaciones: 'Asesoría en control estadístico de procesos.' },
-    { id: 9, cliente_nombre: 'Servicios Médicos Especializados', capacitador_id: 3, fecha: '2026-09-16', hora_inicio: '13:00', hora_fin: '17:00', horas: 4.00, modalidad: 'Virtual', tipo_servicio: 'Curso', observaciones: 'Taller virtual de gestión por procesos.' },
-    { id: 10, cliente_nombre: 'Corporación Financiera del Valle', capacitador_id: 2, fecha: '2026-09-18', hora_inicio: '09:00', hora_fin: '11:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Reunión', observaciones: 'Cierre de ciclo de capacitación trimestral.' }
+    { id: 1, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 1, fecha: '2026-09-07', hora_inicio: '08:00', hora_fin: '12:00', horas: 4.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Impartida', observaciones: 'Módulo 1: Buenas Prácticas de Manufactura.' },
+    { id: 2, cliente_nombre: 'Manufacturas Globales S.A.', capacitador_id: 2, fecha: '2026-09-07', hora_inicio: '09:00', hora_fin: '11:30', horas: 2.50, modalidad: 'Virtual', tipo_servicio: 'Asesoría', estado: 'Impartida', observaciones: 'Revisión documental del Sistema de Gestión.' },
+    { id: 3, cliente_nombre: 'Distribuidora Logística Central', capacitador_id: 3, fecha: '2026-09-08', hora_inicio: '08:30', hora_fin: '14:30', horas: 6.00, modalidad: 'Presencial', tipo_servicio: 'Auditoría', estado: 'Impartida', observaciones: 'Auditoría interna de procesos en planta.' },
+    { id: 4, cliente_nombre: 'Servicios Médicos Especializados', capacitador_id: 1, fecha: '2026-09-09', hora_inicio: '14:00', hora_fin: '16:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Reunión', estado: 'En Curso', observaciones: 'Reunión de coordinación con gerencia.' },
+    { id: 5, cliente_nombre: 'Corporación Financiera del Valle', capacitador_id: 4, fecha: '2026-09-10', hora_inicio: '08:00', hora_fin: '13:00', horas: 5.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Capacitación en Seguridad Ocupacional.' },
+    { id: 6, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 2, fecha: '2026-09-11', hora_inicio: '10:00', hora_fin: '12:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Seguimiento', estado: 'Programada', observaciones: 'Seguimiento a planes de acción correctiva.' },
+    { id: 7, cliente_nombre: 'Manufacturas Globales S.A.', capacitador_id: 5, fecha: '2026-09-14', hora_inicio: '08:00', hora_fin: '16:00', horas: 8.00, modalidad: 'Presencial', tipo_servicio: 'Auditoría', estado: 'Programada', observaciones: 'Jornada completa de auditoría de calidad.' },
+    { id: 8, cliente_nombre: 'Distribuidora Logística Central', capacitador_id: 1, fecha: '2026-09-15', hora_inicio: '09:00', hora_fin: '12:30', horas: 3.50, modalidad: 'Presencial', tipo_servicio: 'Asesoría', estado: 'Programada', observaciones: 'Asesoría en control estadístico de procesos.' },
+    { id: 9, cliente_nombre: 'Servicios Médicos Especializados', capacitador_id: 3, fecha: '2026-09-16', hora_inicio: '13:00', hora_fin: '17:00', horas: 4.00, modalidad: 'Virtual', tipo_servicio: 'Curso', estado: 'Cancelada', observaciones: 'Taller virtual de gestión por procesos.' },
+    { id: 10, cliente_nombre: 'Corporación Financiera del Valle', capacitador_id: 2, fecha: '2026-09-18', hora_inicio: '09:00', hora_fin: '11:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Reunión', estado: 'Reprogramada', observaciones: 'Cierre de ciclo de capacitación trimestral.' }
   ],
   nextIds: {
     capacitadores: 6,
@@ -128,10 +128,13 @@ async function autoInitTables(client) {
         horas NUMERIC(4, 2) NOT NULL CHECK (horas > 0),
         modalidad VARCHAR(20) NOT NULL CHECK (modalidad IN ('Presencial', 'Virtual', 'Híbrida')),
         tipo_servicio VARCHAR(30) NOT NULL CHECK (tipo_servicio IN ('Asesoría', 'Curso', 'Auditoría', 'Reunión', 'Seguimiento')),
+        estado VARCHAR(25) NOT NULL DEFAULT 'Programada',
         observaciones TEXT,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+
+      ALTER TABLE citas ADD COLUMN IF NOT EXISTS estado VARCHAR(25) NOT NULL DEFAULT 'Programada';
     `);
 
     const capRes = await client.query('SELECT COUNT(*) FROM capacitadores');
@@ -153,17 +156,17 @@ async function autoInitTables(client) {
         ('Corporación Financiera del Valle', 'Rodrigo Jiménez', '+506 2201-5566', 'rjimenez@finanzascv.com')
         ON CONFLICT (nombre_empresa) DO NOTHING;
 
-        INSERT INTO citas (cliente_id, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, observaciones) VALUES
-        (1, 1, '2026-09-07', '08:00', '12:00', 4.00, 'Presencial', 'Curso', 'Módulo 1: Buenas Prácticas de Manufactura.'),
-        (2, 2, '2026-09-07', '09:00', '11:30', 2.50, 'Virtual', 'Asesoría', 'Revisión documental del Sistema de Gestión.'),
-        (3, 3, '2026-09-08', '08:30', '14:30', 6.00, 'Presencial', 'Auditoría', 'Auditoría interna de procesos en planta.'),
-        (4, 1, '2026-09-09', '14:00', '16:00', 2.00, 'Virtual', 'Reunión', 'Reunión de coordinación con gerencia.'),
-        (5, 4, '2026-09-10', '08:00', '13:00', 5.00, 'Presencial', 'Curso', 'Capacitación en Seguridad Ocupacional.'),
-        (1, 2, '2026-09-11', '10:00', '12:00', 2.00, 'Virtual', 'Seguimiento', 'Seguimiento a planes de acción correctiva.'),
-        (2, 5, '2026-09-14', '08:00', '16:00', 8.00, 'Presencial', 'Auditoría', 'Jornada completa de auditoría de calidad.'),
-        (3, 1, '2026-09-15', '09:00', '12:30', 3.50, 'Presencial', 'Asesoría', 'Asesoría en control estadístico de procesos.'),
-        (4, 3, '2026-09-16', '13:00', '17:00', 4.00, 'Virtual', 'Curso', 'Taller virtual de gestión por procesos.'),
-        (5, 2, '2026-09-18', '09:00', '11:00', 2.00, 'Virtual', 'Reunión', 'Cierre de ciclo de capacitación trimestral.');
+        INSERT INTO citas (cliente_id, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones) VALUES
+        (1, 1, '2026-09-07', '08:00', '12:00', 4.00, 'Presencial', 'Curso', 'Impartida', 'Módulo 1: Buenas Prácticas de Manufactura.'),
+        (2, 2, '2026-09-07', '09:00', '11:30', 2.50, 'Virtual', 'Asesoría', 'Impartida', 'Revisión documental del Sistema de Gestión.'),
+        (3, 3, '2026-09-08', '08:30', '14:30', 6.00, 'Presencial', 'Auditoría', 'Impartida', 'Auditoría interna de procesos en planta.'),
+        (4, 1, '2026-09-09', '14:00', '16:00', 2.00, 'Virtual', 'Reunión', 'En Curso', 'Reunión de coordinación con gerencia.'),
+        (5, 4, '2026-09-10', '08:00', '13:00', 5.00, 'Presencial', 'Curso', 'Programada', 'Capacitación en Seguridad Ocupacional.'),
+        (1, 2, '2026-09-11', '10:00', '12:00', 2.00, 'Virtual', 'Seguimiento', 'Programada', 'Seguimiento a planes de acción correctiva.'),
+        (2, 5, '2026-09-14', '08:00', '16:00', 8.00, 'Presencial', 'Auditoría', 'Programada', 'Jornada completa de auditoría de calidad.'),
+        (3, 1, '2026-09-15', '09:00', '12:30', 3.50, 'Presencial', 'Asesoría', 'Programada', 'Asesoría en control estadístico de procesos.'),
+        (4, 3, '2026-09-16', '13:00', '17:00', 4.00, 'Virtual', 'Curso', 'Cancelada', 'Taller virtual de gestión por procesos.'),
+        (5, 2, '2026-09-18', '09:00', '11:00', 2.00, 'Virtual', 'Reunión', 'Reprogramada', 'Cierre de ciclo de capacitación trimestral.');
       `);
       console.log('🌱 [DB] Tablas y datos semilla creados exitosamente en PostgreSQL.');
     }

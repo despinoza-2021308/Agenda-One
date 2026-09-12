@@ -18,10 +18,16 @@ async function getResumenMensual(req, res, next) {
           c.iniciales,
           c.color,
           COUNT(ci.id)::INT AS total_citas,
-          COALESCE(SUM(ci.horas), 0)::FLOAT AS total_horas,
-          COALESCE(SUM(CASE WHEN ci.modalidad = 'Presencial' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_presencial,
-          COALESCE(SUM(CASE WHEN ci.modalidad = 'Virtual' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_virtual,
-          COALESCE(SUM(CASE WHEN ci.modalidad = 'Híbrida' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_hibrida
+          COUNT(CASE WHEN ci.estado = 'Impartida' THEN 1 END)::INT AS citas_impartidas,
+          COUNT(CASE WHEN ci.estado = 'Programada' OR ci.estado IS NULL THEN 1 END)::INT AS citas_programadas,
+          COUNT(CASE WHEN ci.estado = 'En Curso' THEN 1 END)::INT AS citas_en_curso,
+          COUNT(CASE WHEN ci.estado = 'Cancelada' THEN 1 END)::INT AS citas_canceladas,
+          COUNT(CASE WHEN ci.estado = 'Reprogramada' THEN 1 END)::INT AS citas_reprogramadas,
+          COALESCE(SUM(CASE WHEN ci.estado <> 'Cancelada' OR ci.estado IS NULL THEN ci.horas ELSE 0 END), 0)::FLOAT AS total_horas,
+          COALESCE(SUM(CASE WHEN (ci.estado <> 'Cancelada' OR ci.estado IS NULL) AND ci.modalidad = 'Presencial' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_presencial,
+          COALESCE(SUM(CASE WHEN (ci.estado <> 'Cancelada' OR ci.estado IS NULL) AND ci.modalidad = 'Virtual' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_virtual,
+          COALESCE(SUM(CASE WHEN (ci.estado <> 'Cancelada' OR ci.estado IS NULL) AND ci.modalidad = 'Híbrida' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_hibrida,
+          COALESCE(SUM(CASE WHEN ci.estado = 'Impartida' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_impartidas
         FROM capacitadores c
         LEFT JOIN citas ci ON c.id = ci.capacitador_id 
           AND EXTRACT(YEAR FROM ci.fecha) = $1 
@@ -50,15 +56,25 @@ async function getResumenMensual(req, res, next) {
 
     const resumen = capacitadores.map(cap => {
       const citasCap = citasDelMes.filter(ci => ci.capacitador_id === cap.id);
+      const citasValidas = citasCap.filter(ci => ci.estado !== 'Cancelada');
       const total_citas = citasCap.length;
-      const total_horas = citasCap.reduce((acc, curr) => acc + Number(curr.horas), 0);
-      const horas_presencial = citasCap
+      const citas_impartidas = citasCap.filter(ci => ci.estado === 'Impartida').length;
+      const citas_programadas = citasCap.filter(ci => !ci.estado || ci.estado === 'Programada').length;
+      const citas_en_curso = citasCap.filter(ci => ci.estado === 'En Curso').length;
+      const citas_canceladas = citasCap.filter(ci => ci.estado === 'Cancelada').length;
+      const citas_reprogramadas = citasCap.filter(ci => ci.estado === 'Reprogramada').length;
+
+      const total_horas = citasValidas.reduce((acc, curr) => acc + Number(curr.horas), 0);
+      const horas_impartidas = citasCap
+        .filter(c => c.estado === 'Impartida')
+        .reduce((acc, curr) => acc + Number(curr.horas), 0);
+      const horas_presencial = citasValidas
         .filter(c => c.modalidad === 'Presencial')
         .reduce((acc, curr) => acc + Number(curr.horas), 0);
-      const horas_virtual = citasCap
+      const horas_virtual = citasValidas
         .filter(c => c.modalidad === 'Virtual')
         .reduce((acc, curr) => acc + Number(curr.horas), 0);
-      const horas_hibrida = citasCap
+      const horas_hibrida = citasValidas
         .filter(c => c.modalidad === 'Híbrida')
         .reduce((acc, curr) => acc + Number(curr.horas), 0);
 
@@ -68,7 +84,13 @@ async function getResumenMensual(req, res, next) {
         iniciales: cap.iniciales,
         color: cap.color,
         total_citas,
+        citas_impartidas,
+        citas_programadas,
+        citas_en_curso,
+        citas_canceladas,
+        citas_reprogramadas,
         total_horas: Math.round(total_horas * 100) / 100,
+        horas_impartidas: Math.round(horas_impartidas * 100) / 100,
         horas_presencial: Math.round(horas_presencial * 100) / 100,
         horas_virtual: Math.round(horas_virtual * 100) / 100,
         horas_hibrida: Math.round(horas_hibrida * 100) / 100
@@ -100,7 +122,8 @@ async function getHistorico(req, res, next) {
           c.iniciales,
           c.color,
           COUNT(ci.id)::INT AS total_citas_historico,
-          COALESCE(SUM(ci.horas), 0)::FLOAT AS total_horas_historico
+          COUNT(CASE WHEN ci.estado = 'Impartida' THEN 1 END)::INT AS citas_impartidas_historico,
+          COALESCE(SUM(CASE WHEN ci.estado <> 'Cancelada' OR ci.estado IS NULL THEN ci.horas ELSE 0 END), 0)::FLOAT AS total_horas_historico
         FROM capacitadores c
         LEFT JOIN citas ci ON c.id = ci.capacitador_id
         WHERE c.activo = TRUE
@@ -115,13 +138,17 @@ async function getHistorico(req, res, next) {
     const resumen = db.mockStore.capacitadores.filter(c => c.activo).map(cap => {
       const citasCap = db.mockStore.citas.filter(ci => ci.capacitador_id === cap.id);
       const total_citas_historico = citasCap.length;
-      const total_horas_historico = citasCap.reduce((acc, curr) => acc + Number(curr.horas), 0);
+      const citas_impartidas_historico = citasCap.filter(ci => ci.estado === 'Impartida').length;
+      const total_horas_historico = citasCap
+        .filter(ci => ci.estado !== 'Cancelada')
+        .reduce((acc, curr) => acc + Number(curr.horas), 0);
       return {
         capacitador_id: cap.id,
         nombre_completo: cap.nombre_completo,
         iniciales: cap.iniciales,
         color: cap.color,
         total_citas_historico,
+        citas_impartidas_historico,
         total_horas_historico: Math.round(total_horas_historico * 100) / 100
       };
     }).sort((a, b) => b.total_horas_historico - a.total_horas_historico);
@@ -135,6 +162,10 @@ async function getHistorico(req, res, next) {
 function calcularKPIs(resumen, year, month) {
   const totalHorasMes = resumen.reduce((sum, item) => sum + item.total_horas, 0);
   const totalCitasMes = resumen.reduce((sum, item) => sum + item.total_citas, 0);
+  const citasImpartidas = resumen.reduce((sum, item) => sum + (item.citas_impartidas || 0), 0);
+  const citasProgramadas = resumen.reduce((sum, item) => sum + (item.citas_programadas || 0), 0);
+  const citasCanceladas = resumen.reduce((sum, item) => sum + (item.citas_canceladas || 0), 0);
+  const horasImpartidas = resumen.reduce((sum, item) => sum + (item.horas_impartidas || 0), 0);
   const horasPresenciales = resumen.reduce((sum, item) => sum + item.horas_presencial, 0);
   const horasVirtuales = resumen.reduce((sum, item) => sum + item.horas_virtual, 0);
   const capacitadorTop = resumen.length > 0 && resumen[0].total_horas > 0 ? resumen[0] : null;
@@ -142,6 +173,10 @@ function calcularKPIs(resumen, year, month) {
   return {
     totalHorasMes: Math.round(totalHorasMes * 100) / 100,
     totalCitasMes,
+    citasImpartidas,
+    citasProgramadas,
+    citasCanceladas,
+    horasImpartidas: Math.round(horasImpartidas * 100) / 100,
     horasPresenciales: Math.round(horasPresenciales * 100) / 100,
     horasVirtuales: Math.round(horasVirtuales * 100) / 100,
     porcentajePresencial: totalHorasMes > 0 ? Math.round((horasPresenciales / totalHorasMes) * 100) : 0,

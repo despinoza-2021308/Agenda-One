@@ -1,10 +1,10 @@
 const db = require('../config/db');
 const { calcularHorasDecimales } = require('../utils/timeUtils');
 
-// Obtener citas con filtros opcionales (rango de fechas, capacitador, cliente)
+// Obtener citas con filtros opcionales (rango de fechas, capacitador, cliente, estado)
 async function getCitas(req, res, next) {
   try {
-    const { start_date, end_date, capacitador_id, cliente_id, month, year } = req.query;
+    const { start_date, end_date, capacitador_id, cliente_id, month, year, estado } = req.query;
 
     if (db.isPostgresConnected()) {
       let query = `
@@ -22,6 +22,7 @@ async function getCitas(req, res, next) {
           c.horas::FLOAT AS horas,
           c.modalidad,
           c.tipo_servicio,
+          COALESCE(c.estado, 'Programada') AS estado,
           c.observaciones,
           c.created_at,
           c.updated_at
@@ -48,6 +49,14 @@ async function getCitas(req, res, next) {
         params.push(capacitador_id);
         query += ` AND c.capacitador_id = $${params.length}`;
       }
+      if (cliente_id) {
+        params.push(cliente_id);
+        query += ` AND c.cliente_id = $${params.length}`;
+      }
+      if (estado) {
+        params.push(estado);
+        query += ` AND c.estado = $${params.length}`;
+      }
 
       query += ` ORDER BY c.fecha ASC, c.hora_inicio ASC`;
 
@@ -65,6 +74,7 @@ async function getCitas(req, res, next) {
         capacitador_nombre: cap.nombre_completo || 'Capacitador',
         capacitador_iniciales: cap.iniciales || '??',
         capacitador_color: cap.color || '#3B82F6',
+        estado: c.estado || 'Programada',
         horas: Number(c.horas)
       };
     });
@@ -83,6 +93,12 @@ async function getCitas(req, res, next) {
     }
     if (capacitador_id) {
       citas = citas.filter(c => c.capacitador_id === parseInt(capacitador_id, 10));
+    }
+    if (cliente_id) {
+      citas = citas.filter(c => c.cliente_id === parseInt(cliente_id, 10));
+    }
+    if (estado) {
+      citas = citas.filter(c => c.estado === estado);
     }
 
     citas.sort((a, b) => (a.fecha + a.hora_inicio).localeCompare(b.fecha + b.hora_inicio));
@@ -108,7 +124,9 @@ async function getCitaById(req, res, next) {
           TO_CHAR(c.hora_inicio, 'HH24:MI') AS hora_inicio,
           TO_CHAR(c.hora_fin, 'HH24:MI') AS hora_fin,
           c.horas::FLOAT AS horas,
-          c.modalidad, c.tipo_servicio, c.observaciones
+          c.modalidad, c.tipo_servicio,
+          COALESCE(c.estado, 'Programada') AS estado,
+          c.observaciones
          FROM citas c
          LEFT JOIN clientes cl ON c.cliente_id = cl.id
          INNER JOIN capacitadores cp ON c.capacitador_id = cp.id
@@ -133,6 +151,7 @@ async function getCitaById(req, res, next) {
       capacitador_nombre: cap.nombre_completo || 'Capacitador',
       capacitador_iniciales: cap.iniciales || '??',
       capacitador_color: cap.color || '#3B82F6',
+      estado: c.estado || 'Programada',
       horas: Number(c.horas)
     });
   } catch (error) {
@@ -153,6 +172,7 @@ async function createCita(req, res, next) {
       horas,
       modalidad,
       tipo_servicio,
+      estado,
       observaciones,
       descripcion
     } = req.body;
@@ -173,54 +193,61 @@ async function createCita(req, res, next) {
 
     const mod = modalidad || 'Presencial';
     const serv = tipo_servicio || 'Curso';
+    const validEstados = ['Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada'];
+    const estadoFinal = validEstados.includes(estado) ? estado : 'Programada';
     const obs = (descripcion || observaciones || '').trim();
 
     // Validación inteligente: Verificar si el capacitador ya tiene un compromiso en ese rango de horas
-    if (db.isPostgresConnected()) {
-      const overlapQuery = `
-        SELECT c.id, 
-               TO_CHAR(c.hora_inicio, 'HH24:MI') AS hora_inicio, 
-               TO_CHAR(c.hora_fin, 'HH24:MI') AS hora_fin, 
-               c.cliente_nombre, c.tipo_servicio, c.observaciones,
-               cp.nombre_completo AS capacitador_nombre,
-               cp.iniciales AS capacitador_iniciales
-        FROM citas c
-        INNER JOIN capacitadores cp ON c.capacitador_id = cp.id
-        WHERE c.capacitador_id = $1
-          AND c.fecha = $2
-          AND c.hora_inicio < $3
-          AND c.hora_fin > $4
-        LIMIT 1
-      `;
-      const overlapCheck = await db.pool.query(overlapQuery, [
-        capacitador_id,
-        fecha,
-        hora_fin,
-        hora_inicio
-      ]);
+    // (Solo aplica si la nueva cita no es Cancelada, y solo choca con citas no canceladas)
+    if (estadoFinal !== 'Cancelada') {
+      if (db.isPostgresConnected()) {
+        const overlapQuery = `
+          SELECT c.id, 
+                 TO_CHAR(c.hora_inicio, 'HH24:MI') AS hora_inicio, 
+                 TO_CHAR(c.hora_fin, 'HH24:MI') AS hora_fin, 
+                 c.cliente_nombre, c.tipo_servicio, c.observaciones,
+                 cp.nombre_completo AS capacitador_nombre,
+                 cp.iniciales AS capacitador_iniciales
+          FROM citas c
+          INNER JOIN capacitadores cp ON c.capacitador_id = cp.id
+          WHERE c.capacitador_id = $1
+            AND c.fecha = $2
+            AND c.hora_inicio < $3
+            AND c.hora_fin > $4
+            AND (c.estado IS NULL OR c.estado <> 'Cancelada')
+          LIMIT 1
+        `;
+        const overlapCheck = await db.pool.query(overlapQuery, [
+          capacitador_id,
+          fecha,
+          hora_fin,
+          hora_inicio
+        ]);
 
-      if (overlapCheck.rows.length > 0) {
-        const conf = overlapCheck.rows[0];
-        return res.status(409).json({
-          error: 'CONFLICTO_HORARIO',
-          message: `Conflicto de horario: [${conf.capacitador_iniciales}] ${conf.capacitador_nombre} ya tiene una cita de ${conf.hora_inicio} a ${conf.hora_fin} (${conf.observaciones || conf.tipo_servicio}) con ${conf.cliente_nombre}.`,
-          conflict: conf
-        });
-      }
-    } else {
-      const conf = db.mockStore.citas.find(c =>
-        c.capacitador_id === parseInt(capacitador_id, 10) &&
-        c.fecha === fecha &&
-        c.hora_inicio < hora_fin &&
-        c.hora_fin > hora_inicio
-      );
-      if (conf) {
-        const cap = db.mockStore.capacitadores.find(cp => cp.id === conf.capacitador_id) || {};
-        return res.status(409).json({
-          error: 'CONFLICTO_HORARIO',
-          message: `Conflicto de horario: [${cap.iniciales || 'CP'}] ${cap.nombre_completo || 'El capacitador'} ya tiene una cita de ${conf.hora_inicio} a ${conf.hora_fin}.`,
-          conflict: conf
-        });
+        if (overlapCheck.rows.length > 0) {
+          const conf = overlapCheck.rows[0];
+          return res.status(409).json({
+            error: 'CONFLICTO_HORARIO',
+            message: `Conflicto de horario: [${conf.capacitador_iniciales}] ${conf.capacitador_nombre} ya tiene una cita de ${conf.hora_inicio} a ${conf.hora_fin} (${conf.observaciones || conf.tipo_servicio}) con ${conf.cliente_nombre}.`,
+            conflict: conf
+          });
+        }
+      } else {
+        const conf = db.mockStore.citas.find(c =>
+          c.capacitador_id === parseInt(capacitador_id, 10) &&
+          c.fecha === fecha &&
+          c.estado !== 'Cancelada' &&
+          c.hora_inicio < hora_fin &&
+          c.hora_fin > hora_inicio
+        );
+        if (conf) {
+          const cap = db.mockStore.capacitadores.find(cp => cp.id === conf.capacitador_id) || {};
+          return res.status(409).json({
+            error: 'CONFLICTO_HORARIO',
+            message: `Conflicto de horario: [${cap.iniciales || 'CP'}] ${cap.nombre_completo || 'El capacitador'} ya tiene una cita de ${conf.hora_inicio} a ${conf.hora_fin}.`,
+            conflict: conf
+          });
+        }
       }
     }
 
@@ -228,8 +255,8 @@ async function createCita(req, res, next) {
       const insertQuery = `
         INSERT INTO citas (
           cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, 
-          horas, modalidad, tipo_servicio, observaciones
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          horas, modalidad, tipo_servicio, estado, observaciones
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING *
       `;
       const result = await db.pool.query(insertQuery, [
@@ -242,6 +269,7 @@ async function createCita(req, res, next) {
         horasCalculadas,
         mod,
         serv,
+        estadoFinal,
         obs || null
       ]);
 
@@ -259,6 +287,7 @@ async function createCita(req, res, next) {
       horas: horasCalculadas,
       modalidad: mod,
       tipo_servicio: serv,
+      estado: estadoFinal,
       observaciones: obs
     };
 
@@ -292,6 +321,7 @@ async function updateCita(req, res, next) {
       horas,
       modalidad,
       tipo_servicio,
+      estado,
       observaciones,
       descripcion
     } = req.body;
@@ -301,10 +331,13 @@ async function updateCita(req, res, next) {
       horasFinal = calcularHorasDecimales(hora_inicio, hora_fin);
     }
 
+    const validEstados = ['Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada'];
+    const estadoFinal = estado !== undefined && validEstados.includes(estado) ? estado : undefined;
+
     const obs = descripcion !== undefined ? descripcion : observaciones;
 
-    // Validación inteligente de conflicto de horario al actualizar
-    if (capacitador_id && fecha && hora_inicio && hora_fin) {
+    // Validación inteligente de conflicto de horario al actualizar (solo si no es o no pasa a Cancelada)
+    if (estado !== 'Cancelada' && capacitador_id && fecha && hora_inicio && hora_fin) {
       if (db.isPostgresConnected()) {
         const overlapQuery = `
           SELECT c.id, 
@@ -320,6 +353,7 @@ async function updateCita(req, res, next) {
             AND c.hora_inicio < $3
             AND c.hora_fin > $4
             AND c.id <> $5
+            AND (c.estado IS NULL OR c.estado <> 'Cancelada')
           LIMIT 1
         `;
         const overlapCheck = await db.pool.query(overlapQuery, [
@@ -343,6 +377,7 @@ async function updateCita(req, res, next) {
           c.capacitador_id === parseInt(capacitador_id, 10) &&
           c.fecha === fecha &&
           c.id !== parseInt(id, 10) &&
+          c.estado !== 'Cancelada' &&
           c.hora_inicio < hora_fin &&
           c.hora_fin > hora_inicio
         );
@@ -369,8 +404,9 @@ async function updateCita(req, res, next) {
             horas = COALESCE($7, horas),
             modalidad = COALESCE($8, modalidad),
             tipo_servicio = COALESCE($9, tipo_servicio),
-            observaciones = COALESCE($10, observaciones)
-        WHERE id = $11
+            estado = COALESCE($10, estado),
+            observaciones = COALESCE($11, observaciones)
+        WHERE id = $12
         RETURNING *
       `;
 
@@ -384,6 +420,7 @@ async function updateCita(req, res, next) {
         horasFinal,
         modalidad,
         tipo_servicio,
+        estadoFinal,
         obs,
         id
       ]);
@@ -406,6 +443,7 @@ async function updateCita(req, res, next) {
     if (horasFinal !== undefined) cita.horas = horasFinal;
     if (modalidad !== undefined) cita.modalidad = modalidad;
     if (tipo_servicio !== undefined) cita.tipo_servicio = tipo_servicio;
+    if (estadoFinal !== undefined) cita.estado = estadoFinal;
     if (obs !== undefined) cita.observaciones = obs;
 
     const cap = db.mockStore.capacitadores.find(cp => cp.id === cita.capacitador_id) || {};

@@ -58,6 +58,7 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
         'Cliente / Empresa',
         'Modalidad',
         'Tipo de Servicio',
+        'Estado',
         'Descripción / Observaciones'
       ];
 
@@ -72,6 +73,7 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
         `"${c.cliente_nombre || ''}"`,
         `"${c.modalidad}"`,
         `"${c.tipo_servicio}"`,
+        `"${c.estado || 'Programada'}"`,
         `"${(c.observaciones || '').replace(/"/g, '""')}"`
       ]);
 
@@ -192,14 +194,19 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
               </p>
             </div>
 
-            <div className="flex items-center gap-4 text-xs font-bold text-slate-600 hidden sm:flex">
-              <span className="flex items-center gap-1 text-emerald-700">
-                <MapPin className="w-3.5 h-3.5 text-emerald-600" /> Presencial: {kpis.horasPresenciales}h
+            <div className="flex items-center gap-3 text-xs font-bold text-slate-600 hidden sm:flex flex-wrap justify-end">
+              <span className="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
+                ✅ {kpis.citasImpartidas || 0} impartidas
               </span>
-              <span className="flex items-center gap-1 text-purple-700">
-                <Video className="w-3.5 h-3.5 text-purple-600" /> Virtual: {kpis.horasVirtuales}h
+              <span className="flex items-center gap-1 text-blue-700 bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200">
+                🗓️ {kpis.citasProgramadas || 0} programadas
               </span>
-              <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-lg font-extrabold">
+              {kpis.citasCanceladas > 0 && (
+                <span className="flex items-center gap-1 text-rose-700 bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-200 line-through">
+                  ❌ {kpis.citasCanceladas} canceladas
+                </span>
+              )}
+              <span className="bg-slate-900 text-white px-2.5 py-1 rounded-lg font-black" title="Total de horas efectivas (excluye canceladas)">
                 Total: {kpis.totalHorasMes}h
               </span>
             </div>
@@ -211,7 +218,7 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
                 <tr>
                   <th className="py-4 px-6">Capacitador</th>
                   <th className="py-4 px-4 text-center">Código</th>
-                  <th className="py-4 px-4 text-center">Total Citas</th>
+                  <th className="py-4 px-4 text-center">Citas / Estado</th>
                   <th className="py-4 px-6 text-right text-emerald-700">
                     <span className="inline-flex items-center gap-1">
                       <MapPin className="w-3.5 h-3.5" /> Horas Presenciales
@@ -252,8 +259,25 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
                         </span>
                       </td>
 
-                      <td className="py-4 px-4 text-center text-slate-700 font-bold text-sm">
-                        {cap.total_citas}
+                      <td className="py-4 px-4 text-center">
+                        <div className="font-extrabold text-slate-900 text-sm">{cap.total_citas}</div>
+                        <div className="flex items-center justify-center gap-1 text-[10px] font-bold mt-0.5 flex-wrap">
+                          {(cap.citas_impartidas > 0) && (
+                            <span className="text-emerald-700 bg-emerald-50 px-1 rounded" title="Impartidas">
+                              ✅{cap.citas_impartidas}
+                            </span>
+                          )}
+                          {(cap.citas_programadas > 0) && (
+                            <span className="text-blue-700 bg-blue-50 px-1 rounded" title="Programadas">
+                              🗓️{cap.citas_programadas}
+                            </span>
+                          )}
+                          {(cap.citas_canceladas > 0) && (
+                            <span className="text-rose-600 bg-rose-50 px-1 rounded line-through" title="Canceladas">
+                              ❌{cap.citas_canceladas}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       <td className="py-4 px-6 text-right font-mono font-bold text-emerald-700 text-sm">
