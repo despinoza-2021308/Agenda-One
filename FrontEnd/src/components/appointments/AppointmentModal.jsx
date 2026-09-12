@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   X, 
   Clock, 
@@ -11,6 +11,7 @@ import {
   Trash2, 
   Check, 
   AlertCircle,
+  AlertTriangle,
   Calculator,
   AlignLeft
 } from 'lucide-react';
@@ -24,6 +25,7 @@ export default function AppointmentModal({
   appointment, // null si es nueva, o objeto cita si es edición
   initialDate,
   capacitadores = [],
+  allCitas = [],
   onSave,
   onDelete
 }) {
@@ -102,9 +104,44 @@ export default function AppointmentModal({
     setFormData(updated);
   };
 
+  // Capacitador seleccionado actualmente
+  const selectedTrainer = useMemo(() => {
+    return capacitadores.find(cp => String(cp.id) === String(formData.capacitador_id));
+  }, [capacitadores, formData.capacitador_id]);
+
+  // Detección en tiempo real de traslapes de horario para el capacitador en la fecha seleccionada
+  const conflictingCita = useMemo(() => {
+    if (!formData.capacitador_id || !formData.fecha || !formData.hora_inicio || !formData.hora_fin) {
+      return null;
+    }
+
+    const fStart = String(formData.hora_inicio).slice(0, 5);
+    const fEnd = String(formData.hora_fin).slice(0, 5);
+
+    if (fStart >= fEnd) return null; // Horario inválido
+
+    return allCitas.find(c => {
+      const sameCap = String(c.capacitador_id) === String(formData.capacitador_id);
+      const sameDate = String(c.fecha).split('T')[0] === String(formData.fecha).split('T')[0];
+      const notSelf = !appointment || Number(c.id) !== Number(appointment.id);
+      if (!sameCap || !sameDate || !notSelf) return false;
+
+      const cStart = String(c.hora_inicio).slice(0, 5);
+      const cEnd = String(c.hora_fin).slice(0, 5);
+
+      // Interval overlap: inicioA < finB && finA > inicioB
+      return cStart < fEnd && cEnd > fStart;
+    });
+  }, [allCitas, formData.capacitador_id, formData.fecha, formData.hora_inicio, formData.hora_fin, appointment]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
+    if (conflictingCita) {
+      setError(`Conflicto de horario: ${selectedTrainer ? selectedTrainer.nombre_completo : 'El capacitador'} ya tiene una actividad de ${conflictingCita.hora_inicio} a ${conflictingCita.hora_fin} en esta fecha.`);
+      return;
+    }
 
     if (!formData.cliente_nombre.trim()) {
       setError('Por favor escribe el nombre del cliente o empresa.');
@@ -326,6 +363,46 @@ export default function AppointmentModal({
             </div>
           </div>
 
+          {/* ALERTA PREVENTIVA EN ROJO: Detección inteligente de traslapes/conflictos */}
+          {conflictingCita && (
+            <div className="bg-rose-50 border-2 border-rose-300 rounded-2xl p-4 flex items-start gap-3.5 text-rose-950 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="w-9 h-9 rounded-xl bg-rose-100 border border-rose-200 text-rose-600 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                <AlertTriangle className="w-5 h-5 text-rose-600 stroke-[2.5]" />
+              </div>
+              <div className="text-xs space-y-1.5 flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-1">
+                  <p className="font-black text-sm text-rose-700 flex items-center gap-1.5">
+                    🚨 Conflicto de Horario Detectado
+                  </p>
+                  <span className="bg-rose-200 text-rose-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    Empalme
+                  </span>
+                </div>
+                <p className="text-slate-700 font-medium leading-relaxed">
+                  <strong className="text-rose-900 font-bold">
+                    {selectedTrainer ? selectedTrainer.nombre_completo : 'El capacitador'}
+                  </strong> ya tiene otra actividad asignada en este mismo horario el {formData.fecha}:
+                </p>
+                <div className="bg-white/90 rounded-xl p-2.5 border border-rose-200 text-slate-800 space-y-1 shadow-2xs">
+                  <p className="font-extrabold text-xs text-slate-900">
+                    📌 {conflictingCita.observaciones || `${conflictingCita.tipo_servicio} Programado`}
+                  </p>
+                  <p className="text-slate-600 text-[11px] flex items-center gap-1">
+                    <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Empresa: <strong className="text-slate-800">{conflictingCita.cliente_nombre}</strong></span>
+                  </p>
+                  <p className="font-mono text-rose-700 font-bold text-[11px] flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                    <span>Horario ocupado: {conflictingCita.hora_inicio} - {conflictingCita.hora_fin} ({conflictingCita.horas}h)</span>
+                  </p>
+                </div>
+                <p className="text-[11px] text-rose-600 font-semibold italic">
+                  ⚠️ Modifica el horario o asigna a otro capacitador disponible para poder guardar.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Modalidad y Tipo de Servicio */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -407,8 +484,13 @@ export default function AppointmentModal({
               </button>
               <button
                 type="submit"
-                disabled={loading}
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-blue-500/25 transition-all transform active:scale-95 disabled:opacity-50"
+                disabled={loading || !!conflictingCita}
+                title={conflictingCita ? 'Conflicto de horario: El capacitador ya está ocupado en ese rango' : ''}
+                className={`inline-flex items-center gap-2 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all transform active:scale-95 ${
+                  conflictingCita
+                    ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+                    : 'bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/25'
+                }`}
               >
                 <Check className="w-4 h-4 stroke-[3]" />
                 {loading ? 'Guardando...' : appointment ? 'Guardar Cambios' : 'Registrar Cita'}

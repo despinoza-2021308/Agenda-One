@@ -175,6 +175,55 @@ async function createCita(req, res, next) {
     const serv = tipo_servicio || 'Curso';
     const obs = (descripcion || observaciones || '').trim();
 
+    // Validación inteligente: Verificar si el capacitador ya tiene un compromiso en ese rango de horas
+    if (db.isPostgresConnected()) {
+      const overlapQuery = `
+        SELECT c.id, 
+               TO_CHAR(c.hora_inicio, 'HH24:MI') AS hora_inicio, 
+               TO_CHAR(c.hora_fin, 'HH24:MI') AS hora_fin, 
+               c.cliente_nombre, c.tipo_servicio, c.observaciones,
+               cp.nombre_completo AS capacitador_nombre,
+               cp.iniciales AS capacitador_iniciales
+        FROM citas c
+        INNER JOIN capacitadores cp ON c.capacitador_id = cp.id
+        WHERE c.capacitador_id = $1
+          AND c.fecha = $2
+          AND c.hora_inicio < $3
+          AND c.hora_fin > $4
+        LIMIT 1
+      `;
+      const overlapCheck = await db.pool.query(overlapQuery, [
+        capacitador_id,
+        fecha,
+        hora_fin,
+        hora_inicio
+      ]);
+
+      if (overlapCheck.rows.length > 0) {
+        const conf = overlapCheck.rows[0];
+        return res.status(409).json({
+          error: 'CONFLICTO_HORARIO',
+          message: `Conflicto de horario: [${conf.capacitador_iniciales}] ${conf.capacitador_nombre} ya tiene una cita de ${conf.hora_inicio} a ${conf.hora_fin} (${conf.observaciones || conf.tipo_servicio}) con ${conf.cliente_nombre}.`,
+          conflict: conf
+        });
+      }
+    } else {
+      const conf = db.mockStore.citas.find(c =>
+        c.capacitador_id === parseInt(capacitador_id, 10) &&
+        c.fecha === fecha &&
+        c.hora_inicio < hora_fin &&
+        c.hora_fin > hora_inicio
+      );
+      if (conf) {
+        const cap = db.mockStore.capacitadores.find(cp => cp.id === conf.capacitador_id) || {};
+        return res.status(409).json({
+          error: 'CONFLICTO_HORARIO',
+          message: `Conflicto de horario: [${cap.iniciales || 'CP'}] ${cap.nombre_completo || 'El capacitador'} ya tiene una cita de ${conf.hora_inicio} a ${conf.hora_fin}.`,
+          conflict: conf
+        });
+      }
+    }
+
     if (db.isPostgresConnected()) {
       const insertQuery = `
         INSERT INTO citas (
@@ -253,6 +302,60 @@ async function updateCita(req, res, next) {
     }
 
     const obs = descripcion !== undefined ? descripcion : observaciones;
+
+    // Validación inteligente de conflicto de horario al actualizar
+    if (capacitador_id && fecha && hora_inicio && hora_fin) {
+      if (db.isPostgresConnected()) {
+        const overlapQuery = `
+          SELECT c.id, 
+                 TO_CHAR(c.hora_inicio, 'HH24:MI') AS hora_inicio, 
+                 TO_CHAR(c.hora_fin, 'HH24:MI') AS hora_fin, 
+                 c.cliente_nombre, c.tipo_servicio, c.observaciones,
+                 cp.nombre_completo AS capacitador_nombre,
+                 cp.iniciales AS capacitador_iniciales
+          FROM citas c
+          INNER JOIN capacitadores cp ON c.capacitador_id = cp.id
+          WHERE c.capacitador_id = $1
+            AND c.fecha = $2
+            AND c.hora_inicio < $3
+            AND c.hora_fin > $4
+            AND c.id <> $5
+          LIMIT 1
+        `;
+        const overlapCheck = await db.pool.query(overlapQuery, [
+          capacitador_id,
+          fecha,
+          hora_fin,
+          hora_inicio,
+          id
+        ]);
+
+        if (overlapCheck.rows.length > 0) {
+          const conf = overlapCheck.rows[0];
+          return res.status(409).json({
+            error: 'CONFLICTO_HORARIO',
+            message: `Conflicto de horario: [${conf.capacitador_iniciales}] ${conf.capacitador_nombre} ya tiene una cita de ${conf.hora_inicio} a ${conf.hora_fin} (${conf.observaciones || conf.tipo_servicio}) con ${conf.cliente_nombre}.`,
+            conflict: conf
+          });
+        }
+      } else {
+        const conf = db.mockStore.citas.find(c =>
+          c.capacitador_id === parseInt(capacitador_id, 10) &&
+          c.fecha === fecha &&
+          c.id !== parseInt(id, 10) &&
+          c.hora_inicio < hora_fin &&
+          c.hora_fin > hora_inicio
+        );
+        if (conf) {
+          const cap = db.mockStore.capacitadores.find(cp => cp.id === conf.capacitador_id) || {};
+          return res.status(409).json({
+            error: 'CONFLICTO_HORARIO',
+            message: `Conflicto de horario: [${cap.iniciales || 'CP'}] ${cap.nombre_completo || 'El capacitador'} ya tiene una cita de ${conf.hora_inicio} a ${conf.hora_fin}.`,
+            conflict: conf
+          });
+        }
+      }
+    }
 
     if (db.isPostgresConnected()) {
       const updateQuery = `

@@ -184,6 +184,7 @@ export default function App() {
         appointment={selectedAppointment}
         initialDate={modalInitialDate}
         capacitadores={capacitadores}
+        allCitas={citas}
         onSave={handleSaveAppointment}
         onDelete={handleDeleteAppointment}
       />
