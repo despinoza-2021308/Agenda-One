@@ -1,12 +1,37 @@
 const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const TOKEN_STORAGE_KEY = 'agenda_admin_token';
+
+export const authStorage = {
+  getToken: () => localStorage.getItem(TOKEN_STORAGE_KEY) || sessionStorage.getItem(TOKEN_STORAGE_KEY),
+  setToken: (token, remember = true) => {
+    if (remember) {
+      localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    } else {
+      sessionStorage.setItem(TOKEN_STORAGE_KEY, token);
+    }
+  },
+  clearToken: () => {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+  }
+};
 
 async function request(endpoint, options = {}) {
   const url = `${BASE_URL}${endpoint}`;
+  const token = authStorage.getToken();
+
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers
+  };
+
+  // Inyectar automáticamente credencial de administrador si existe sesión activa
+  if (token) {
+    headers['x-admin-key'] = token;
+  }
+
   const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers
-    },
+    headers,
     ...options
   };
 
@@ -15,7 +40,10 @@ async function request(endpoint, options = {}) {
     const data = await response.json().catch(() => ({}));
     
     if (!response.ok) {
-      throw new Error(data.message || `Error del servidor (${response.status})`);
+      const err = new Error(data.message || `Error del servidor (${response.status})`);
+      err.status = response.status;
+      err.unauthorized = data.unauthorized || response.status === 401;
+      throw err;
     }
     
     return data;
@@ -26,6 +54,10 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+  // Autenticación de Administrador
+  loginAdmin: (pin) => request('/auth/login', { method: 'POST', body: JSON.stringify({ pin }) }),
+  verifyAdmin: () => request('/auth/check'),
+
   // Capacitadores
   getCapacitadores: () => request('/capacitadores'),
   createCapacitador: (data) => request('/capacitadores', { method: 'POST', body: JSON.stringify(data) }),
@@ -58,5 +90,5 @@ export const api = {
   getResumenMensual: (year, month) => {
     return request(`/reportes/resumen-mensual?year=${year}&month=${month}`);
   },
-  getHistorico: () => request('/reportes/historico'),
+  getHistorico: () => request('/reportes/historico')
 };

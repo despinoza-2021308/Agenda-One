@@ -7,12 +7,18 @@ import ClientesView from './components/catalogs/ClientesView';
 import AppointmentModal from './components/appointments/AppointmentModal';
 import WhatsAppModal from './components/whatsapp/WhatsAppModal';
 import CommandPalette from './components/search/CommandPalette';
-import { api } from './services/api';
+import AdminLoginModal from './components/auth/AdminLoginModal';
+import { api, authStorage } from './services/api';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('calendar'); // 'calendar' | 'reports' | 'trainers' | 'clients'
   const [currentDate, setCurrentDate] = useState(new Date(2026, 8, 9)); // Septiembre 2026
+
+  // Control de Sesión y Autenticación Administrativa
+  const [isAdmin, setIsAdmin] = useState(() => !!authStorage.getToken());
+  const [isAdminLoginModalOpen, setIsAdminLoginModalOpen] = useState(false);
+  const [pendingAdminAction, setPendingAdminAction] = useState(null);
 
   // Catálogos y Citas
   const [capacitadores, setCapacitadores] = useState([]);
@@ -40,6 +46,19 @@ export default function App() {
       setToast(null);
     }, 4000);
   };
+
+  // Verificar validez del token en backend al cargar la app
+  useEffect(() => {
+    const token = authStorage.getToken();
+    if (token) {
+      api.verifyAdmin()
+        .then(() => setIsAdmin(true))
+        .catch(() => {
+          authStorage.clearToken();
+          setIsAdmin(false);
+        });
+    }
+  }, []);
 
   // Atajo de teclado global Ctrl + K / Cmd + K para abrir el Command Palette
   useEffect(() => {
@@ -94,8 +113,29 @@ export default function App() {
     loadCitas();
   }, [loadCitas]);
 
+  // Gestor para ejecutar acciones tras autenticación exitosa
+  const handleAdminLoginSuccess = () => {
+    setIsAdmin(true);
+    if (pendingAdminAction) {
+      pendingAdminAction();
+      setPendingAdminAction(null);
+    }
+  };
+
+  const handleLogoutAdmin = () => {
+    authStorage.clearToken();
+    setIsAdmin(false);
+    showToast('Sesión administrativa cerrada. Modo Consulta activo 🔒', 'info');
+  };
+
   // Handlers para Citas
   const handleOpenNewAppointment = (dateString = null, prefill = null) => {
+    if (!isAdmin) {
+      setPendingAdminAction(() => () => handleOpenNewAppointment(dateString, prefill));
+      setIsAdminLoginModalOpen(true);
+      return;
+    }
+
     if (prefill) {
       setSelectedAppointment({
         ...prefill,
@@ -115,6 +155,11 @@ export default function App() {
   };
 
   const handleSaveAppointment = async (formData) => {
+    if (!isAdmin) {
+      setIsAdminLoginModalOpen(true);
+      throw new Error('Se requiere PIN de Administrador para registrar o modificar citas.');
+    }
+
     try {
       if (selectedAppointment && selectedAppointment.id) {
         await api.updateCita(selectedAppointment.id, formData);
@@ -124,20 +169,34 @@ export default function App() {
         showToast(`Cita registrada con éxito (${formData.horas} hrs).`);
       }
       await loadCitas();
-      // Recargar clientes por si se creó uno nuevo o cambió
       await loadClientes();
     } catch (err) {
+      if (err.unauthorized) {
+        authStorage.clearToken();
+        setIsAdmin(false);
+        setIsAdminLoginModalOpen(true);
+      }
       showToast(err.message || 'Error al guardar cita', 'error');
       throw err;
     }
   };
 
   const handleDeleteAppointment = async (id) => {
+    if (!isAdmin) {
+      setIsAdminLoginModalOpen(true);
+      throw new Error('Se requiere PIN de Administrador para eliminar citas.');
+    }
+
     try {
       await api.deleteCita(id);
       showToast('Cita eliminada de la agenda.');
       await loadCitas();
     } catch (err) {
+      if (err.unauthorized) {
+        authStorage.clearToken();
+        setIsAdmin(false);
+        setIsAdminLoginModalOpen(true);
+      }
       showToast(err.message || 'Error al eliminar cita', 'error');
       throw err;
     }
@@ -145,22 +204,52 @@ export default function App() {
 
   // Handlers para Capacitadores
   const handleSaveCapacitador = async (data, id) => {
-    if (id) {
-      await api.updateCapacitador(id, data);
-      showToast('Capacitador actualizado correctamente.');
-    } else {
-      await api.createCapacitador(data);
-      showToast(`Capacitador registrado con código [${data.iniciales}].`);
+    if (!isAdmin) {
+      setIsAdminLoginModalOpen(true);
+      throw new Error('Se requiere PIN de Administrador para registrar o modificar capacitadores.');
     }
-    await loadCapacitadores();
-    await loadCitas();
+
+    try {
+      if (id) {
+        await api.updateCapacitador(id, data);
+        showToast('Capacitador actualizado correctamente.');
+      } else {
+        await api.createCapacitador(data);
+        showToast(`Capacitador registrado con código [${data.iniciales}].`);
+      }
+      await loadCapacitadores();
+      await loadCitas();
+    } catch (err) {
+      if (err.unauthorized) {
+        authStorage.clearToken();
+        setIsAdmin(false);
+        setIsAdminLoginModalOpen(true);
+      }
+      showToast(err.message || 'Error al guardar capacitador', 'error');
+      throw err;
+    }
   };
 
   const handleDeleteCapacitador = async (id) => {
-    await api.deleteCapacitador(id);
-    showToast('Capacitador actualizado/eliminado.');
-    await loadCapacitadores();
-    await loadCitas();
+    if (!isAdmin) {
+      setIsAdminLoginModalOpen(true);
+      throw new Error('Se requiere PIN de Administrador para eliminar o desactivar capacitadores.');
+    }
+
+    try {
+      await api.deleteCapacitador(id);
+      showToast('Capacitador actualizado/eliminado.');
+      await loadCapacitadores();
+      await loadCitas();
+    } catch (err) {
+      if (err.unauthorized) {
+        authStorage.clearToken();
+        setIsAdmin(false);
+        setIsAdminLoginModalOpen(true);
+      }
+      showToast(err.message || 'Error al eliminar capacitador', 'error');
+      throw err;
+    }
   };
 
   const handleUpdateCapacitadorPhone = async (id, data) => {
@@ -180,6 +269,11 @@ export default function App() {
 
   // Handlers para Clientes
   const handleSaveCliente = async (data, id) => {
+    if (!isAdmin) {
+      setIsAdminLoginModalOpen(true);
+      throw new Error('Se requiere PIN de Administrador para registrar o modificar clientes.');
+    }
+
     try {
       let result;
       if (id) {
@@ -192,18 +286,33 @@ export default function App() {
       await loadClientes();
       return result;
     } catch (err) {
+      if (err.unauthorized) {
+        authStorage.clearToken();
+        setIsAdmin(false);
+        setIsAdminLoginModalOpen(true);
+      }
       showToast(err.message || 'Error al guardar cliente', 'error');
       throw err;
     }
   };
 
   const handleDeleteCliente = async (id) => {
+    if (!isAdmin) {
+      setIsAdminLoginModalOpen(true);
+      throw new Error('Se requiere PIN de Administrador para eliminar o desactivar clientes.');
+    }
+
     try {
       await api.deleteCliente(id);
-      showToast('Cliente eliminado del catálogo.');
+      showToast('Cliente actualizado/eliminado.');
       await loadClientes();
       await loadCitas();
     } catch (err) {
+      if (err.unauthorized) {
+        authStorage.clearToken();
+        setIsAdmin(false);
+        setIsAdminLoginModalOpen(true);
+      }
       showToast(err.message || 'Error al eliminar cliente', 'error');
       throw err;
     }
@@ -280,6 +389,9 @@ export default function App() {
         onNewAppointment={() => handleOpenNewAppointment()}
         onOpenSearch={() => setIsCommandPaletteOpen(true)}
         capacitadores={capacitadores}
+        isAdmin={isAdmin}
+        onOpenAdminLogin={() => setIsAdminLoginModalOpen(true)}
+        onLogoutAdmin={handleLogoutAdmin}
       />
 
       {/* Contenido Dinámico por Pestaña */}
@@ -359,6 +471,17 @@ export default function App() {
         onSelectCliente={handleSelectClienteFromSearch}
         onSelectCapacitador={handleSelectCapacitadorFromSearch}
         onExecuteAction={handleExecuteActionFromSearch}
+      />
+
+      {/* Modal de Acceso Administrativo (PIN) */}
+      <AdminLoginModal
+        isOpen={isAdminLoginModalOpen}
+        onClose={() => {
+          setIsAdminLoginModalOpen(false);
+          setPendingAdminAction(null);
+        }}
+        onSuccess={handleAdminLoginSuccess}
+        onShowToast={showToast}
       />
     </div>
   );
