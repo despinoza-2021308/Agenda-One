@@ -305,6 +305,7 @@ export default function App() {
         {activeTab === 'trainers' && (
           <CapacitadoresView
             capacitadores={capacitadores}
+            citas={citas}
             onSaveCapacitador={handleSaveCapacitador}
             onDeleteCapacitador={handleDeleteCapacitador}
           />

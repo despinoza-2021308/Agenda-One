@@ -19,8 +19,10 @@ import {
   Plus,
   CheckCircle2,
   Phone,
-  Mail
+  Mail,
+  Car
 } from 'lucide-react';
+import ConfirmModal from '../common/ConfirmModal';
 
 const TIPOS_SERVICIO = ['Curso', 'Asesoría', 'Auditoría', 'Reunión', 'Seguimiento'];
 const MODALIDADES = ['Presencial', 'Virtual', 'Híbrida'];
@@ -67,6 +69,7 @@ export default function AppointmentModal({
   const [isManualHours, setIsManualHours] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
   // Función interna para calcular horas decimales
   const calcHours = (inicio, fin) => {
@@ -244,6 +247,98 @@ export default function AppointmentModal({
     });
   }, [allCitas, formData.capacitador_id, formData.fecha, formData.hora_inicio, formData.hora_fin, formData.estado, appointment]);
 
+  // 1. Detección de Doble Agendamiento de Cliente (con otro capacitador en este mismo horario)
+  const clientConflictCita = useMemo(() => {
+    if (!formData.cliente_nombre?.trim() || !formData.fecha || !formData.hora_inicio || !formData.hora_fin) {
+      return null;
+    }
+    if (formData.estado === 'Cancelada') return null;
+
+    const fStart = String(formData.hora_inicio).slice(0, 5);
+    const fEnd = String(formData.hora_fin).slice(0, 5);
+    if (fStart >= fEnd) return null;
+
+    const cName = formData.cliente_nombre.trim().toLowerCase();
+    const cId = matchedClient?.id || formData.cliente_id;
+
+    return allCitas.find(c => {
+      const notSelf = !appointment || Number(c.id) !== Number(appointment.id);
+      if (!notSelf || c.estado === 'Cancelada') return false;
+
+      const sameDate = String(c.fecha).split('T')[0] === String(formData.fecha).split('T')[0];
+      if (!sameDate) return false;
+
+      const matchByName = (c.cliente_nombre || '').trim().toLowerCase() === cName;
+      const matchById = cId && c.cliente_id && Number(c.cliente_id) === Number(cId);
+      if (!matchByName && !matchById) return false;
+
+      // Si es el mismo capacitador, ya lo maneja conflictingCita
+      if (String(c.capacitador_id) === String(formData.capacitador_id)) return false;
+
+      const cStart = String(c.hora_inicio).slice(0, 5);
+      const cEnd = String(c.hora_fin).slice(0, 5);
+      return cStart < fEnd && cEnd > fStart;
+    });
+  }, [allCitas, formData.cliente_nombre, formData.cliente_id, matchedClient, formData.fecha, formData.hora_inicio, formData.hora_fin, formData.estado, formData.capacitador_id, appointment]);
+
+  // 2. Control de Jornada Diaria / Fatiga del Capacitador (+8h o +12h en el día)
+  const trainerDailyStats = useMemo(() => {
+    if (!formData.capacitador_id || !formData.fecha) {
+      return { totalHours: 0, isOverloaded: false, isExtreme: false };
+    }
+
+    const currentAppointmentHours = parseFloat(formData.horas) || 0;
+    const otherCitasHours = allCitas
+      .filter(c => {
+        const sameCap = String(c.capacitador_id) === String(formData.capacitador_id);
+        const sameDate = String(c.fecha).split('T')[0] === String(formData.fecha).split('T')[0];
+        const notSelf = !appointment || Number(c.id) !== Number(appointment.id);
+        return sameCap && sameDate && notSelf && c.estado !== 'Cancelada';
+      })
+      .reduce((acc, c) => acc + (parseFloat(c.horas) || 0), 0);
+
+    const totalHours = Math.round((otherCitasHours + currentAppointmentHours) * 100) / 100;
+    return {
+      totalHours,
+      isOverloaded: totalHours > 8,
+      isExtreme: totalHours > 12
+    };
+  }, [allCitas, formData.capacitador_id, formData.fecha, formData.horas, appointment]);
+
+  // 3. Aviso de Traslado Presencial Inmediato (Buffer Zero entre distintas empresas)
+  const transitWarning = useMemo(() => {
+    if (formData.modalidad !== 'Presencial' || !formData.capacitador_id || !formData.fecha || !formData.hora_inicio || !formData.hora_fin) {
+      return null;
+    }
+    if (formData.estado === 'Cancelada') return null;
+
+    const fStart = String(formData.hora_inicio).slice(0, 5);
+    const fEnd = String(formData.hora_fin).slice(0, 5);
+    const currentClientName = (formData.cliente_nombre || '').trim().toLowerCase();
+
+    return allCitas.find(c => {
+      const sameCap = String(c.capacitador_id) === String(formData.capacitador_id);
+      const sameDate = String(c.fecha).split('T')[0] === String(formData.fecha).split('T')[0];
+      const notSelf = !appointment || Number(c.id) !== Number(appointment.id);
+      if (!sameCap || !sameDate || !notSelf || c.estado === 'Cancelada' || c.modalidad !== 'Presencial') return false;
+
+      const otherClientName = (c.cliente_nombre || '').trim().toLowerCase();
+      if (currentClientName && otherClientName === currentClientName) return false;
+
+      const cStart = String(c.hora_inicio).slice(0, 5);
+      const cEnd = String(c.hora_fin).slice(0, 5);
+
+      return cEnd === fStart || cStart === fEnd;
+    });
+  }, [allCitas, formData.modalidad, formData.capacitador_id, formData.fecha, formData.hora_inicio, formData.hora_fin, formData.cliente_nombre, formData.estado, appointment]);
+
+  // 4. Aviso de Agendamiento en Fecha Pasada
+  const isPastDateWarning = useMemo(() => {
+    if (!formData.fecha || formData.estado !== 'Programada') return false;
+    const todayStr = new Date().toISOString().split('T')[0];
+    return formData.fecha < todayStr;
+  }, [formData.fecha, formData.estado]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -308,18 +403,23 @@ export default function AppointmentModal({
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!appointment?.id) return;
-    if (window.confirm('¿Estás seguro de eliminar esta cita agendada?')) {
-      setLoading(true);
-      try {
-        await onDelete(appointment.id);
-        onClose();
-      } catch (err) {
-        setError(err.message || 'Error al eliminar la cita.');
-      } finally {
-        setLoading(false);
-      }
+    setIsConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!appointment?.id) return;
+    setLoading(true);
+    try {
+      await onDelete(appointment.id);
+      setIsConfirmDeleteOpen(false);
+      onClose();
+    } catch (err) {
+      setError(err.message || 'Error al eliminar la cita.');
+      setIsConfirmDeleteOpen(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -713,6 +813,99 @@ export default function AppointmentModal({
             </div>
           )}
 
+          {/* ALERTA PREVENTIVA: Doble Agendamiento del Cliente en el mismo horario con otro capacitador */}
+          {clientConflictCita && !conflictingCita && (
+            <div className="bg-amber-50/90 border-2 border-amber-300 rounded-2xl p-4 flex items-start gap-3.5 text-amber-950 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                <Building2 className="w-5 h-5 text-amber-700" />
+              </div>
+              <div className="text-xs space-y-1.5 flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-1">
+                  <p className="font-black text-sm text-amber-900 flex items-center gap-1.5">
+                    🏢 Doble Agendamiento de Empresa Detectado
+                  </p>
+                  <span className="bg-amber-200 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    Aviso
+                  </span>
+                </div>
+                <p className="text-slate-700 font-medium leading-relaxed">
+                  La empresa <strong className="text-amber-950 font-bold">{formData.cliente_nombre}</strong> ya tiene otra sesión programada en este mismo intervalo horario con otro capacitador:
+                </p>
+                <div className="bg-white/90 rounded-xl p-2.5 border border-amber-200 text-slate-800 space-y-1 shadow-2xs">
+                  <p className="font-extrabold text-xs text-slate-900">
+                    📌 {clientConflictCita.observaciones || `${clientConflictCita.tipo_servicio} Programado`}
+                  </p>
+                  <p className="text-slate-600 text-[11px] flex items-center gap-1">
+                    <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Capacitador: <strong className="text-slate-800">{clientConflictCita.capacitador_nombre} [{clientConflictCita.capacitador_iniciales}]</strong></span>
+                  </p>
+                  <p className="font-mono text-amber-800 font-bold text-[11px] flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span>Horario: {clientConflictCita.hora_inicio} - {clientConflictCita.hora_fin} ({clientConflictCita.horas}h)</span>
+                  </p>
+                </div>
+                <p className="text-[11px] text-amber-800 font-medium">
+                  💡 Si la empresa organizó dos capacitaciones en simultáneo para grupos separados puedes guardar; de lo contrario, coordina con la empresa para evitar empalmes.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* ALERTA: Sobrecarga de Horas Diarias (+8h o +12h) */}
+          {trainerDailyStats.isOverloaded && !conflictingCita && (
+            <div className={`border rounded-2xl p-3.5 flex items-start gap-3 shadow-2xs animate-in fade-in duration-150 ${
+              trainerDailyStats.isExtreme
+                ? 'bg-rose-50/80 border-rose-300 text-rose-950'
+                : 'bg-amber-50/80 border-amber-300 text-amber-950'
+            }`}>
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+                trainerDailyStats.isExtreme ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'
+              }`}>
+                <AlertTriangle className="w-4 h-4" />
+              </div>
+              <div className="text-xs space-y-1 min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="font-bold">
+                    {trainerDailyStats.isExtreme ? '🚨 Jornada Extrema del Capacitador' : '⚠️ Aviso de Sobrecarga de Horas Diarias'}
+                  </span>
+                  <span className="font-mono font-black px-2 py-0.5 rounded-full bg-white/90 border text-[11px]">
+                    {trainerDailyStats.totalHours}h en el día
+                  </span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  Con esta cita, <strong className="text-slate-900">{selectedTrainer?.nombre_completo || 'el capacitador'}</strong> sumará <strong>{trainerDailyStats.totalHours} horas</strong> de capacitación en la fecha {formData.fecha} (la jornada recomendada es de 8h).
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* AVISO: Traslado Inmediato / Citas Presenciales Consecutivas entre Distintas Empresas */}
+          {transitWarning && !conflictingCita && (
+            <div className="bg-blue-50/80 border border-blue-200 rounded-2xl p-3.5 flex items-start gap-3 text-blue-950 shadow-2xs animate-in fade-in duration-150">
+              <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+                <Car className="w-4 h-4" />
+              </div>
+              <div className="text-xs space-y-1 min-w-0 flex-1">
+                <p className="font-bold text-blue-900 flex items-center gap-1.5">
+                  🚗 Aviso de Desplazamiento Presencial Continuo
+                </p>
+                <p className="text-slate-600 leading-relaxed">
+                  El capacitador tiene otra cita presencial continua con <strong className="text-slate-900">{transitWarning.cliente_nombre}</strong> ({transitWarning.hora_inicio} - {transitWarning.hora_fin}). Asegúrate de prever tiempo suficiente de traslado entre ambas empresas.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* SUGERENCIA: Cita en Fecha Pasada */}
+          {isPastDateWarning && (
+            <div className="bg-slate-100/90 border border-slate-200 rounded-2xl p-3 flex items-start gap-2.5 text-slate-700 text-xs animate-in fade-in duration-150">
+              <span className="text-sm">💡</span>
+              <p className="leading-relaxed">
+                Esta cita está agendada para una fecha anterior a hoy (<strong className="text-slate-900">{formData.fecha}</strong>). Si la capacitación ya fue impartida con éxito, considera seleccionar el estado <strong className="text-emerald-700 font-bold">Impartida ✅</strong>.
+              </p>
+            </div>
+          )}
+
           {/* Estado de la Cita (Ciclo de Vida de la Capacitación) */}
           <div className="bg-slate-50/80 border border-slate-200 rounded-2xl p-3.5 space-y-2">
             <div className="flex items-center justify-between">
@@ -878,6 +1071,25 @@ export default function AppointmentModal({
           </div>
         </form>
       </div>
+
+      {/* Modal de confirmación elegante para eliminar cita */}
+      <ConfirmModal
+        isOpen={isConfirmDeleteOpen}
+        onClose={() => setIsConfirmDeleteOpen(false)}
+        onConfirm={handleConfirmDelete}
+        loading={loading}
+        title="¿Eliminar esta cita agendada?"
+        message={`¿Estás seguro de que deseas eliminar la cita con ${appointment?.cliente_nombre || 'el cliente'} programada para el ${appointment?.fecha} (${appointment?.hora_inicio} - ${appointment?.hora_fin})?`}
+        detail={
+          <div>
+            <p className="font-bold text-slate-800">📌 Actividad: {appointment?.observaciones || appointment?.tipo_servicio || 'Capacitación'}</p>
+            <p className="text-slate-500 mt-1">Esta acción eliminará la cita de la agenda y liberará el horario del capacitador asignado.</p>
+          </div>
+        }
+        confirmText="Sí, Eliminar Cita"
+        cancelText="Conservar Cita"
+        variant="danger"
+      />
     </div>
   );
 }

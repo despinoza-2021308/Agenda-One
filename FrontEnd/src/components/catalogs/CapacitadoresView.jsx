@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Users, Plus, Edit2, Trash2, Check, X, AlertCircle, Palette, Phone } from 'lucide-react';
+import ConfirmModal from '../common/ConfirmModal';
 
 const COLOR_PALETTES = [
   '#2563EB', // Azul Royal
@@ -13,7 +14,7 @@ const COLOR_PALETTES = [
   '#475569', // Pizarra
 ];
 
-export default function CapacitadoresView({ capacitadores = [], onSaveCapacitador, onDeleteCapacitador }) {
+export default function CapacitadoresView({ capacitadores = [], citas = [], onSaveCapacitador, onDeleteCapacitador }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCap, setEditingCap] = useState(null);
   const [formData, setFormData] = useState({
@@ -24,6 +25,8 @@ export default function CapacitadoresView({ capacitadores = [], onSaveCapacitado
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const openNewModal = () => {
     setEditingCap(null);
@@ -126,13 +129,23 @@ export default function CapacitadoresView({ capacitadores = [], onSaveCapacitado
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('¿Deseas eliminar o desactivar este capacitador?')) {
-      try {
-        await onDeleteCapacitador(id);
-      } catch (err) {
-        alert(err.message || 'Error al eliminar capacitador');
-      }
+  const handleDelete = (id) => {
+    const cap = capacitadores.find(c => c.id === id);
+    if (!cap) return;
+    const citasCount = (citas || []).filter(ci => Number(ci.capacitador_id) === Number(id)).length;
+    setDeleteTarget({ ...cap, citasCount });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget?.id) return;
+    setDeleteLoading(true);
+    try {
+      await onDeleteCapacitador(deleteTarget.id);
+      setDeleteTarget(null);
+    } catch (err) {
+      alert(err.message || 'Error al eliminar capacitador');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -354,6 +367,32 @@ export default function CapacitadoresView({ capacitadores = [], onSaveCapacitado
           </div>
         </div>
       )}
+
+      {/* Modal de confirmación elegante para eliminar / desactivar capacitador */}
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => !deleteLoading && setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        loading={deleteLoading}
+        title={deleteTarget?.citasCount > 0 ? `¿Desactivar a ${deleteTarget.nombre_completo}?` : `¿Eliminar a ${deleteTarget?.nombre_completo}?`}
+        message={`¿Estás seguro de que deseas proceder con el capacitador "${deleteTarget?.nombre_completo}" [${deleteTarget?.iniciales}]?`}
+        detail={
+          deleteTarget?.citasCount > 0 ? (
+            <div>
+              <p className="font-bold text-amber-800">⚠️ Este capacitador cuenta con {deleteTarget.citasCount} {deleteTarget.citasCount === 1 ? 'cita asignada' : 'citas asignadas'}.</p>
+              <p className="text-slate-600 mt-1">Para no comprometer la agenda ni los reportes mensuales de capacitación, el capacitador pasará a estado <strong>Inactivo</strong> y no se perderá su historial.</p>
+            </div>
+          ) : (
+            <div>
+              <p className="font-semibold text-slate-700">Este capacitador no tiene ninguna cita asignada en el sistema.</p>
+              <p className="text-slate-500 mt-0.5">Se eliminará completamente del catálogo de capacitadores.</p>
+            </div>
+          )
+        }
+        confirmText={deleteTarget?.citasCount > 0 ? 'Sí, Desactivar Capacitador' : 'Sí, Eliminar Capacitador'}
+        cancelText="Cancelar"
+        variant={deleteTarget?.citasCount > 0 ? 'warning' : 'danger'}
+      />
     </div>
   );
 }

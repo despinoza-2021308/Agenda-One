@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Building2, Plus, Search, Phone, Mail, User, Edit2, Trash2, Check, X, AlertCircle } from 'lucide-react';
+import ConfirmModal from '../common/ConfirmModal';
 
 export default function ClientesView({ clientes = [], citas = [], onSaveCliente, onDeleteCliente }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -13,6 +14,8 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const filteredClientes = clientes.filter(c =>
     c.nombre_empresa.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -98,13 +101,23 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('¿Deseas eliminar o desactivar este cliente?')) {
-      try {
-        await onDeleteCliente(id);
-      } catch (err) {
-        alert(err.message || 'Error al eliminar cliente');
-      }
+  const handleDelete = (id) => {
+    const cliente = clientes.find(c => c.id === id);
+    if (!cliente) return;
+    const citasCount = (citas || []).filter(ci => Number(ci.cliente_id) === Number(id)).length;
+    setDeleteTarget({ ...cliente, citasCount });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget?.id) return;
+    setDeleteLoading(true);
+    try {
+      await onDeleteCliente(deleteTarget.id);
+      setDeleteTarget(null);
+    } catch (err) {
+      alert(err.message || 'Error al eliminar cliente');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -326,6 +339,32 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
           </div>
         </div>
       )}
+
+      {/* Modal de confirmación elegante para eliminar / desactivar cliente */}
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => !deleteLoading && setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        loading={deleteLoading}
+        title={deleteTarget?.citasCount > 0 ? `¿Desactivar ${deleteTarget.nombre_empresa}?` : `¿Eliminar ${deleteTarget?.nombre_empresa}?`}
+        message={`¿Estás seguro de que deseas proceder con la empresa "${deleteTarget?.nombre_empresa}"?`}
+        detail={
+          deleteTarget?.citasCount > 0 ? (
+            <div>
+              <p className="font-bold text-amber-800">⚠️ Esta empresa cuenta con {deleteTarget.citasCount} {deleteTarget.citasCount === 1 ? 'cita registrada' : 'citas registradas'}.</p>
+              <p className="text-slate-600 mt-1">Para conservar la integridad de tus reportes de horas e historial de capacitación, la empresa pasará a estado <strong>Inactivo</strong> y no se borrará ninguna cita histórica.</p>
+            </div>
+          ) : (
+            <div>
+              <p className="font-semibold text-slate-700">Esta empresa no tiene citas asociadas en el sistema.</p>
+              <p className="text-slate-500 mt-0.5">Se eliminará completamente del catálogo de clientes.</p>
+            </div>
+          )
+        }
+        confirmText={deleteTarget?.citasCount > 0 ? 'Sí, Desactivar Empresa' : 'Sí, Eliminar Empresa'}
+        cancelText="Cancelar"
+        variant={deleteTarget?.citasCount > 0 ? 'warning' : 'danger'}
+      />
     </div>
   );
 }
