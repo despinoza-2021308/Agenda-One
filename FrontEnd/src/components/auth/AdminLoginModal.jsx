@@ -111,10 +111,6 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess, onShowToas
                 {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            <p className="text-[11px] text-slate-400 mt-1.5 flex items-center gap-1">
-              <span>💡</span>
-              <span>PIN predeterminado: <strong className="text-slate-600 font-mono">admin2026</strong></span>
-            </p>
           </div>
 
           {/* Acciones */}

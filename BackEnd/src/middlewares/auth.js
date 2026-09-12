@@ -1,7 +1,7 @@
 const rateLimit = require('express-rate-limit');
 
-// PIN de administrador configurable (por defecto 'admin2026')
-const getAdminPin = () => String(process.env.ADMIN_PIN || 'admin2026').trim();
+// PIN de administrador configurable (por defecto 'OneCon2026')
+const getAdminPin = () => String(process.env.ADMIN_PIN || 'OneCon2026').trim();
 
 // Generador y validador de token de sesión administrativa
 const generateToken = (pin) => Buffer.from(`admin:${pin}:agenda_one_session`).toString('base64');
