@@ -197,6 +197,25 @@ export default function AppointmentModal({
   }, [capacitadores, formData.capacitador_id]);
 
   // Detección en tiempo real de traslapes de horario para el capacitador en la fecha seleccionada
+  const isTimeRangeInvalid = useMemo(() => {
+    if (!formData.hora_inicio || !formData.hora_fin) return false;
+    const fStart = String(formData.hora_inicio).slice(0, 5);
+    const fEnd = String(formData.hora_fin).slice(0, 5);
+    return fStart >= fEnd;
+  }, [formData.hora_inicio, formData.hora_fin]);
+
+  const isWeekend = useMemo(() => {
+    if (!formData.fecha) return false;
+    const [y, m, d] = formData.fecha.split('-').map(Number);
+    if (!y || !m || !d) return false;
+    const dayOfWeek = new Date(y, m - 1, d).getDay();
+    return dayOfWeek === 0 || dayOfWeek === 6;
+  }, [formData.fecha]);
+
+  const isTrainerInactive = useMemo(() => {
+    return selectedTrainer && selectedTrainer.activo === false;
+  }, [selectedTrainer]);
+
   const conflictingCita = useMemo(() => {
     if (!formData.capacitador_id || !formData.fecha || !formData.hora_inicio || !formData.hora_fin) {
       return null;
@@ -229,6 +248,16 @@ export default function AppointmentModal({
     e.preventDefault();
     setError(null);
 
+    if (isTimeRangeInvalid) {
+      setError('La hora de fin debe ser posterior a la hora de inicio.');
+      return;
+    }
+
+    if (isTrainerInactive) {
+      setError(`El capacitador ${selectedTrainer ? selectedTrainer.nombre_completo : ''} se encuentra inactivo y no puede recibir citas.`);
+      return;
+    }
+
     if (conflictingCita) {
       setError(`Conflicto de horario: ${selectedTrainer ? selectedTrainer.nombre_completo : 'El capacitador'} ya tiene una actividad de ${conflictingCita.hora_inicio} a ${conflictingCita.hora_fin} en esta fecha.`);
       return;
@@ -239,14 +268,25 @@ export default function AppointmentModal({
       return;
     }
 
+    if (formData.cliente_nombre.trim().length < 2 || formData.cliente_nombre.trim().length > 120) {
+      setError('El nombre del cliente o empresa debe tener entre 2 y 120 caracteres.');
+      return;
+    }
+
     if (!formData.capacitador_id || !formData.fecha) {
       setError('Por favor selecciona el capacitador y la fecha.');
       return;
     }
 
     const numHoras = parseFloat(formData.horas);
-    if (isNaN(numHoras) || numHoras <= 0) {
-      setError('Las horas deben ser un número mayor a 0 (ej: 4, 2.5).');
+    if (isNaN(numHoras) || numHoras < 0.25 || numHoras > 16) {
+      setError('Las horas deben ser un número entre 0.25h (15 min) y 16.0h.');
+      return;
+    }
+
+    const obsText = (formData.descripcion || formData.observaciones || '').trim();
+    if (obsText.length > 500) {
+      setError('Las observaciones no pueden exceder los 500 caracteres.');
       return;
     }
 
@@ -258,7 +298,7 @@ export default function AppointmentModal({
         cliente_id: matchedClient ? matchedClient.id : (formData.cliente_id || null),
         capacitador_id: parseInt(formData.capacitador_id, 10),
         horas: numHoras,
-        observaciones: formData.descripcion || formData.observaciones
+        observaciones: obsText
       });
       onClose();
     } catch (err) {
@@ -527,6 +567,11 @@ export default function AppointmentModal({
                 );
               })}
             </div>
+            {isTrainerInactive && (
+              <p className="text-[11px] font-bold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-2.5 py-1 mt-1.5 flex items-center gap-1">
+                ⚠️ Este capacitador se encuentra inactivo y no puede recibir nuevas citas.
+              </p>
+            )}
           </div>
 
           {/* Fecha, Horarios y Cálculo de Horas */}
@@ -542,6 +587,11 @@ export default function AppointmentModal({
                 required
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
+              {isWeekend && (
+                <p className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-0.5 mt-1 flex items-center gap-1">
+                  🗓️ Fin de semana
+                </p>
+              )}
             </div>
 
             <div>
@@ -553,7 +603,9 @@ export default function AppointmentModal({
                 value={formData.hora_inicio}
                 onChange={(e) => handleTimeChange('hora_inicio', e.target.value)}
                 required
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 ${
+                  isTimeRangeInvalid ? 'border-rose-400 focus:ring-rose-200' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-500'
+                }`}
               />
             </div>
 
@@ -566,8 +618,15 @@ export default function AppointmentModal({
                 value={formData.hora_fin}
                 onChange={(e) => handleTimeChange('hora_fin', e.target.value)}
                 required
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 ${
+                  isTimeRangeInvalid ? 'border-rose-400 focus:ring-rose-200 text-rose-700' : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-500'
+                }`}
               />
+              {isTimeRangeInvalid && (
+                <p className="text-[10px] font-bold text-rose-600 mt-1 flex items-center gap-0.5">
+                  ⚠️ Fin debe ser posterior a inicio.
+                </p>
+              )}
             </div>
           </div>
 
@@ -742,17 +801,33 @@ export default function AppointmentModal({
 
           {/* Descripción / Observaciones de la cita */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-              <AlignLeft className="w-4 h-4 text-slate-500" />
-              Descripción / Observaciones de la Cita
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <AlignLeft className="w-4 h-4 text-slate-500" />
+                Descripción / Observaciones de la Cita
+              </label>
+              <span className={`text-[10px] font-mono font-bold ${
+                (formData.descripcion || '').length > 500 ? 'text-rose-600' : 'text-slate-400'
+              }`}>
+                {(formData.descripcion || '').length} / 500
+              </span>
+            </div>
             <textarea
               rows={3}
               value={formData.descripcion}
               onChange={(e) => setFormData({ ...formData, descripcion: e.target.value, observaciones: e.target.value })}
               placeholder="Escribe la descripción de los temas a tratar, sala, detalles o notas..."
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-normal text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none"
+              className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm font-normal text-slate-900 focus:bg-white focus:outline-none focus:ring-2 resize-none ${
+                (formData.descripcion || '').length > 500
+                  ? 'border-rose-400 focus:ring-rose-200'
+                  : 'border-slate-200 focus:ring-blue-500/20 focus:border-blue-500'
+              }`}
             />
+            {(formData.descripcion || '').length > 500 && (
+              <p className="text-[10px] font-bold text-rose-600 mt-1">
+                ⚠️ Las observaciones no deben superar los 500 caracteres.
+              </p>
+            )}
           </div>
 
           {/* Botones de acción */}
@@ -780,10 +855,18 @@ export default function AppointmentModal({
               </button>
               <button
                 type="submit"
-                disabled={loading || !!conflictingCita}
-                title={conflictingCita ? 'Conflicto de horario: El capacitador ya está ocupado en ese rango' : ''}
-                className={`inline-flex items-center gap-2 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all transform active:scale-95 ${
+                disabled={loading || !!conflictingCita || isTimeRangeInvalid || isTrainerInactive || (formData.descripcion || '').length > 500}
+                title={
                   conflictingCita
+                    ? 'Conflicto de horario: El capacitador ya está ocupado en ese rango'
+                    : isTimeRangeInvalid
+                    ? 'Horario inválido: Hora fin debe ser mayor a hora inicio'
+                    : isTrainerInactive
+                    ? 'Capacitador inactivo'
+                    : ''
+                }
+                className={`inline-flex items-center gap-2 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all transform active:scale-95 ${
+                  conflictingCita || isTimeRangeInvalid || isTrainerInactive || (formData.descripcion || '').length > 500
                     ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
                     : 'bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/25'
                 }`}

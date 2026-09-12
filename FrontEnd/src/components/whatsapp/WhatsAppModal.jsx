@@ -242,7 +242,11 @@ export default function WhatsAppModal({
 
   // Abrir en WhatsApp Web / App
   const handleOpenWhatsApp = () => {
-    const cleanPhone = (customPhone || '').replace(/[^0-9]/g, '');
+    const cleanPhone = (customPhone || '').replace(/\D/g, '');
+    if (customPhone && customPhone.trim() && cleanPhone.length < 8) {
+      if (onShowToast) onShowToast('El número de teléfono parece incompleto (mínimo 8 dígitos).', 'error');
+      return;
+    }
     const encoded = encodeURIComponent(generatedMessage);
     const url = cleanPhone
       ? `https://wa.me/${cleanPhone}?text=${encoded}`
@@ -253,6 +257,11 @@ export default function WhatsAppModal({
   // Guardar teléfono rápido en el perfil del capacitador
   const handleSavePhone = async () => {
     if (!currentTrainer || !onUpdateCapacitadorPhone) return;
+    const cleanDigits = (customPhone || '').replace(/\D/g, '');
+    if (customPhone.trim() && cleanDigits.length < 8) {
+      if (onShowToast) onShowToast('El teléfono debe contener al menos 8 dígitos.', 'error');
+      return;
+    }
     setSavingPhone(true);
     try {
       await onUpdateCapacitadorPhone(currentTrainer.id, { telefono: customPhone.trim() });
@@ -389,24 +398,33 @@ export default function WhatsAppModal({
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Ej: +502 5555-1234"
-                value={customPhone}
-                onChange={(e) => setCustomPhone(e.target.value)}
-                className="px-3 py-1.5 bg-white border border-emerald-300 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-36 sm:w-40"
-              />
-              {onUpdateCapacitadorPhone && customPhone !== (currentTrainer?.telefono || '') && (
-                <button
-                  type="button"
-                  onClick={handleSavePhone}
-                  disabled={savingPhone}
-                  className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-lg transition-colors shadow-2xs"
-                  title="Guardar este teléfono en el perfil"
-                >
-                  {savingPhone ? '...' : 'Guardar'}
-                </button>
+            <div className="flex flex-col items-end">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Ej: +502 5555-1234"
+                  value={customPhone}
+                  onChange={(e) => setCustomPhone(e.target.value)}
+                  className={`px-3 py-1.5 bg-white border rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 w-36 sm:w-40 ${
+                    customPhone && customPhone.replace(/\D/g, '').length < 8
+                      ? 'border-rose-300 focus:ring-rose-500'
+                      : 'border-emerald-300 focus:ring-emerald-500'
+                  }`}
+                />
+                {onUpdateCapacitadorPhone && customPhone !== (currentTrainer?.telefono || '') && (
+                  <button
+                    type="button"
+                    onClick={handleSavePhone}
+                    disabled={savingPhone}
+                    className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-lg transition-colors shadow-2xs"
+                    title="Guardar este teléfono en el perfil"
+                  >
+                    {savingPhone ? '...' : 'Guardar'}
+                  </button>
+                )}
+              </div>
+              {customPhone && customPhone.replace(/\D/g, '').length < 8 && (
+                <span className="text-[10px] text-rose-600 font-bold mt-0.5">Mínimo 8 dígitos</span>
               )}
             </div>
           </div>

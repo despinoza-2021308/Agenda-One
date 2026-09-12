@@ -60,16 +60,63 @@ export default function CapacitadoresView({ capacitadores = [], onSaveCapacitado
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.nombre_completo.trim() || !formData.iniciales.trim()) {
-      setError('Nombre e iniciales son obligatorios.');
+    setError(null);
+
+    const cleanNombre = formData.nombre_completo.trim();
+    if (!cleanNombre) {
+      setError('El nombre completo es requerido.');
       return;
+    }
+
+    if (cleanNombre.length < 3 || cleanNombre.length > 100) {
+      setError('El nombre del capacitador debe tener entre 3 y 100 caracteres.');
+      return;
+    }
+
+    const cleanInitials = formData.iniciales.trim().toUpperCase();
+    if (!cleanInitials) {
+      setError('Las iniciales son requeridas.');
+      return;
+    }
+
+    if (!/^[A-Z0-9]{2,4}$/.test(cleanInitials)) {
+      setError('Las iniciales deben contener de 2 a 4 letras o números (ej: DE, CP1).');
+      return;
+    }
+
+    // Verificar iniciales duplicadas
+    const isDuplicate = capacitadores.some(
+      c => c.iniciales === cleanInitials && (!editingCap || Number(c.id) !== Number(editingCap.id))
+    );
+    if (isDuplicate) {
+      setError(`Las iniciales '${cleanInitials}' ya están asignadas a otro capacitador.`);
+      return;
+    }
+
+    // Validar color hexadecimal
+    const cleanColor = formData.color.trim();
+    if (!/^#[0-9A-Fa-f]{6}$/.test(cleanColor)) {
+      setError('El color debe ser un código hexadecimal válido de 6 caracteres (ej: #3B82F6).');
+      return;
+    }
+
+    // Validar teléfono si fue ingresado
+    if (formData.telefono && formData.telefono.trim()) {
+      const digits = formData.telefono.replace(/\D/g, '');
+      if (digits.length < 8) {
+        setError('El teléfono debe contener al menos 8 dígitos numéricos.');
+        return;
+      }
     }
 
     setLoading(true);
     try {
       await onSaveCapacitador({
         ...formData,
-        iniciales: formData.iniciales.trim().toUpperCase()
+        nombre_completo: cleanNombre,
+        iniciales: cleanInitials,
+        color: cleanColor,
+        telefono: formData.telefono ? formData.telefono.trim() : ''
       }, editingCap?.id);
       setIsModalOpen(false);
     } catch (err) {

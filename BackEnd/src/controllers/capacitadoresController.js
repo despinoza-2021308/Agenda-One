@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { validarTelefono } = require('../utils/timeUtils');
 
 // Obtener todos los capacitadores
 async function getCapacitadores(req, res, next) {
@@ -47,9 +48,25 @@ async function createCapacitador(req, res, next) {
       return res.status(400).json({ message: 'El nombre completo y las iniciales son requeridos.' });
     }
 
+    const cleanNombre = nombre_completo.trim();
+    if (cleanNombre.length < 3 || cleanNombre.length > 100) {
+      return res.status(400).json({ message: 'El nombre del capacitador debe tener entre 3 y 100 caracteres.' });
+    }
+
     const cleanInitials = iniciales.trim().toUpperCase();
+    if (!/^[A-Z0-9]{2,4}$/.test(cleanInitials)) {
+      return res.status(400).json({ message: 'Las iniciales deben contener entre 2 y 4 caracteres alfanuméricos en mayúsculas (ej: DE, CP1).' });
+    }
+
     const cleanColor = color ? color.trim() : '#3B82F6';
+    if (!/^#[0-9A-Fa-f]{6}$/.test(cleanColor)) {
+      return res.status(400).json({ message: 'El color debe ser un código hexadecimal válido de 6 caracteres (ej: #3B82F6).' });
+    }
+
     const cleanTel = telefono ? telefono.trim() : null;
+    if (cleanTel && !validarTelefono(cleanTel)) {
+      return res.status(400).json({ message: 'El teléfono debe contener al menos 8 dígitos numéricos válidos.' });
+    }
 
     if (db.isPostgresConnected()) {
       const checkResult = await db.pool.query('SELECT id FROM capacitadores WHERE iniciales = $1', [cleanInitials]);
@@ -59,7 +76,7 @@ async function createCapacitador(req, res, next) {
 
       const result = await db.pool.query(
         'INSERT INTO capacitadores (nombre_completo, iniciales, color, telefono) VALUES ($1, $2, $3, $4) RETURNING *',
-        [nombre_completo.trim(), cleanInitials, cleanColor, cleanTel]
+        [cleanNombre, cleanInitials, cleanColor, cleanTel]
       );
       return res.status(201).json(result.rows[0]);
     }
@@ -72,7 +89,7 @@ async function createCapacitador(req, res, next) {
 
     const newCap = {
       id: db.mockStore.nextIds.capacitadores++,
-      nombre_completo: nombre_completo.trim(),
+      nombre_completo: cleanNombre,
       iniciales: cleanInitials,
       color: cleanColor,
       telefono: cleanTel || '',
@@ -92,8 +109,25 @@ async function updateCapacitador(req, res, next) {
     const { id } = req.params;
     const { nombre_completo, iniciales, color, telefono, activo } = req.body;
 
+    const cleanNombre = nombre_completo !== undefined ? nombre_completo.trim() : undefined;
+    if (cleanNombre !== undefined && (cleanNombre.length < 3 || cleanNombre.length > 100)) {
+      return res.status(400).json({ message: 'El nombre del capacitador debe tener entre 3 y 100 caracteres.' });
+    }
+
     const cleanInitials = iniciales ? iniciales.trim().toUpperCase() : undefined;
+    if (cleanInitials !== undefined && !/^[A-Z0-9]{2,4}$/.test(cleanInitials)) {
+      return res.status(400).json({ message: 'Las iniciales deben contener entre 2 y 4 caracteres alfanuméricos en mayúsculas (ej: DE, CP1).' });
+    }
+
+    const cleanColor = color !== undefined ? color.trim() : undefined;
+    if (cleanColor !== undefined && !/^#[0-9A-Fa-f]{6}$/.test(cleanColor)) {
+      return res.status(400).json({ message: 'El color debe ser un código hexadecimal válido de 6 caracteres (ej: #3B82F6).' });
+    }
+
     const cleanTel = telefono !== undefined ? (telefono ? telefono.trim() : null) : undefined;
+    if (cleanTel && !validarTelefono(cleanTel)) {
+      return res.status(400).json({ message: 'El teléfono debe contener al menos 8 dígitos numéricos válidos.' });
+    }
 
     if (db.isPostgresConnected()) {
       if (cleanInitials) {
@@ -114,7 +148,7 @@ async function updateCapacitador(req, res, next) {
              telefono = COALESCE($4, telefono),
              activo = COALESCE($5, activo)
          WHERE id = $6 RETURNING *`,
-        [nombre_completo, cleanInitials, color, cleanTel, activo, id]
+        [cleanNombre, cleanInitials, cleanColor, cleanTel, activo, id]
       );
 
       if (result.rows.length === 0) {

@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const { calcularHorasDecimales } = require('../utils/timeUtils');
+const { calcularHorasDecimales, validarHorarios, validarFecha } = require('../utils/timeUtils');
 
 // Obtener citas con filtros opcionales (rango de fechas, capacitador, cliente, estado)
 async function getCitas(req, res, next) {
@@ -224,17 +224,72 @@ async function createCita(req, res, next) {
       });
     }
 
-    // Cálculo automático de horas si no fue provisto o es manual
-    let horasCalculadas = horas ? parseFloat(horas) : calcularHorasDecimales(hora_inicio, hora_fin);
-    if (isNaN(horasCalculadas) || horasCalculadas <= 0) {
-      horasCalculadas = calcularHorasDecimales(hora_inicio, hora_fin);
+    if (nombreClienteFinal.length < 2 || nombreClienteFinal.length > 120) {
+      return res.status(400).json({
+        message: 'El nombre del cliente o empresa debe tener entre 2 y 120 caracteres.'
+      });
     }
 
+    // Validación de fecha
+    const fechaVal = validarFecha(fecha);
+    if (!fechaVal.valid) {
+      return res.status(400).json({ message: fechaVal.error });
+    }
+
+    // Validación de horarios (inicio vs fin y límites)
+    const horariosVal = validarHorarios(hora_inicio, hora_fin);
+    if (!horariosVal.valid) {
+      return res.status(400).json({ message: horariosVal.error });
+    }
+
+    // Horas finales calculadas o validadas
+    let horasCalculadas = horas ? parseFloat(horas) : horariosVal.horas;
+    if (isNaN(horasCalculadas) || horasCalculadas < 0.25 || horasCalculadas > 16) {
+      return res.status(400).json({
+        message: 'Las horas deben ser un número entre 0.25h (15 min) y 16.0h.'
+      });
+    }
+
+    // Validación de modalidad
     const mod = modalidad || 'Presencial';
-    const serv = tipo_servicio || 'Curso';
+    if (!['Presencial', 'Virtual'].includes(mod)) {
+      return res.status(400).json({ message: "La modalidad debe ser 'Presencial' o 'Virtual'." });
+    }
+
+    // Validación de tipo de servicio
+    const serv = (tipo_servicio || 'Curso').trim();
+    if (serv.length < 2 || serv.length > 80) {
+      return res.status(400).json({ message: 'El tipo de servicio debe tener entre 2 y 80 caracteres.' });
+    }
+
+    // Validación de estado
     const validEstados = ['Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada'];
     const estadoFinal = validEstados.includes(estado) ? estado : 'Programada';
+
+    // Validación de observaciones
     const obs = (descripcion || observaciones || '').trim();
+    if (obs.length > 500) {
+      return res.status(400).json({ message: 'Las observaciones no pueden exceder los 500 caracteres.' });
+    }
+
+    // Validación de que el capacitador existe y está activo
+    if (db.isPostgresConnected()) {
+      const capCheck = await db.pool.query('SELECT id, activo, nombre_completo FROM capacitadores WHERE id = $1', [capacitador_id]);
+      if (capCheck.rows.length === 0) {
+        return res.status(404).json({ message: 'El capacitador seleccionado no existe.' });
+      }
+      if (!capCheck.rows[0].activo) {
+        return res.status(400).json({ message: `El capacitador ${capCheck.rows[0].nombre_completo} se encuentra inactivo y no puede recibir nuevas asignaciones.` });
+      }
+    } else {
+      const capCheck = db.mockStore.capacitadores.find(cp => cp.id === parseInt(capacitador_id, 10));
+      if (!capCheck) {
+        return res.status(404).json({ message: 'El capacitador seleccionado no existe.' });
+      }
+      if (capCheck.activo === false) {
+        return res.status(400).json({ message: `El capacitador ${capCheck.nombre_completo} se encuentra inactivo y no puede recibir nuevas asignaciones.` });
+      }
+    }
 
     // Validación inteligente: Verificar si el capacitador ya tiene un compromiso en ese rango de horas
     // (Solo aplica si la nueva cita no es Cancelada, y solo choca con citas no canceladas)
@@ -365,15 +420,78 @@ async function updateCita(req, res, next) {
       descripcion
     } = req.body;
 
-    let horasFinal = horas !== undefined ? parseFloat(horas) : undefined;
-    if (horasFinal === undefined && hora_inicio && hora_fin) {
-      horasFinal = calcularHorasDecimales(hora_inicio, hora_fin);
+    if (cliente_nombre !== undefined) {
+      const cNom = cliente_nombre.trim();
+      if (cNom.length < 2 || cNom.length > 120) {
+        return res.status(400).json({ message: 'El nombre del cliente o empresa debe tener entre 2 y 120 caracteres.' });
+      }
     }
+
+    if (fecha !== undefined) {
+      const fechaVal = validarFecha(fecha);
+      if (!fechaVal.valid) {
+        return res.status(400).json({ message: fechaVal.error });
+      }
+    }
+
+    if (hora_inicio !== undefined && hora_fin !== undefined) {
+      const horariosVal = validarHorarios(hora_inicio, hora_fin);
+      if (!horariosVal.valid) {
+        return res.status(400).json({ message: horariosVal.error });
+      }
+      if (horas === undefined) {
+        horasFinal = horariosVal.horas;
+      }
+    }
+
+    if (horas !== undefined) {
+      const hNum = parseFloat(horas);
+      if (isNaN(hNum) || hNum < 0.25 || hNum > 16) {
+        return res.status(400).json({ message: 'Las horas deben estar entre 0.25h (15 min) y 16.0h.' });
+      }
+      horasFinal = hNum;
+    }
+
+    if (modalidad !== undefined && !['Presencial', 'Virtual'].includes(modalidad)) {
+      return res.status(400).json({ message: "La modalidad debe ser 'Presencial' o 'Virtual'." });
+    }
+
+    if (tipo_servicio !== undefined) {
+      const serv = tipo_servicio.trim();
+      if (serv.length < 2 || serv.length > 80) {
+        return res.status(400).json({ message: 'El tipo de servicio debe tener entre 2 y 80 caracteres.' });
+      }
+    }
+
+    const obs = descripcion !== undefined ? descripcion : observaciones;
+    if (obs && obs.trim().length > 500) {
+      return res.status(400).json({ message: 'Las observaciones no pueden exceder los 500 caracteres.' });
+    }
+
+    if (capacitador_id !== undefined) {
+      if (db.isPostgresConnected()) {
+        const capCheck = await db.pool.query('SELECT id, activo, nombre_completo FROM capacitadores WHERE id = $1', [capacitador_id]);
+        if (capCheck.rows.length === 0) {
+          return res.status(404).json({ message: 'El capacitador seleccionado no existe.' });
+        }
+        if (!capCheck.rows[0].activo) {
+          return res.status(400).json({ message: `El capacitador ${capCheck.rows[0].nombre_completo} se encuentra inactivo.` });
+        }
+      } else {
+        const capCheck = db.mockStore.capacitadores.find(cp => cp.id === parseInt(capacitador_id, 10));
+        if (!capCheck) {
+          return res.status(404).json({ message: 'El capacitador seleccionado no existe.' });
+        }
+        if (capCheck.activo === false) {
+          return res.status(400).json({ message: `El capacitador ${capCheck.nombre_completo} se encuentra inactivo.` });
+        }
+      }
+    }
+
+    let horasFinalCalculadas = horasFinal;
 
     const validEstados = ['Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada'];
     const estadoFinal = estado !== undefined && validEstados.includes(estado) ? estado : undefined;
-
-    const obs = descripcion !== undefined ? descripcion : observaciones;
 
     // Validación inteligente de conflicto de horario al actualizar (solo si no es o no pasa a Cancelada)
     if (estado !== 'Cancelada' && capacitador_id && fecha && hora_inicio && hora_fin) {

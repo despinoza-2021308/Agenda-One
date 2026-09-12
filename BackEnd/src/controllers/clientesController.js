@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { validarEmail, validarTelefono } = require('../utils/timeUtils');
 
 // Obtener todos los clientes
 async function getClientes(req, res, next) {
@@ -47,6 +48,24 @@ async function createCliente(req, res, next) {
     }
 
     const cleanNombre = nombre_empresa.trim();
+    if (cleanNombre.length < 2 || cleanNombre.length > 120) {
+      return res.status(400).json({ message: 'El nombre de la empresa debe tener entre 2 y 120 caracteres.' });
+    }
+
+    const cleanContacto = contacto ? contacto.trim() : null;
+    if (cleanContacto && cleanContacto.length > 100) {
+      return res.status(400).json({ message: 'El nombre de contacto no puede exceder los 100 caracteres.' });
+    }
+
+    const cleanCorreo = correo ? correo.trim() : null;
+    if (cleanCorreo && !validarEmail(cleanCorreo)) {
+      return res.status(400).json({ message: 'El correo electrónico no tiene un formato válido (ej: contacto@empresa.com).' });
+    }
+
+    const cleanTelefono = telefono ? telefono.trim() : null;
+    if (cleanTelefono && !validarTelefono(cleanTelefono)) {
+      return res.status(400).json({ message: 'El teléfono debe contener al menos 8 dígitos numéricos válidos.' });
+    }
 
     if (db.isPostgresConnected()) {
       const exists = await db.pool.query('SELECT id FROM clientes WHERE LOWER(nombre_empresa) = LOWER($1)', [cleanNombre]);
@@ -56,7 +75,7 @@ async function createCliente(req, res, next) {
 
       const result = await db.pool.query(
         'INSERT INTO clientes (nombre_empresa, contacto, telefono, correo) VALUES ($1, $2, $3, $4) RETURNING *',
-        [cleanNombre, contacto?.trim() || null, telefono?.trim() || null, correo?.trim() || null]
+        [cleanNombre, cleanContacto, cleanTelefono, cleanCorreo]
       );
       return res.status(201).json(result.rows[0]);
     }
@@ -70,9 +89,9 @@ async function createCliente(req, res, next) {
     const newCliente = {
       id: db.mockStore.nextIds.clientes++,
       nombre_empresa: cleanNombre,
-      contacto: contacto?.trim() || '',
-      telefono: telefono?.trim() || '',
-      correo: correo?.trim() || '',
+      contacto: cleanContacto || '',
+      telefono: cleanTelefono || '',
+      correo: cleanCorreo || '',
       activo: true,
       created_at: new Date()
     };
@@ -89,11 +108,31 @@ async function updateCliente(req, res, next) {
     const { id } = req.params;
     const { nombre_empresa, contacto, telefono, correo, activo } = req.body;
 
+    const cleanNombre = nombre_empresa ? nombre_empresa.trim() : undefined;
+    if (cleanNombre !== undefined && (cleanNombre.length < 2 || cleanNombre.length > 120)) {
+      return res.status(400).json({ message: 'El nombre de la empresa debe tener entre 2 y 120 caracteres.' });
+    }
+
+    const cleanContacto = contacto !== undefined ? (contacto ? contacto.trim() : null) : undefined;
+    if (cleanContacto && cleanContacto.length > 100) {
+      return res.status(400).json({ message: 'El nombre de contacto no puede exceder los 100 caracteres.' });
+    }
+
+    const cleanCorreo = correo !== undefined ? (correo ? correo.trim() : null) : undefined;
+    if (cleanCorreo && !validarEmail(cleanCorreo)) {
+      return res.status(400).json({ message: 'El correo electrónico no tiene un formato válido (ej: contacto@empresa.com).' });
+    }
+
+    const cleanTelefono = telefono !== undefined ? (telefono ? telefono.trim() : null) : undefined;
+    if (cleanTelefono && !validarTelefono(cleanTelefono)) {
+      return res.status(400).json({ message: 'El teléfono debe contener al menos 8 dígitos numéricos válidos.' });
+    }
+
     if (db.isPostgresConnected()) {
-      if (nombre_empresa) {
+      if (cleanNombre) {
         const check = await db.pool.query(
           'SELECT id FROM clientes WHERE LOWER(nombre_empresa) = LOWER($1) AND id <> $2',
-          [nombre_empresa.trim(), id]
+          [cleanNombre, id]
         );
         if (check.rows.length > 0) {
           return res.status(400).json({ message: 'Ya existe otro cliente con ese nombre de empresa.' });
@@ -108,7 +147,7 @@ async function updateCliente(req, res, next) {
              correo = COALESCE($4, correo),
              activo = COALESCE($5, activo)
          WHERE id = $6 RETURNING *`,
-        [nombre_empresa?.trim(), contacto?.trim(), telefono?.trim(), correo?.trim(), activo, id]
+        [cleanNombre, cleanContacto, cleanTelefono, cleanCorreo, activo, id]
       );
 
       if (result.rows.length === 0) {
