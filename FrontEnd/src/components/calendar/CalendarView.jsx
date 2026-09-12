@@ -11,7 +11,10 @@ import {
   Filter, 
   CheckCircle2,
   Users,
-  MessageSquare
+  MessageSquare,
+  X,
+  ExternalLink,
+  ArrowRight
 } from 'lucide-react';
 
 const MONTH_NAMES = [
@@ -46,6 +49,17 @@ export default function CalendarView({
   const [selectedCapacitadorId, setSelectedCapacitadorId] = useState('ALL');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
   const [calendarMode, setCalendarMode] = useState('month'); // 'month' | 'day' | 'week' | 'list'
+  const [selectedDayDetails, setSelectedDayDetails] = useState(null); // { dateString, dayNumber, date }
+
+  // Formato largo de fecha para encabezados y modales
+  const formatLongDate = (dateStr) => {
+    if (!dateStr) return '';
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    const dayName = DAY_NAMES_FULL[dt.getDay()];
+    const monthName = MONTH_NAMES[m - 1];
+    return `${dayName}, ${d} de ${monthName} de ${y}`;
+  };
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth(); // 0-indexed
@@ -62,6 +76,20 @@ export default function CalendarView({
   const dayAppointments = useMemo(() => {
     return citas.filter(c => String(c.fecha).split('T')[0] === currentDateStr);
   }, [citas, currentDateStr]);
+
+  // Citas del día seleccionado para el modal de detalle
+  const modalDayCitas = useMemo(() => {
+    if (!selectedDayDetails?.dateString) return [];
+    return filteredCitas
+      .filter(c => c.fecha === selectedDayDetails.dateString)
+      .sort((a, b) => (a.hora_inicio || '').localeCompare(b.hora_inicio || ''));
+  }, [filteredCitas, selectedDayDetails]);
+
+  const modalDayTotalHoras = useMemo(() => {
+    return modalDayCitas
+      .filter(c => c.estado !== 'Cancelada')
+      .reduce((acc, c) => acc + (parseFloat(c.horas) || 0), 0);
+  }, [modalDayCitas]);
 
   // Capacitadores a mostrar en la vista diaria según filtro
   const displayedCapacitadores = useMemo(() => {
@@ -411,20 +439,41 @@ export default function CalendarView({
                   }`}
                 >
                   {/* Cabecera del día: Número y total de horas */}
-                  <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-100">
-                    <span
-                      className={`inline-flex items-center justify-center text-xs sm:text-sm font-bold rounded-md w-6 h-6 ${
-                        dayObj.isToday
-                          ? 'bg-blue-600 text-white font-black shadow-xs'
-                          : !dayObj.isCurrentMonth
-                          ? 'text-slate-400'
-                          : 'text-slate-800'
-                      }`}
-                    >
-                      {dayObj.dayNumber}
-                    </span>
+                  <div 
+                    onClick={() => {
+                      if (dayCitas.length > 0) {
+                        setSelectedDayDetails({
+                          dateString: dayObj.dateString,
+                          dayNumber: dayObj.dayNumber,
+                          date: dayObj.date
+                        });
+                      }
+                    }}
+                    className={`flex items-center justify-between mb-1.5 pb-1 border-b border-slate-100 ${
+                      dayCitas.length > 0 ? 'cursor-pointer hover:bg-slate-100/70 rounded px-1 -mx-1 transition-colors' : ''
+                    }`}
+                    title={dayCitas.length > 0 ? `Ver todas las citas del día (${dayCitas.length})` : undefined}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={`inline-flex items-center justify-center text-xs sm:text-sm font-bold rounded-md w-6 h-6 ${
+                          dayObj.isToday
+                            ? 'bg-blue-600 text-white font-black shadow-xs'
+                            : !dayObj.isCurrentMonth
+                            ? 'text-slate-400'
+                            : 'text-slate-800'
+                        }`}
+                      >
+                        {dayObj.dayNumber}
+                      </span>
+                      {dayCitas.length > 2 && (
+                        <span className="text-[10px] font-black text-blue-600 bg-blue-100/80 border border-blue-200 px-1 rounded shadow-2xs">
+                          {dayCitas.length}
+                        </span>
+                      )}
+                    </div>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                       {dayTotalHoras > 0 && (
                         <span className="text-[10px] sm:text-[11px] font-bold text-slate-700 bg-slate-100 border border-slate-200/80 px-1.5 py-0.5 rounded shadow-2xs font-mono">
                           {dayTotalHoras}h
@@ -453,9 +502,9 @@ export default function CalendarView({
                     </div>
                   </div>
 
-                  {/* Lista de citas en el día (Diseño limpio, actividad concreta destacada y legible) */}
-                  <div className="flex-1 space-y-2 overflow-y-auto max-h-[260px] pr-0.5 scrollbar-thin">
-                    {dayCitas.map((cita) => {
+                  {/* Lista de citas en el día (Muestra hasta 2 citas y botón estilizado si hay más) */}
+                  <div className="flex-1 space-y-1.5 overflow-y-auto max-h-[260px] pr-0.5 scrollbar-thin">
+                    {dayCitas.slice(0, 2).map((cita) => {
                       const color = cita.capacitador_color || '#3B82F6';
                       const estadoKey = cita.estado || 'Programada';
                       const estadoCfg = STATUS_CONFIG[estadoKey] || STATUS_CONFIG['Programada'];
@@ -563,6 +612,33 @@ export default function CalendarView({
                         </div>
                       );
                     })}
+
+                    {/* Botón ver todas cuando hay más de 2 citas */}
+                    {dayCitas.length > 2 && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedDayDetails({
+                            dateString: dayObj.dateString,
+                            dayNumber: dayObj.dayNumber,
+                            date: dayObj.date
+                          });
+                        }}
+                        className="w-full mt-1 py-1.5 px-2 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 hover:text-blue-900 border border-blue-200/90 font-bold text-[11px] flex items-center justify-between transition-all duration-150 shadow-2xs hover:shadow-xs cursor-pointer group/more"
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-4 h-4 rounded bg-blue-600 text-white text-[9px] font-black flex items-center justify-center shadow-2xs">
+                            +{dayCitas.length - 2}
+                          </span>
+                          <span>más citas</span>
+                        </span>
+                        <span className="text-[10px] font-semibold text-blue-600 flex items-center gap-0.5 group-hover/more:translate-x-0.5 transition-transform">
+                          Ver todas ({dayCitas.length})
+                          <ChevronRight className="w-3 h-3" />
+                        </span>
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -973,6 +1049,281 @@ export default function CalendarView({
               </table>
             </div>
           )}
+        </div>
+      )}
+
+      {/* MODAL DE DETALLE COMPLETO DEL DÍA (Apertura al hacer clic en un día con múltiples citas) */}
+      {selectedDayDetails && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150"
+          onClick={() => setSelectedDayDetails(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Cabecera del Modal */}
+            <div className="px-5 py-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center shrink-0">
+                  <CalendarIcon className="w-5 h-5 text-blue-400" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-base sm:text-lg font-bold text-white capitalize truncate">
+                    {formatLongDate(selectedDayDetails.dateString)}
+                  </h3>
+                  <p className="text-xs text-slate-300 font-medium flex items-center gap-2 mt-0.5">
+                    <span className="font-semibold text-blue-300">
+                      {modalDayCitas.length} {modalDayCitas.length === 1 ? 'cita programada' : 'citas programadas'}
+                    </span>
+                    <span>•</span>
+                    <span className="font-mono text-emerald-300 font-bold">
+                      {modalDayTotalHoras}h de capacitación
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const [y, m, d] = selectedDayDetails.dateString.split('-').map(Number);
+                    setCurrentDate(new Date(y, m - 1, d));
+                    setCalendarMode('day');
+                    setSelectedDayDetails(null);
+                  }}
+                  title="Abrir en vista detallada de turnos por hora"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white border border-white/15 transition-colors"
+                >
+                  <span>Ver Turnos</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedDayDetails(null)}
+                  className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Barra de Acciones Rápidas */}
+            <div className="px-5 py-2.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const dateStr = selectedDayDetails.dateString;
+                    setSelectedDayDetails(null);
+                    onAddCitaDate(dateStr);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Nueva Cita</span>
+                </button>
+
+                {onOpenWhatsApp && modalDayCitas.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onOpenWhatsApp({ 
+                        date: selectedDayDetails.dateString, 
+                        capacitadorId: selectedCapacitadorId !== 'ALL' ? selectedCapacitadorId : null 
+                      });
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 text-xs font-bold transition-colors"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 fill-emerald-600/20" />
+                    <span>WhatsApp del Día</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Botón móvil para ver turnos */}
+              <button
+                type="button"
+                onClick={() => {
+                  const [y, m, d] = selectedDayDetails.dateString.split('-').map(Number);
+                  setCurrentDate(new Date(y, m - 1, d));
+                  setCalendarMode('day');
+                  setSelectedDayDetails(null);
+                }}
+                className="sm:hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-200 text-slate-700 text-xs font-semibold"
+              >
+                <span>Vista Turnos</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* Lista Scrollable de Citas del Día */}
+            <div className="p-4 sm:p-5 overflow-y-auto max-h-[58vh] space-y-3 scrollbar-thin">
+              {modalDayCitas.length === 0 ? (
+                <div className="py-12 text-center text-slate-500 space-y-3">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto text-slate-400">
+                    <CalendarIcon className="w-7 h-7" />
+                  </div>
+                  <p className="font-bold text-slate-700 text-sm">No hay citas registradas en este día</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const dateStr = selectedDayDetails.dateString;
+                      setSelectedDayDetails(null);
+                      onAddCitaDate(dateStr);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors"
+                  >
+                    <Plus className="w-4 h-4 stroke-[2.5]" />
+                    <span>Agendar Primera Cita</span>
+                  </button>
+                </div>
+              ) : (
+                modalDayCitas.map((cita) => {
+                  const color = cita.capacitador_color || '#3B82F6';
+                  const estadoKey = cita.estado || 'Programada';
+                  const estadoCfg = STATUS_CONFIG[estadoKey] || STATUS_CONFIG['Programada'];
+                  const isCancelada = estadoKey === 'Cancelada';
+                  const isImpartida = estadoKey === 'Impartida';
+
+                  return (
+                    <div
+                      key={cita.id}
+                      className={`p-3.5 sm:p-4 rounded-xl border transition-all duration-150 space-y-2.5 ${
+                        isCancelada
+                          ? 'bg-rose-50/20 border-dashed border-rose-200 opacity-75'
+                          : isImpartida
+                          ? 'bg-emerald-50/20 border-emerald-200/80 shadow-2xs hover:shadow-xs'
+                          : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs hover:shadow-xs'
+                      }`}
+                      style={{
+                        borderLeftWidth: '5px',
+                        borderLeftColor: isCancelada ? '#F43F5E' : color
+                      }}
+                    >
+                      {/* Fila 1: Capacitador, Horario, Duración y Acciones */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-2.5 flex-wrap min-w-0">
+                          {/* Avatar de Capacitador */}
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="w-7 h-7 rounded-lg text-xs font-black text-white flex items-center justify-center shrink-0 shadow-xs leading-none"
+                              style={{ backgroundColor: color }}
+                              title={`Capacitador: ${cita.capacitador_nombre}`}
+                            >
+                              {cita.capacitador_iniciales}
+                            </span>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-800 truncate">
+                                {cita.capacitador_nombre}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Horario y Horas */}
+                          <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/80 font-mono text-xs">
+                            <Clock className="w-3.5 h-3.5 text-slate-500" />
+                            <span className={`font-bold ${isCancelada ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                              {cita.hora_inicio} - {cita.hora_fin}
+                            </span>
+                            <span className="text-slate-400 font-normal">|</span>
+                            <span className="font-bold text-blue-700">
+                              {cita.horas}h
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Botones de acción para la cita */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          {onOpenWhatsApp && (
+                            <button
+                              type="button"
+                              onClick={() => onOpenWhatsApp({ cita })}
+                              title="Enviar por WhatsApp"
+                              className="p-1.5 hover:bg-emerald-50 text-emerald-600 rounded-lg transition-colors"
+                            >
+                              <MessageSquare className="w-4 h-4 fill-emerald-600/20" />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedDayDetails(null);
+                              onSelectCita(cita);
+                            }}
+                            className="px-2.5 py-1 text-xs font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors border border-blue-200/60"
+                          >
+                            Editar
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Fila 2: Insignias de Estado, Modalidad y Tipo de Servicio */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold border ${estadoCfg.badge}`}>
+                          <span>{estadoCfg.emoji}</span>
+                          <span>{estadoCfg.label}</span>
+                        </span>
+
+                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200 uppercase tracking-wider text-[10px]">
+                          {cita.tipo_servicio}
+                        </span>
+
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold border ${
+                            cita.modalidad === 'Presencial'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80'
+                              : 'bg-blue-50 text-blue-700 border-blue-200/80'
+                          }`}
+                        >
+                          {cita.modalidad === 'Presencial' ? (
+                            <MapPin className="w-3 h-3 text-emerald-600" />
+                          ) : (
+                            <Video className="w-3 h-3 text-blue-600" />
+                          )}
+                          {cita.modalidad}
+                        </span>
+                      </div>
+
+                      {/* Fila 3: Tema / Actividad concreta */}
+                      <div className="bg-slate-50/80 p-2.5 rounded-lg border border-slate-100">
+                        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Actividad / Tema</p>
+                        <p className={`text-xs sm:text-sm font-semibold leading-relaxed ${
+                          isCancelada ? 'line-through text-slate-400 italic' : 'text-slate-800'
+                        }`}>
+                          {cita.observaciones || `${cita.tipo_servicio} Programado`}
+                        </p>
+                      </div>
+
+                      {/* Fila 4: Cliente */}
+                      <div className="flex items-center gap-1.5 text-xs text-slate-700 pt-1 border-t border-slate-100">
+                        <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="font-medium text-slate-500">Cliente:</span>
+                        <span className="font-bold text-slate-800 truncate" title={cita.cliente_nombre}>
+                          {cita.cliente_nombre}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Pie del Modal */}
+            <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+              <div className="text-xs text-slate-500">
+                Mostrando <span className="font-bold text-slate-800">{modalDayCitas.length}</span> citas
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedDayDetails(null)}
+                className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
