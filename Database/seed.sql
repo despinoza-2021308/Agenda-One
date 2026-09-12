@@ -5,11 +5,11 @@
 
 -- 1. Insertar Capacitadores con Iniciales y Colores Distintivos
 INSERT INTO capacitadores (nombre_completo, iniciales, color) VALUES
-('Mauricio Orozco', 'MO', '#2563EB'),     -- Azul Royal
-('Olga Quintana', 'OQ', '#7C3AED'),       -- Violeta / Púrpura
-('Pedro Fernández', 'PF', '#059669'),     -- Esmeralda
-('Diana Vargas', 'DV', '#D97706'),        -- Ámbar / Naranja
-('Carlos Mendoza', 'CM', '#DC2626')       -- Rojo Carmesí
+('Mariana Orellana', 'MO', '#2563EB'),     -- Azul Royal
+('Oscar Quan', 'OQ', '#7C3AED'),           -- Violeta / Púrpura
+('Pedro Fuentes', 'PF', '#059669'),        -- Esmeralda
+('Zoila Galvez', 'ZG', '#D97706'),         -- Ámbar / Naranja
+('Josue Bautista', 'JB', '#DC2626')        -- Rojo Carmesí
 ON CONFLICT (iniciales) DO NOTHING;
 
 -- 2. Insertar Clientes / Empresas

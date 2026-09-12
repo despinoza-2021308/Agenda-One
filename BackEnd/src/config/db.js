@@ -60,11 +60,11 @@ async function ensureDatabaseExists() {
 // Almacén en memoria de respaldo para desarrollo inmediato sin bloqueos
 const mockStore = {
   capacitadores: [
-    { id: 1, nombre_completo: 'Mauricio Orozco', iniciales: 'MO', color: '#2563EB', activo: true, created_at: new Date() },
-    { id: 2, nombre_completo: 'Olga Quintana', iniciales: 'OQ', color: '#7C3AED', activo: true, created_at: new Date() },
-    { id: 3, nombre_completo: 'Pedro Fernández', iniciales: 'PF', color: '#059669', activo: true, created_at: new Date() },
-    { id: 4, nombre_completo: 'Diana Vargas', iniciales: 'DV', color: '#D97706', activo: true, created_at: new Date() },
-    { id: 5, nombre_completo: 'Carlos Mendoza', iniciales: 'CM', color: '#DC2626', activo: true, created_at: new Date() }
+    { id: 1, nombre_completo: 'Mariana Orellana', iniciales: 'MO', color: '#2563EB', activo: true, created_at: new Date() },
+    { id: 2, nombre_completo: 'Oscar Quan', iniciales: 'OQ', color: '#7C3AED', activo: true, created_at: new Date() },
+    { id: 3, nombre_completo: 'Pedro Fuentes', iniciales: 'PF', color: '#059669', activo: true, created_at: new Date() },
+    { id: 4, nombre_completo: 'Zoila Galvez', iniciales: 'ZG', color: '#D97706', activo: true, created_at: new Date() },
+    { id: 5, nombre_completo: 'Josue Bautista', iniciales: 'JB', color: '#DC2626', activo: true, created_at: new Date() }
   ],
   clientes: [
     { id: 1, nombre_empresa: 'Industrias Alimentarias del Norte S.A.', contacto: 'Ing. Roberto Silva', telefono: '+506 2234-5678', correo: 'rsilva@alimnorte.com', activo: true, created_at: new Date() },
@@ -135,11 +135,11 @@ async function autoInitTables(client) {
     if (parseInt(capRes.rows[0].count, 10) === 0) {
       await client.query(`
         INSERT INTO capacitadores (nombre_completo, iniciales, color) VALUES
-        ('Mauricio Orozco', 'MO', '#2563EB'),
-        ('Olga Quintana', 'OQ', '#7C3AED'),
-        ('Pedro Fernández', 'PF', '#059669'),
-        ('Diana Vargas', 'DV', '#D97706'),
-        ('Carlos Mendoza', 'CM', '#DC2626')
+        ('Mariana Orellana', 'MO', '#2563EB'),
+        ('Oscar Quan', 'OQ', '#7C3AED'),
+        ('Pedro Fuentes', 'PF', '#059669'),
+        ('Zoila Galvez', 'ZG', '#D97706'),
+        ('Josue Bautista', 'JB', '#DC2626')
         ON CONFLICT (iniciales) DO NOTHING;
 
         INSERT INTO clientes (nombre_empresa, contacto, telefono, correo) VALUES
