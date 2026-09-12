@@ -6,6 +6,7 @@ import CapacitadoresView from './components/catalogs/CapacitadoresView';
 import ClientesView from './components/catalogs/ClientesView';
 import AppointmentModal from './components/appointments/AppointmentModal';
 import WhatsAppModal from './components/whatsapp/WhatsAppModal';
+import CommandPalette from './components/search/CommandPalette';
 import { api } from './services/api';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
@@ -27,6 +28,9 @@ export default function App() {
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
   const [whatsAppData, setWhatsAppData] = useState({ cita: null, date: null, capacitadorId: null });
 
+  // Estado del Buscador Global (Command Palette)
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
   // Notificaciones Toast
   const [toast, setToast] = useState(null);
 
@@ -36,6 +40,18 @@ export default function App() {
       setToast(null);
     }, 4000);
   };
+
+  // Atajo de teclado global Ctrl + K / Cmd + K para abrir el Command Palette
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Cargar capacitadores
   const loadCapacitadores = useCallback(async () => {
@@ -193,6 +209,49 @@ export default function App() {
     }
   };
 
+  // Handlers para el Buscador Global (Command Palette)
+  const handleSelectCitaFromSearch = (cita) => {
+    if (cita && cita.fecha) {
+      const [year, month, day] = cita.fecha.split('-').map(Number);
+      setCurrentDate(new Date(year, month - 1, day || 1));
+    }
+    setActiveTab('calendar');
+    handleSelectAppointment(cita);
+  };
+
+  const handleSelectClienteFromSearch = () => {
+    setActiveTab('clients');
+  };
+
+  const handleSelectCapacitadorFromSearch = () => {
+    setActiveTab('trainers');
+  };
+
+  const handleExecuteActionFromSearch = (actionId) => {
+    switch (actionId) {
+      case 'new-appointment':
+        handleOpenNewAppointment();
+        break;
+      case 'nav-calendar':
+        setActiveTab('calendar');
+        break;
+      case 'nav-reports':
+        setActiveTab('reports');
+        break;
+      case 'nav-trainers':
+        setActiveTab('trainers');
+        break;
+      case 'nav-clients':
+        setActiveTab('clients');
+        break;
+      case 'open-whatsapp':
+        handleOpenWhatsApp();
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col selection:bg-blue-600 selection:text-white">
       
@@ -219,6 +278,7 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onNewAppointment={() => handleOpenNewAppointment()}
+        onOpenSearch={() => setIsCommandPaletteOpen(true)}
         capacitadores={capacitadores}
       />
 
@@ -285,6 +345,19 @@ export default function App() {
         targetCita={whatsAppData.cita}
         onUpdateCapacitadorPhone={handleUpdateCapacitadorPhone}
         onShowToast={showToast}
+      />
+
+      {/* Buscador Global Rápido (Command Palette - Ctrl + K) */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        citas={citas}
+        clientes={clientes}
+        capacitadores={capacitadores}
+        onSelectCita={handleSelectCitaFromSearch}
+        onSelectCliente={handleSelectClienteFromSearch}
+        onSelectCapacitador={handleSelectCapacitadorFromSearch}
+        onExecuteAction={handleExecuteActionFromSearch}
       />
     </div>
   );

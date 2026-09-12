@@ -1,7 +1,7 @@
 import React from 'react';
-import { Calendar, BarChart3, Users, Building2, Plus } from 'lucide-react';
+import { Calendar, BarChart3, Users, Building2, Plus, Search } from 'lucide-react';
 
-export default function Navbar({ activeTab, setActiveTab, onNewAppointment, capacitadores = [] }) {
+export default function Navbar({ activeTab, setActiveTab, onNewAppointment, onOpenSearch, capacitadores = [] }) {
   const tabs = [
     { id: 'calendar', label: 'Calendario', icon: Calendar },
     { id: 'reports', label: 'Reporte de Horas', icon: BarChart3 },
@@ -52,7 +52,31 @@ export default function Navbar({ activeTab, setActiveTab, onNewAppointment, capa
           </nav>
 
           {/* Acciones principales */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {/* Buscador Rápido Global (Ctrl + K) */}
+            <button
+              onClick={onOpenSearch}
+              className="hidden md:flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-slate-100/90 text-slate-500 hover:text-slate-700 text-xs font-medium transition-all shadow-2xs group"
+              title="Abrir buscador global (Ctrl + K)"
+            >
+              <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+              <span className="text-slate-400 group-hover:text-slate-600">Buscar...</span>
+              <kbd className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-slate-500 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">
+                <span>Ctrl</span>
+                <span>K</span>
+              </kbd>
+            </button>
+
+            {/* Botón de búsqueda compacto para móviles */}
+            <button
+              onClick={onOpenSearch}
+              className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200 transition-colors"
+              title="Buscar (Ctrl + K)"
+            >
+              <Search className="w-4 h-4 text-slate-600" />
+            </button>
+
+            {/* Botón Nueva Cita */}
             <button
               onClick={onNewAppointment}
               className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md shadow-blue-500/25 transition-all transform active:scale-95"

@@ -4,7 +4,8 @@ const { calcularHorasDecimales } = require('../utils/timeUtils');
 // Obtener citas con filtros opcionales (rango de fechas, capacitador, cliente, estado)
 async function getCitas(req, res, next) {
   try {
-    const { start_date, end_date, capacitador_id, cliente_id, month, year, estado } = req.query;
+    const { start_date, end_date, capacitador_id, cliente_id, month, year, estado, search, q, limit } = req.query;
+    const searchTerm = (search || q || '').trim();
 
     if (db.isPostgresConnected()) {
       let query = `
@@ -57,8 +58,27 @@ async function getCitas(req, res, next) {
         params.push(estado);
         query += ` AND c.estado = $${params.length}`;
       }
+      if (searchTerm) {
+        params.push(`%${searchTerm}%`);
+        query += ` AND (
+          c.tipo_servicio ILIKE $${params.length} OR
+          c.cliente_nombre ILIKE $${params.length} OR
+          cl.nombre_empresa ILIKE $${params.length} OR
+          cp.nombre_completo ILIKE $${params.length} OR
+          c.observaciones ILIKE $${params.length}
+        )`;
+      }
 
-      query += ` ORDER BY c.fecha ASC, c.hora_inicio ASC`;
+      if (month && year) {
+        query += ` ORDER BY c.fecha ASC, c.hora_inicio ASC`;
+      } else {
+        query += ` ORDER BY c.fecha DESC, c.hora_inicio ASC`;
+      }
+
+      if (limit && !isNaN(parseInt(limit, 10))) {
+        params.push(parseInt(limit, 10));
+        query += ` LIMIT $${params.length}`;
+      }
 
       const result = await db.pool.query(query, params);
       return res.json(result.rows);
@@ -100,8 +120,27 @@ async function getCitas(req, res, next) {
     if (estado) {
       citas = citas.filter(c => c.estado === estado);
     }
+    if (searchTerm) {
+      const lower = searchTerm.toLowerCase();
+      citas = citas.filter(c => 
+        (c.tipo_servicio && c.tipo_servicio.toLowerCase().includes(lower)) ||
+        (c.cliente_nombre && c.cliente_nombre.toLowerCase().includes(lower)) ||
+        (c.capacitador_nombre && c.capacitador_nombre.toLowerCase().includes(lower)) ||
+        (c.observaciones && c.observaciones.toLowerCase().includes(lower)) ||
+        (c.estado && c.estado.toLowerCase().includes(lower))
+      );
+    }
 
-    citas.sort((a, b) => (a.fecha + a.hora_inicio).localeCompare(b.fecha + b.hora_inicio));
+    if (month && year) {
+      citas.sort((a, b) => (a.fecha + a.hora_inicio).localeCompare(b.fecha + b.hora_inicio));
+    } else {
+      citas.sort((a, b) => (b.fecha + b.hora_inicio).localeCompare(a.fecha + a.hora_inicio));
+    }
+
+    if (limit && !isNaN(parseInt(limit, 10))) {
+      citas = citas.slice(0, parseInt(limit, 10));
+    }
+
     return res.json(citas);
   } catch (error) {
     next(error);
