@@ -17,6 +17,7 @@ async function getResumenMensual(req, res, next) {
           c.nombre_completo,
           c.iniciales,
           c.color,
+          COALESCE(c.tarifa_hora, 150.00)::FLOAT AS tarifa_hora,
           COUNT(ci.id)::INT AS total_citas,
           COUNT(CASE WHEN ci.estado = 'Impartida' THEN 1 END)::INT AS citas_impartidas,
           COUNT(CASE WHEN ci.estado = 'Programada' OR ci.estado IS NULL THEN 1 END)::INT AS citas_programadas,
@@ -27,13 +28,15 @@ async function getResumenMensual(req, res, next) {
           COALESCE(SUM(CASE WHEN (ci.estado <> 'Cancelada' OR ci.estado IS NULL) AND ci.modalidad = 'Presencial' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_presencial,
           COALESCE(SUM(CASE WHEN (ci.estado <> 'Cancelada' OR ci.estado IS NULL) AND ci.modalidad = 'Virtual' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_virtual,
           COALESCE(SUM(CASE WHEN (ci.estado <> 'Cancelada' OR ci.estado IS NULL) AND ci.modalidad = 'Híbrida' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_hibrida,
-          COALESCE(SUM(CASE WHEN ci.estado = 'Impartida' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_impartidas
+          COALESCE(SUM(CASE WHEN ci.estado = 'Impartida' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_impartidas,
+          ROUND(COALESCE(c.tarifa_hora, 150.00) * COALESCE(SUM(CASE WHEN ci.estado <> 'Cancelada' OR ci.estado IS NULL THEN ci.horas ELSE 0 END), 0), 2)::FLOAT AS total_honorarios,
+          ROUND(COALESCE(c.tarifa_hora, 150.00) * COALESCE(SUM(CASE WHEN ci.estado = 'Impartida' THEN ci.horas ELSE 0 END), 0), 2)::FLOAT AS honorarios_impartidos
         FROM capacitadores c
         LEFT JOIN citas ci ON c.id = ci.capacitador_id 
           AND EXTRACT(YEAR FROM ci.fecha) = $1 
           AND EXTRACT(MONTH FROM ci.fecha) = $2
         WHERE c.activo = TRUE
-        GROUP BY c.id, c.nombre_completo, c.iniciales, c.color
+        GROUP BY c.id, c.nombre_completo, c.iniciales, c.color, c.tarifa_hora
         ORDER BY total_horas DESC, c.nombre_completo ASC
       `;
 
@@ -78,11 +81,16 @@ async function getResumenMensual(req, res, next) {
         .filter(c => c.modalidad === 'Híbrida')
         .reduce((acc, curr) => acc + Number(curr.horas), 0);
 
+      const tarifa_hora = Number(cap.tarifa_hora || 150.00);
+      const total_honorarios = Math.round(total_horas * tarifa_hora * 100) / 100;
+      const honorarios_impartidos = Math.round(horas_impartidas * tarifa_hora * 100) / 100;
+
       return {
         capacitador_id: cap.id,
         nombre_completo: cap.nombre_completo,
         iniciales: cap.iniciales,
         color: cap.color,
+        tarifa_hora,
         total_citas,
         citas_impartidas,
         citas_programadas,
@@ -93,7 +101,9 @@ async function getResumenMensual(req, res, next) {
         horas_impartidas: Math.round(horas_impartidas * 100) / 100,
         horas_presencial: Math.round(horas_presencial * 100) / 100,
         horas_virtual: Math.round(horas_virtual * 100) / 100,
-        horas_hibrida: Math.round(horas_hibrida * 100) / 100
+        horas_hibrida: Math.round(horas_hibrida * 100) / 100,
+        total_honorarios,
+        honorarios_impartidos
       };
     }).sort((a, b) => b.total_horas - a.total_horas);
 
@@ -168,6 +178,8 @@ function calcularKPIs(resumen, year, month) {
   const horasImpartidas = resumen.reduce((sum, item) => sum + (item.horas_impartidas || 0), 0);
   const horasPresenciales = resumen.reduce((sum, item) => sum + item.horas_presencial, 0);
   const horasVirtuales = resumen.reduce((sum, item) => sum + item.horas_virtual, 0);
+  const totalHonorariosMes = resumen.reduce((sum, item) => sum + (item.total_honorarios || 0), 0);
+  const honorariosImpartidos = resumen.reduce((sum, item) => sum + (item.honorarios_impartidos || 0), 0);
   const capacitadorTop = resumen.length > 0 && resumen[0].total_horas > 0 ? resumen[0] : null;
 
   return {
@@ -179,6 +191,8 @@ function calcularKPIs(resumen, year, month) {
     horasImpartidas: Math.round(horasImpartidas * 100) / 100,
     horasPresenciales: Math.round(horasPresenciales * 100) / 100,
     horasVirtuales: Math.round(horasVirtuales * 100) / 100,
+    totalHonorariosMes: Math.round(totalHonorariosMes * 100) / 100,
+    honorariosImpartidos: Math.round(honorariosImpartidos * 100) / 100,
     porcentajePresencial: totalHorasMes > 0 ? Math.round((horasPresenciales / totalHorasMes) * 100) : 0,
     porcentajeVirtual: totalHorasMes > 0 ? Math.round((horasVirtuales / totalHorasMes) * 100) : 0,
     capacitadorTop: capacitadorTop ? {

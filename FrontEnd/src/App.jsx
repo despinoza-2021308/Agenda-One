@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/layout/Navbar';
 import CalendarView from './components/calendar/CalendarView';
 import MonthlyReportView from './components/reports/MonthlyReportView';
+import HonorariosView from './components/fees/HonorariosView';
 import CapacitadoresView from './components/catalogs/CapacitadoresView';
 import ClientesView from './components/catalogs/ClientesView';
 import AppointmentModal from './components/appointments/AppointmentModal';
@@ -12,7 +13,7 @@ import { api, authStorage } from './services/api';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('calendar'); // 'calendar' | 'reports' | 'trainers' | 'clients'
+  const [activeTab, setActiveTab] = useState('calendar'); // 'calendar' | 'reports' | 'fees' | 'trainers' | 'clients'
   const [currentDate, setCurrentDate] = useState(new Date(2026, 8, 9)); // Septiembre 2026
 
   // Control de Sesión y Autenticación Administrativa
@@ -347,6 +348,9 @@ export default function App() {
       case 'nav-reports':
         setActiveTab('reports');
         break;
+      case 'nav-fees':
+        setActiveTab('fees');
+        break;
       case 'nav-trainers':
         setActiveTab('trainers');
         break;
@@ -411,6 +415,19 @@ export default function App() {
         {activeTab === 'reports' && (
           <MonthlyReportView
             initialDate={currentDate}
+          />
+        )}
+
+        {activeTab === 'fees' && (
+          <HonorariosView
+            citas={citas}
+            capacitadores={capacitadores}
+            currentDate={currentDate}
+            setCurrentDate={setCurrentDate}
+            onSaveCapacitador={handleSaveCapacitador}
+            isAdmin={isAdmin}
+            onOpenAdminLogin={() => setIsAdminLoginModalOpen(true)}
+            onShowToast={showToast}
           />
         )}
 

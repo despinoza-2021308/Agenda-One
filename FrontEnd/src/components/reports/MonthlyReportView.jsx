@@ -5,7 +5,8 @@ import {
   Video,
   FileSpreadsheet,
   Clock,
-  UserCheck
+  UserCheck,
+  Banknote
 } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -234,6 +235,11 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
                       <Clock className="w-4 h-4 text-blue-600" /> Total Horas (H)
                     </span>
                   </th>
+                  <th className="py-4 px-6 text-right font-black text-emerald-800 text-sm">
+                    <span className="inline-flex items-center gap-1">
+                      <Banknote className="w-4 h-4 text-emerald-600" /> Honorarios (Q)
+                    </span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
@@ -291,6 +297,10 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
                       <td className="py-4 px-6 text-right font-mono font-black text-slate-950 text-base">
                         {cap.total_horas} hrs
                       </td>
+
+                      <td className="py-4 px-6 text-right font-mono font-black text-emerald-700 text-base">
+                        Q {(cap.total_honorarios !== undefined ? cap.total_honorarios : 0).toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
                     </tr>
                   );
                 })}
@@ -314,6 +324,9 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
                   </td>
                   <td className="py-4 px-6 text-right font-mono font-black text-blue-700 text-lg">
                     {kpis.totalHorasMes} hrs
+                  </td>
+                  <td className="py-4 px-6 text-right font-mono font-black text-emerald-800 text-lg">
+                    Q {(kpis.totalHonorariosMes !== undefined ? kpis.totalHonorariosMes : 0).toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                 </tr>
               </tfoot>

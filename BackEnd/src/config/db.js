@@ -60,11 +60,11 @@ async function ensureDatabaseExists() {
 // Almacén en memoria de respaldo para desarrollo inmediato sin bloqueos
 const mockStore = {
   capacitadores: [
-    { id: 1, nombre_completo: 'Mariana Orellana', iniciales: 'MO', color: '#2563EB', telefono: '+502 5555-1001', activo: true, created_at: new Date() },
-    { id: 2, nombre_completo: 'Oscar Quan', iniciales: 'OQ', color: '#7C3AED', telefono: '+502 5555-1002', activo: true, created_at: new Date() },
-    { id: 3, nombre_completo: 'Pedro Fuentes', iniciales: 'PF', color: '#059669', telefono: '+502 5555-1003', activo: true, created_at: new Date() },
-    { id: 4, nombre_completo: 'Zoila Galvez', iniciales: 'ZG', color: '#D97706', telefono: '+502 5555-1004', activo: true, created_at: new Date() },
-    { id: 5, nombre_completo: 'Josue Bautista', iniciales: 'JB', color: '#DC2626', telefono: '+502 5555-1005', activo: true, created_at: new Date() }
+    { id: 1, nombre_completo: 'Mariana Orellana', iniciales: 'MO', color: '#2563EB', telefono: '+502 5555-1001', tarifa_hora: 175.00, activo: true, created_at: new Date() },
+    { id: 2, nombre_completo: 'Oscar Quan', iniciales: 'OQ', color: '#7C3AED', telefono: '+502 5555-1002', tarifa_hora: 200.00, activo: true, created_at: new Date() },
+    { id: 3, nombre_completo: 'Pedro Fuentes', iniciales: 'PF', color: '#059669', telefono: '+502 5555-1003', tarifa_hora: 175.00, activo: true, created_at: new Date() },
+    { id: 4, nombre_completo: 'Zoila Galvez', iniciales: 'ZG', color: '#D97706', telefono: '+502 5555-1004', tarifa_hora: 150.00, activo: true, created_at: new Date() },
+    { id: 5, nombre_completo: 'Josue Bautista', iniciales: 'JB', color: '#DC2626', telefono: '+502 5555-1005', tarifa_hora: 150.00, activo: true, created_at: new Date() }
   ],
   clientes: [
     { id: 1, nombre_empresa: 'Industrias Alimentarias del Norte S.A.', contacto: 'Ing. Roberto Silva', telefono: '+506 2234-5678', correo: 'rsilva@alimnorte.com', activo: true, created_at: new Date() },
@@ -106,6 +106,11 @@ async function autoInitTables(client) {
       );
 
       ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS telefono VARCHAR(30);
+      ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS tarifa_hora NUMERIC(10, 2) NOT NULL DEFAULT 150.00;
+
+      -- Actualizar tarifas horarias oficiales si aún no están fijadas
+      UPDATE capacitadores SET tarifa_hora = 200.00 WHERE iniciales = 'OQ' AND tarifa_hora = 150.00;
+      UPDATE capacitadores SET tarifa_hora = 175.00 WHERE iniciales IN ('MO', 'PF') AND tarifa_hora = 150.00;
 
       CREATE TABLE IF NOT EXISTS clientes (
         id SERIAL PRIMARY KEY,
@@ -140,13 +145,13 @@ async function autoInitTables(client) {
     const capRes = await client.query('SELECT COUNT(*) FROM capacitadores');
     if (parseInt(capRes.rows[0].count, 10) === 0) {
       await client.query(`
-        INSERT INTO capacitadores (nombre_completo, iniciales, color) VALUES
-        ('Mariana Orellana', 'MO', '#2563EB'),
-        ('Oscar Quan', 'OQ', '#7C3AED'),
-        ('Pedro Fuentes', 'PF', '#059669'),
-        ('Zoila Galvez', 'ZG', '#D97706'),
-        ('Josue Bautista', 'JB', '#DC2626')
-        ON CONFLICT (iniciales) DO NOTHING;
+        INSERT INTO capacitadores (nombre_completo, iniciales, color, tarifa_hora) VALUES
+        ('Mariana Orellana', 'MO', '#2563EB', 175.00),
+        ('Oscar Quan', 'OQ', '#7C3AED', 200.00),
+        ('Pedro Fuentes', 'PF', '#059669', 175.00),
+        ('Zoila Galvez', 'ZG', '#D97706', 150.00),
+        ('Josue Bautista', 'JB', '#DC2626', 150.00)
+        ON CONFLICT (iniciales) DO UPDATE SET tarifa_hora = EXCLUDED.tarifa_hora;
 
         INSERT INTO clientes (nombre_empresa, contacto, telefono, correo) VALUES
         ('Industrias Alimentarias del Norte S.A.', 'Ing. Roberto Silva', '+506 2234-5678', 'rsilva@alimnorte.com'),

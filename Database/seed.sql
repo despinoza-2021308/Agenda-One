@@ -3,14 +3,14 @@
 -- SEED - Datos de Prueba Iniciales
 -- ====================================================================
 
--- 1. Insertar Capacitadores con Iniciales y Colores Distintivos
-INSERT INTO capacitadores (nombre_completo, iniciales, color) VALUES
-('Mariana Orellana', 'MO', '#2563EB'),     -- Azul Royal
-('Oscar Quan', 'OQ', '#7C3AED'),           -- Violeta / Púrpura
-('Pedro Fuentes', 'PF', '#059669'),        -- Esmeralda
-('Zoila Galvez', 'ZG', '#D97706'),         -- Ámbar / Naranja
-('Josue Bautista', 'JB', '#DC2626')        -- Rojo Carmesí
-ON CONFLICT (iniciales) DO NOTHING;
+-- 1. Insertar Capacitadores con Iniciales, Colores Distintivos y Tarifas por Hora (Quetzales)
+INSERT INTO capacitadores (nombre_completo, iniciales, color, tarifa_hora) VALUES
+('Mariana Orellana', 'MO', '#2563EB', 175.00),     -- Azul Royal (Q 175.00/hr)
+('Oscar Quan', 'OQ', '#7C3AED', 200.00),           -- Violeta / Púrpura (Q 200.00/hr)
+('Pedro Fuentes', 'PF', '#059669', 175.00),        -- Esmeralda (Q 175.00/hr)
+('Zoila Galvez', 'ZG', '#D97706', 150.00),         -- Ámbar / Naranja (Q 150.00/hr)
+('Josue Bautista', 'JB', '#DC2626', 150.00)        -- Rojo Carmesí (Q 150.00/hr)
+ON CONFLICT (iniciales) DO UPDATE SET tarifa_hora = EXCLUDED.tarifa_hora;
 
 -- 2. Insertar Clientes / Empresas
 INSERT INTO clientes (nombre_empresa, contacto, telefono, correo) VALUES

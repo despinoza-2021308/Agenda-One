@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS capacitadores (
     iniciales VARCHAR(5) NOT NULL UNIQUE CONSTRAINT chk_iniciales_val CHECK (length(trim(iniciales)) BETWEEN 2 AND 5),
     color VARCHAR(7) NOT NULL DEFAULT '#3B82F6' CONSTRAINT chk_color_hex CHECK (color ~* '^#[0-9A-Fa-f]{6}$'),
     telefono VARCHAR(30),
+    tarifa_hora NUMERIC(10, 2) NOT NULL DEFAULT 150.00 CONSTRAINT chk_tarifa_hora CHECK (tarifa_hora >= 0),
     activo BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

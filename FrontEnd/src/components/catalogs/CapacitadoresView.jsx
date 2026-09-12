@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Plus, Edit2, Trash2, Check, X, AlertCircle, Palette, Phone } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, Check, X, AlertCircle, Palette, Phone, Banknote } from 'lucide-react';
 import ConfirmModal from '../common/ConfirmModal';
 
 const COLOR_PALETTES = [
@@ -21,7 +21,8 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
     nombre_completo: '',
     iniciales: '',
     color: '#2563EB',
-    telefono: ''
+    telefono: '',
+    tarifa_hora: 150.00
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -30,7 +31,7 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
 
   const openNewModal = () => {
     setEditingCap(null);
-    setFormData({ nombre_completo: '', iniciales: '', color: '#2563EB', telefono: '' });
+    setFormData({ nombre_completo: '', iniciales: '', color: '#2563EB', telefono: '', tarifa_hora: 150.00 });
     setError(null);
     setIsModalOpen(true);
   };
@@ -41,7 +42,8 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
       nombre_completo: cap.nombre_completo,
       iniciales: cap.iniciales,
       color: cap.color || '#2563EB',
-      telefono: cap.telefono || ''
+      telefono: cap.telefono || '',
+      tarifa_hora: cap.tarifa_hora !== undefined ? cap.tarifa_hora : 150.00
     });
     setError(null);
     setIsModalOpen(true);
@@ -112,6 +114,13 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
       }
     }
 
+    // Validar tarifa por hora
+    const cleanTarifa = Number(formData.tarifa_hora);
+    if (isNaN(cleanTarifa) || cleanTarifa < 0) {
+      setError('La tarifa por hora debe ser un número válido mayor o igual a 0.');
+      return;
+    }
+
     setLoading(true);
     try {
       await onSaveCapacitador({
@@ -119,7 +128,8 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
         nombre_completo: cleanNombre,
         iniciales: cleanInitials,
         color: cleanColor,
-        telefono: formData.telefono ? formData.telefono.trim() : ''
+        telefono: formData.telefono ? formData.telefono.trim() : '',
+        tarifa_hora: cleanTarifa
       }, editingCap?.id);
       setIsModalOpen(false);
     } catch (err) {
@@ -191,7 +201,7 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                 <h3 className="font-bold text-slate-900 text-sm">
                   {cap.nombre_completo}
                 </h3>
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <span className="text-[11px] font-mono font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
                     Código: {cap.iniciales}
                   </span>
@@ -200,6 +210,10 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                     style={{ backgroundColor: cap.color }}
                     title={`Color: ${cap.color}`}
                   />
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                    <Banknote className="w-3 h-3 text-emerald-600" />
+                    Q {Number(cap.tarifa_hora || 150).toFixed(2)}/hr
+                  </span>
                   {cap.telefono && (
                     <span className="text-[11px] text-slate-500 flex items-center gap-1 font-mono">
                       <Phone className="w-3 h-3 text-emerald-600" />
@@ -300,6 +314,31 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                 />
                 <p className="text-[10px] text-slate-400 mt-0.5">
                   Incluye código de país (ej. +502 para Guatemala) para el envío directo por WhatsApp.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <Banknote className="w-3.5 h-3.5 text-emerald-600" />
+                  Honorarios por Hora (Quetzales) <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 font-bold text-xs">
+                    Q
+                  </div>
+                  <input
+                    type="number"
+                    step="0.50"
+                    min="0"
+                    required
+                    placeholder="150.00"
+                    value={formData.tarifa_hora}
+                    onChange={(e) => setFormData({ ...formData, tarifa_hora: e.target.value })}
+                    className="w-full pl-8 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 mt-0.5">
+                  Tarifa por hora utilizada para computar los honorarios devengados y proyectados en tiempo real.
                 </p>
               </div>
 

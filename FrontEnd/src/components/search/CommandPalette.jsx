@@ -14,7 +14,8 @@ import {
   Plus, 
   BarChart3, 
   MessageSquare,
-  CornerDownLeft
+  CornerDownLeft,
+  Banknote
 } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -55,9 +56,18 @@ const SYSTEM_ACTIONS = [
     actionId: 'nav-reports'
   },
   {
+    id: 'act-nav-fees',
+    title: 'Control de Honorarios por Capacitador',
+    subtitle: 'Cálculo en tiempo real en Quetzales y liquidaciones',
+    icon: Banknote,
+    color: 'text-teal-600 bg-teal-50',
+    type: 'accion',
+    actionId: 'nav-fees'
+  },
+  {
     id: 'act-nav-trainers',
     title: 'Catálogo de Capacitadores',
-    subtitle: 'Administrar instructores, teléfonos y códigos',
+    subtitle: 'Administrar instructores, tarifas, teléfonos y códigos',
     icon: Users,
     color: 'text-purple-600 bg-purple-50',
     type: 'accion',

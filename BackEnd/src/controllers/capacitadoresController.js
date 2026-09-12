@@ -6,13 +6,15 @@ async function getCapacitadores(req, res, next) {
   try {
     if (db.isPostgresConnected()) {
       const result = await db.pool.query(
-        'SELECT id, nombre_completo, iniciales, color, telefono, activo, created_at FROM capacitadores ORDER BY nombre_completo ASC'
+        'SELECT id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, activo, created_at FROM capacitadores ORDER BY nombre_completo ASC'
       );
       return res.json(result.rows);
     }
 
     // Modo respaldo en memoria
-    const data = [...db.mockStore.capacitadores].sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo));
+    const data = [...db.mockStore.capacitadores]
+      .map(c => ({ ...c, tarifa_hora: Number(c.tarifa_hora || 150.00) }))
+      .sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo));
     return res.json(data);
   } catch (error) {
     next(error);
@@ -24,7 +26,10 @@ async function getCapacitadorById(req, res, next) {
   try {
     const { id } = req.params;
     if (db.isPostgresConnected()) {
-      const result = await db.pool.query('SELECT * FROM capacitadores WHERE id = $1', [id]);
+      const result = await db.pool.query(
+        'SELECT id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, activo, created_at FROM capacitadores WHERE id = $1',
+        [id]
+      );
       if (result.rows.length === 0) {
         return res.status(404).json({ message: 'Capacitador no encontrado' });
       }
@@ -33,7 +38,7 @@ async function getCapacitadorById(req, res, next) {
 
     const item = db.mockStore.capacitadores.find(c => c.id === parseInt(id, 10));
     if (!item) return res.status(404).json({ message: 'Capacitador no encontrado' });
-    return res.json(item);
+    return res.json({ ...item, tarifa_hora: Number(item.tarifa_hora || 150.00) });
   } catch (error) {
     next(error);
   }
@@ -42,7 +47,7 @@ async function getCapacitadorById(req, res, next) {
 // Crear nuevo capacitador
 async function createCapacitador(req, res, next) {
   try {
-    const { nombre_completo, iniciales, color, telefono } = req.body;
+    const { nombre_completo, iniciales, color, telefono, tarifa_hora } = req.body;
 
     if (!nombre_completo || !iniciales) {
       return res.status(400).json({ message: 'El nombre completo y las iniciales son requeridos.' });
@@ -68,6 +73,14 @@ async function createCapacitador(req, res, next) {
       return res.status(400).json({ message: 'El teléfono debe contener al menos 8 dígitos numéricos válidos.' });
     }
 
+    let cleanTarifa = 150.00;
+    if (tarifa_hora !== undefined && tarifa_hora !== null && tarifa_hora !== '') {
+      cleanTarifa = Number(tarifa_hora);
+      if (isNaN(cleanTarifa) || cleanTarifa < 0) {
+        return res.status(400).json({ message: 'La tarifa por hora debe ser un valor numérico mayor o igual a 0.' });
+      }
+    }
+
     if (db.isPostgresConnected()) {
       const checkResult = await db.pool.query('SELECT id FROM capacitadores WHERE iniciales = $1', [cleanInitials]);
       if (checkResult.rows.length > 0) {
@@ -75,8 +88,8 @@ async function createCapacitador(req, res, next) {
       }
 
       const result = await db.pool.query(
-        'INSERT INTO capacitadores (nombre_completo, iniciales, color, telefono) VALUES ($1, $2, $3, $4) RETURNING *',
-        [cleanNombre, cleanInitials, cleanColor, cleanTel]
+        'INSERT INTO capacitadores (nombre_completo, iniciales, color, telefono, tarifa_hora) VALUES ($1, $2, $3, $4, $5) RETURNING id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, activo, created_at',
+        [cleanNombre, cleanInitials, cleanColor, cleanTel, cleanTarifa]
       );
       return res.status(201).json(result.rows[0]);
     }
@@ -93,6 +106,7 @@ async function createCapacitador(req, res, next) {
       iniciales: cleanInitials,
       color: cleanColor,
       telefono: cleanTel || '',
+      tarifa_hora: cleanTarifa,
       activo: true,
       created_at: new Date()
     };
@@ -107,7 +121,7 @@ async function createCapacitador(req, res, next) {
 async function updateCapacitador(req, res, next) {
   try {
     const { id } = req.params;
-    const { nombre_completo, iniciales, color, telefono, activo } = req.body;
+    const { nombre_completo, iniciales, color, telefono, tarifa_hora, activo } = req.body;
 
     const cleanNombre = nombre_completo !== undefined ? nombre_completo.trim() : undefined;
     if (cleanNombre !== undefined && (cleanNombre.length < 3 || cleanNombre.length > 100)) {
@@ -129,6 +143,14 @@ async function updateCapacitador(req, res, next) {
       return res.status(400).json({ message: 'El teléfono debe contener al menos 8 dígitos numéricos válidos.' });
     }
 
+    let cleanTarifa = undefined;
+    if (tarifa_hora !== undefined && tarifa_hora !== null && tarifa_hora !== '') {
+      cleanTarifa = Number(tarifa_hora);
+      if (isNaN(cleanTarifa) || cleanTarifa < 0) {
+        return res.status(400).json({ message: 'La tarifa por hora debe ser un valor numérico mayor o igual a 0.' });
+      }
+    }
+
     if (db.isPostgresConnected()) {
       if (cleanInitials) {
         const checkResult = await db.pool.query(
@@ -146,9 +168,10 @@ async function updateCapacitador(req, res, next) {
              iniciales = COALESCE($2, iniciales),
              color = COALESCE($3, color),
              telefono = COALESCE($4, telefono),
-             activo = COALESCE($5, activo)
-         WHERE id = $6 RETURNING *`,
-        [cleanNombre, cleanInitials, cleanColor, cleanTel, activo, id]
+             tarifa_hora = COALESCE($5, tarifa_hora),
+             activo = COALESCE($6, activo)
+         WHERE id = $7 RETURNING id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, activo, created_at`,
+        [cleanNombre, cleanInitials, cleanColor, cleanTel, cleanTarifa, activo, id]
       );
 
       if (result.rows.length === 0) {
@@ -171,9 +194,10 @@ async function updateCapacitador(req, res, next) {
     if (nombre_completo !== undefined) cap.nombre_completo = nombre_completo;
     if (color !== undefined) cap.color = color;
     if (telefono !== undefined) cap.telefono = telefono;
+    if (cleanTarifa !== undefined) cap.tarifa_hora = cleanTarifa;
     if (activo !== undefined) cap.activo = activo;
 
-    return res.json(cap);
+    return res.json({ ...cap, tarifa_hora: Number(cap.tarifa_hora || 150.00) });
   } catch (error) {
     next(error);
   }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, BarChart3, Users, Building2, Plus, Search, Shield, Lock, LogOut } from 'lucide-react';
+import { Calendar, BarChart3, Users, Building2, Plus, Search, Shield, Lock, LogOut, Banknote } from 'lucide-react';
 
 export default function Navbar({ 
   activeTab, 
@@ -14,6 +14,7 @@ export default function Navbar({
   const tabs = [
     { id: 'calendar', label: 'Calendario', icon: Calendar },
     { id: 'reports', label: 'Reporte de Horas', icon: BarChart3 },
+    { id: 'fees', label: 'Honorarios', icon: Banknote },
     { id: 'trainers', label: 'Capacitadores', icon: Users },
     { id: 'clients', label: 'Clientes', icon: Building2 },
   ];
