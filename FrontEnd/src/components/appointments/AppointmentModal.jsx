@@ -282,7 +282,7 @@ export default function AppointmentModal({
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900">
-                {appointment ? 'Editar Cita Agendada' : 'Agendar Nueva Cita'}
+                {appointment?.id ? 'Editar Cita Agendada' : 'Agendar Nueva Cita'}
               </h3>
               <p className="text-xs text-slate-500">Agenda Digital y Control de Horas</p>
             </div>
@@ -697,7 +697,7 @@ export default function AppointmentModal({
 
           {/* Botones de acción */}
           <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
-            {appointment ? (
+            {appointment?.id ? (
               <button
                 type="button"
                 onClick={handleDelete}
@@ -729,7 +729,7 @@ export default function AppointmentModal({
                 }`}
               >
                 <Check className="w-4 h-4 stroke-[3]" />
-                {loading ? 'Guardando...' : appointment ? 'Guardar Cambios' : 'Registrar Cita'}
+                {loading ? 'Guardando...' : appointment?.id ? 'Guardar Cambios' : 'Registrar Cita'}
               </button>
             </div>
           </div>

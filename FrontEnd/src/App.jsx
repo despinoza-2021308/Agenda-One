@@ -79,8 +79,15 @@ export default function App() {
   }, [loadCitas]);
 
   // Handlers para Citas
-  const handleOpenNewAppointment = (dateString = null) => {
-    setSelectedAppointment(null);
+  const handleOpenNewAppointment = (dateString = null, prefill = null) => {
+    if (prefill) {
+      setSelectedAppointment({
+        ...prefill,
+        fecha: dateString || currentDate.toISOString().split('T')[0]
+      });
+    } else {
+      setSelectedAppointment(null);
+    }
     setModalInitialDate(dateString || currentDate.toISOString().split('T')[0]);
     setIsAppointmentModalOpen(true);
   };
@@ -93,7 +100,7 @@ export default function App() {
 
   const handleSaveAppointment = async (formData) => {
     try {
-      if (selectedAppointment) {
+      if (selectedAppointment && selectedAppointment.id) {
         await api.updateCita(selectedAppointment.id, formData);
         showToast('Cita actualizada correctamente.');
       } else {

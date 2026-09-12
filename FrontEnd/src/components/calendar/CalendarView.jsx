@@ -20,6 +20,11 @@ const MONTH_NAMES = [
 ];
 
 const DAYS_OF_WEEK = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+const DAY_NAMES_FULL = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+const HOURS_OF_DAY = [
+  '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', 
+  '14:00', '15:00', '16:00', '17:00', '18:00'
+];
 
 export default function CalendarView({ 
   citas = [], 
@@ -31,14 +36,37 @@ export default function CalendarView({
   setCurrentDate 
 }) {
   const [selectedCapacitadorId, setSelectedCapacitadorId] = useState('ALL');
-  const [calendarMode, setCalendarMode] = useState('month'); // 'month' | 'week' | 'list'
+  const [calendarMode, setCalendarMode] = useState('month'); // 'month' | 'day' | 'week' | 'list'
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth(); // 0-indexed
 
-  // Navegación de mes/semana
+  // Fecha actual en formato YYYY-MM-DD
+  const currentDateStr = useMemo(() => {
+    const y = currentDate.getFullYear();
+    const m = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const d = String(currentDate.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }, [currentDate]);
+
+  // Citas del día seleccionado
+  const dayAppointments = useMemo(() => {
+    return citas.filter(c => String(c.fecha).split('T')[0] === currentDateStr);
+  }, [citas, currentDateStr]);
+
+  // Capacitadores a mostrar en la vista diaria según filtro
+  const displayedCapacitadores = useMemo(() => {
+    if (selectedCapacitadorId === 'ALL') return capacitadores;
+    return capacitadores.filter(cp => String(cp.id) === String(selectedCapacitadorId));
+  }, [capacitadores, selectedCapacitadorId]);
+
+  // Navegación de mes / día / semana
   const handlePrev = () => {
-    if (calendarMode === 'week') {
+    if (calendarMode === 'day') {
+      const prev = new Date(currentDate);
+      prev.setDate(prev.getDate() - 1);
+      setCurrentDate(prev);
+    } else if (calendarMode === 'week') {
       const prevWeek = new Date(currentDate);
       prevWeek.setDate(prevWeek.getDate() - 7);
       setCurrentDate(prevWeek);
@@ -48,7 +76,11 @@ export default function CalendarView({
   };
 
   const handleNext = () => {
-    if (calendarMode === 'week') {
+    if (calendarMode === 'day') {
+      const next = new Date(currentDate);
+      next.setDate(next.getDate() + 1);
+      setCurrentDate(next);
+    } else if (calendarMode === 'week') {
       const nextWeek = new Date(currentDate);
       nextWeek.setDate(nextWeek.getDate() + 7);
       setCurrentDate(nextWeek);
@@ -157,9 +189,20 @@ export default function CalendarView({
               </button>
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight capitalize">
-              {MONTH_NAMES[month]} <span className="text-slate-400 font-normal">{year}</span>
-            </h2>
+            {calendarMode === 'day' ? (
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight capitalize">
+                  {DAY_NAMES_FULL[currentDate.getDay()]}, {currentDate.getDate()} de {MONTH_NAMES[month]}
+                </h2>
+                <span className="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                  Turnos
+                </span>
+              </div>
+            ) : (
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight capitalize">
+                {MONTH_NAMES[month]} <span className="text-slate-400 font-normal">{year}</span>
+              </h2>
+            )}
           </div>
 
           {/* Estadísticas rápidas y selector de vista */}
@@ -176,7 +219,7 @@ export default function CalendarView({
               </span>
             </div>
 
-            {/* Selector de modo: Mes / Lista */}
+            {/* Selector de modo: Mes / Día (Turnos) / Lista */}
             <div className="flex items-center bg-slate-100 p-1 rounded-xl">
               <button
                 onClick={() => setCalendarMode('month')}
@@ -187,6 +230,17 @@ export default function CalendarView({
                 }`}
               >
                 Mes
+              </button>
+              <button
+                onClick={() => setCalendarMode('day')}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  calendarMode === 'day'
+                    ? 'bg-white text-blue-700 shadow-sm font-bold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span>Día (Turnos)</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
               </button>
               <button
                 onClick={() => setCalendarMode('list')}
@@ -437,6 +491,240 @@ export default function CalendarView({
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* VISTA DIARIA POR COLUMNAS DE CAPACITADOR ("AGENDA DE TURNOS") */}
+      {calendarMode === 'day' && (
+        <div className="space-y-4 animate-in fade-in duration-200">
+          
+          {/* Banner de Resumen del Día */}
+          <div className="bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-slate-50 border border-blue-100 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/25 shrink-0">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                  <span>Agenda Diaria de Turnos en Paralelo</span>
+                  <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    {displayedCapacitadores.length} Capacitadores
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  {dayAppointments.length} actividad(es) agendada(s) hoy · Total de {dayAppointments.reduce((acc, c) => acc + (parseFloat(c.horas) || 0), 0)} hrs asignadas
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-slate-600 bg-white border border-slate-200/80 px-3 py-1.5 rounded-xl shadow-2xs flex items-center gap-1.5">
+                💡 <span className="hidden md:inline">Haz clic en cualquier espacio libre para agendar a esa hora</span>
+                <span className="md:hidden">Toca un espacio libre para agendar</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Cuadrícula de Turnos Horarios */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden overflow-x-auto">
+            <div className="min-w-[820px]">
+              
+              {/* Encabezado de Columnas por Capacitador */}
+              <div className="grid grid-cols-[88px_repeat(auto-fit,minmax(180px,1fr))] border-b border-slate-200 bg-slate-50/90 sticky top-0 z-10">
+                <div className="p-3 text-center text-xs font-bold text-slate-500 border-r border-slate-200 uppercase tracking-wider flex items-center justify-center">
+                  Horario
+                </div>
+
+                {displayedCapacitadores.map((cap) => {
+                  const capCitasToday = dayAppointments.filter(c => String(c.capacitador_id) === String(cap.id));
+                  const capHoursToday = capCitasToday.reduce((acc, c) => acc + (parseFloat(c.horas) || 0), 0);
+                  const isFree = capHoursToday === 0;
+
+                  return (
+                    <div
+                      key={cap.id}
+                      className="p-3 border-r border-slate-200 last:border-r-0 flex flex-col justify-between gap-1.5 bg-slate-50/90"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 truncate">
+                          <span
+                            className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black text-white shrink-0 shadow-xs"
+                            style={{ backgroundColor: cap.color }}
+                          >
+                            {cap.iniciales}
+                          </span>
+                          <span className="font-extrabold text-xs text-slate-900 truncate" title={cap.nombre_completo}>
+                            {cap.nombre_completo}
+                          </span>
+                        </div>
+
+                        {onOpenWhatsApp && (
+                          <button
+                            type="button"
+                            onClick={() => onOpenWhatsApp({ date: currentDateStr, capacitadorId: cap.id })}
+                            title={`Enviar agenda de hoy a ${cap.nombre_completo.split(' ')[0]} por WhatsApp`}
+                            className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors shrink-0"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5 fill-emerald-600/20" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        {isFree ? (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full">
+                            ✨ Totalmente Libre
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded-full">
+                            🕒 {capHoursToday}h ({capCitasToday.length} citas)
+                          </span>
+                        )}
+                        <span className="text-[10px] font-mono text-slate-400">
+                          {cap.iniciales}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Filas de Horas */}
+              <div className="divide-y divide-slate-100">
+                {HOURS_OF_DAY.map((hStr) => {
+                  const hourNum = parseInt(hStr.split(':')[0], 10);
+
+                  return (
+                    <div
+                      key={hStr}
+                      className="grid grid-cols-[88px_repeat(auto-fit,minmax(180px,1fr))] min-h-[76px]"
+                    >
+                      {/* Celda de Hora (Eje Izquierdo) */}
+                      <div className="p-2 border-r border-slate-200 bg-slate-50/50 flex flex-col items-center justify-center font-mono text-xs font-bold text-slate-600">
+                        <span>{hStr}</span>
+                        <span className="text-[10px] text-slate-400 font-normal">{hourNum >= 12 ? 'PM' : 'AM'}</span>
+                      </div>
+
+                      {/* Celdas por Capacitador */}
+                      {displayedCapacitadores.map((cap) => {
+                        // Buscar si alguna cita empieza en esta hora
+                        const citaIniciando = dayAppointments.find(c => {
+                          const sameCap = String(c.capacitador_id) === String(cap.id);
+                          if (!sameCap) return false;
+                          const startH = parseInt(String(c.hora_inicio).split(':')[0], 10);
+                          return startH === hourNum;
+                        });
+
+                        // Buscar si alguna cita está en curso (empezó antes y termina después)
+                        const citaEnCurso = !citaIniciando && dayAppointments.find(c => {
+                          const sameCap = String(c.capacitador_id) === String(cap.id);
+                          if (!sameCap) return false;
+                          const startH = parseInt(String(c.hora_inicio).split(':')[0], 10);
+                          const endH = parseInt(String(c.hora_fin).split(':')[0], 10);
+                          const endM = parseInt(String(c.hora_fin).split(':')[1] || 0, 10);
+                          const effectiveEndH = endM > 0 ? endH + 1 : endH;
+                          return startH < hourNum && effectiveEndH > hourNum;
+                        });
+
+                        return (
+                          <div
+                            key={cap.id}
+                            className="border-r border-slate-100 last:border-r-0 p-1.5 flex flex-col justify-center relative group"
+                          >
+                            {citaIniciando ? (
+                              <div
+                                onClick={() => onSelectCita(citaIniciando)}
+                                className="w-full bg-white border-2 border-blue-200 rounded-xl p-2.5 shadow-2xs hover:shadow-md hover:border-blue-400 transition-all cursor-pointer space-y-1.5 group/card relative"
+                                style={{ borderLeftColor: cap.color, borderLeftWidth: '4px' }}
+                              >
+                                <div className="flex items-center justify-between gap-1">
+                                  <span className="text-[11px] font-mono font-black text-slate-900 flex items-center gap-1">
+                                    <Clock className="w-3 h-3 text-blue-600" />
+                                    {citaIniciando.hora_inicio} - {citaIniciando.hora_fin}
+                                  </span>
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[10px] font-black px-1.5 py-0.5 rounded font-mono text-slate-800 bg-slate-100 border border-slate-200">
+                                      {citaIniciando.horas}h
+                                    </span>
+                                    {onOpenWhatsApp && (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          onOpenWhatsApp({ cita: citaIniciando });
+                                        }}
+                                        title="Enviar por WhatsApp"
+                                        className="opacity-0 group-hover/card:opacity-100 p-0.5 hover:bg-emerald-50 text-emerald-600 rounded transition-opacity"
+                                      >
+                                        <MessageSquare className="w-3.5 h-3.5 fill-emerald-600/20" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <p className="font-extrabold text-xs text-slate-900 leading-snug line-clamp-2">
+                                  {citaIniciando.observaciones || `${citaIniciando.tipo_servicio} Programado`}
+                                </p>
+
+                                <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100">
+                                  <span className="text-slate-600 font-medium truncate flex items-center gap-1" title={citaIniciando.cliente_nombre}>
+                                    <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
+                                    <strong className="truncate text-slate-800">{citaIniciando.cliente_nombre}</strong>
+                                  </span>
+                                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                                    citaIniciando.modalidad === 'Presencial' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'
+                                  }`}>
+                                    {citaIniciando.modalidad}
+                                  </span>
+                                </div>
+                              </div>
+                            ) : citaEnCurso ? (
+                              <div
+                                onClick={() => onSelectCita(citaEnCurso)}
+                                className="w-full h-full bg-blue-50/50 border-l-4 border-dashed border-blue-300 rounded-lg p-2 text-[11px] text-blue-800/80 font-medium flex items-center justify-between hover:bg-blue-100/50 transition-colors cursor-pointer"
+                              >
+                                <span className="truncate flex items-center gap-1">
+                                  <span>↳</span>
+                                  <span className="font-bold text-slate-800 truncate">{citaEnCurso.cliente_nombre}</span>
+                                  <span className="text-slate-500 text-[10px]">({citaEnCurso.hora_inicio}-{citaEnCurso.hora_fin})</span>
+                                </span>
+                                <span className="text-[10px] text-blue-600 font-bold bg-white/70 px-1.5 py-0.5 rounded shrink-0">
+                                  En curso
+                                </span>
+                              </div>
+                            ) : (
+                              /* Espacio libre con botón de agendamiento rápido */
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const endHourFormatted = `${String(Math.min(hourNum + 2, 18)).padStart(2, '0')}:00`;
+                                  onAddCitaDate(currentDateStr, {
+                                    capacitador_id: cap.id,
+                                    hora_inicio: hStr,
+                                    hora_fin: endHourFormatted,
+                                    fecha: currentDateStr
+                                  });
+                                }}
+                                className="w-full h-full min-h-[60px] rounded-xl border border-transparent hover:border-emerald-300 hover:border-dashed hover:bg-emerald-50/40 transition-all flex items-center justify-center group/slot cursor-pointer"
+                                title={`Agendar a ${cap.nombre_completo.split(' ')[0]} el ${currentDateStr} a las ${hStr}`}
+                              >
+                                <div className="opacity-0 group-hover/slot:opacity-100 flex items-center gap-1.5 bg-white border border-emerald-300 px-2.5 py-1 rounded-lg text-emerald-700 text-xs font-bold shadow-xs transition-opacity transform group-hover/slot:scale-105">
+                                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                                  <span>Agendar {hStr}</span>
+                                </div>
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+
+            </div>
+          </div>
+
         </div>
       )}
 
