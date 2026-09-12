@@ -173,7 +173,7 @@ export default function CalendarView({
   }, [year, month]);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 flex-1 flex flex-col">
       {/* Barra de control superior: Filtros de capacitador y navegación */}
       <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -376,7 +376,7 @@ export default function CalendarView({
 
       {/* VISTA DE CUADRÍCULA MENSUAL */}
       {calendarMode === 'month' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col">
           {/* Cabecera de días de la semana */}
           <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50/75">
             {DAYS_OF_WEEK.map((day, idx) => (
@@ -392,7 +392,7 @@ export default function CalendarView({
           </div>
 
           {/* Días del calendario con celdas equilibradas y tarjetas de alta legibilidad */}
-          <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-slate-100">
+          <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-slate-100 flex-1">
             {calendarDays.map((dayObj, index) => {
               const dayCitas = filteredCitas.filter(c => c.fecha === dayObj.dateString);
               const dayTotalHoras = dayCitas
@@ -402,7 +402,7 @@ export default function CalendarView({
               return (
                 <div
                   key={index}
-                  className={`min-h-[165px] sm:min-h-[195px] p-1.5 sm:p-2 flex flex-col transition-colors group relative ${
+                  className={`min-h-[145px] sm:min-h-[170px] lg:min-h-[185px] xl:min-h-[210px] 2xl:min-h-[240px] p-1.5 sm:p-2 flex flex-col transition-colors group relative ${
                     !dayObj.isCurrentMonth
                       ? 'bg-slate-50/40 text-slate-400'
                       : dayObj.isToday

@@ -113,7 +113,7 @@ export default function CapacitadoresView({ capacitadores = [], onSaveCapacitado
       </div>
 
       {/* Grid de Capacitadores */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
         {capacitadores.map((cap) => (
           <div
             key={cap.id}
