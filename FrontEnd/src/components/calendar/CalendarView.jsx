@@ -275,7 +275,7 @@ export default function CalendarView({
               return (
                 <div
                   key={index}
-                  className={`min-h-[140px] sm:min-h-[165px] p-1.5 sm:p-2 flex flex-col transition-colors group relative ${
+                  className={`min-h-[165px] sm:min-h-[195px] p-1.5 sm:p-2 flex flex-col transition-colors group relative ${
                     !dayObj.isCurrentMonth
                       ? 'bg-slate-50/40 text-slate-400'
                       : dayObj.isToday
@@ -313,11 +313,11 @@ export default function CalendarView({
                     </div>
                   </div>
 
-                  {/* Lista de citas en el día (Diseño limpio, legible y sin sobredimensionar) */}
-                  <div className="flex-1 space-y-1.5 overflow-y-auto max-h-[220px] pr-0.5 scrollbar-thin">
+                  {/* Lista de citas en el día (Diseño limpio, actividad concreta destacada y legible) */}
+                  <div className="flex-1 space-y-2 overflow-y-auto max-h-[260px] pr-0.5 scrollbar-thin">
                     {dayCitas.map((cita) => {
                       const color = cita.capacitador_color || '#3B82F6';
-                      const fullTooltip = `${cita.cliente_nombre}\nCapacitador: ${cita.capacitador_nombre} [${cita.capacitador_iniciales}]\nHorario: ${cita.hora_inicio} - ${cita.hora_fin} (${cita.horas}h)\nModalidad: ${cita.modalidad} | Tipo: ${cita.tipo_servicio}${cita.observaciones ? `\nNota: ${cita.observaciones}` : ''}`;
+                      const fullTooltip = `Actividad: ${cita.observaciones || cita.tipo_servicio}\nCliente: ${cita.cliente_nombre}\nCapacitador: ${cita.capacitador_nombre} [${cita.capacitador_iniciales}]\nHorario: ${cita.hora_inicio} - ${cita.hora_fin} (${cita.horas}h)\nModalidad: ${cita.modalidad} | Tipo: ${cita.tipo_servicio}`;
 
                       return (
                         <div
@@ -325,68 +325,67 @@ export default function CalendarView({
                           onClick={() => onSelectCita(cita)}
                           role="button"
                           title={fullTooltip}
-                          className="w-full text-left p-1.5 sm:p-2 rounded-lg border border-slate-200/80 shadow-2xs hover:shadow-sm transition-all duration-150 bg-white space-y-1 cursor-pointer select-none group/card hover:border-slate-300"
+                          className="w-full text-left p-2 sm:p-2.5 rounded-xl border border-slate-200/85 shadow-2xs hover:shadow-md transition-all duration-150 bg-white space-y-1.5 cursor-pointer select-none group/card hover:border-slate-300"
                           style={{
-                            borderLeftWidth: '3.5px',
+                            borderLeftWidth: '4px',
                             borderLeftColor: color
                           }}
                         >
-                          {/* Fila 1: Iniciales del Capacitador, Nombre de Empresa y Horas */}
-                          <div className="flex items-center justify-between gap-1.5">
-                            <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                          {/* Fila 1: Capacitador, Horario y Duración */}
+                          <div className="flex items-center justify-between gap-1">
+                            <div className="flex items-center gap-1.5 min-w-0">
                               <span
-                                className="w-5 h-5 rounded text-[10px] font-black text-white flex items-center justify-center shrink-0 shadow-2xs leading-none"
+                                className="w-5 h-5 rounded-md text-[10px] font-black text-white flex items-center justify-center shrink-0 shadow-2xs leading-none"
                                 style={{ backgroundColor: color }}
                                 title={`Capacitador: ${cita.capacitador_nombre}`}
                               >
                                 {cita.capacitador_iniciales}
                               </span>
-                              <span className="font-semibold text-slate-900 text-xs truncate leading-tight">
-                                {cita.cliente_nombre}
+                              <span className="text-[11px] font-mono font-bold text-slate-700">
+                                {cita.hora_inicio} - {cita.hora_fin}
                               </span>
                             </div>
+
                             <span 
-                              className="text-[10px] font-bold px-1.5 py-0.5 rounded font-mono text-slate-700 bg-slate-100 border border-slate-200/60 shrink-0"
+                              className="text-[10px] font-black px-1.5 py-0.5 rounded font-mono text-slate-800 bg-slate-100 border border-slate-200/80 shrink-0"
                             >
                               {cita.horas}h
                             </span>
                           </div>
 
-                          {/* Fila 2: Horario, Modalidad y Tipo de Servicio */}
-                          <div className="flex items-center justify-between gap-1 text-[10px] text-slate-600">
-                            <span className="flex items-center gap-1 font-mono font-medium text-slate-700 shrink-0">
-                              <Clock className="w-3 h-3 text-slate-400" />
-                              {cita.hora_inicio}-{cita.hora_fin}
+                          {/* Fila 2: Etiquetas de Tipo de Servicio y Modalidad */}
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200/70 uppercase tracking-wider text-[9px]">
+                              {cita.tipo_servicio}
                             </span>
-
-                            <div className="flex items-center gap-1 shrink-0">
-                              <span
-                                className={`inline-flex items-center gap-0.5 px-1 py-0.2 rounded text-[10px] font-semibold ${
-                                  cita.modalidad === 'Presencial'
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
-                                    : 'bg-blue-50 text-blue-700 border border-blue-200/80'
-                                }`}
-                              >
-                                {cita.modalidad === 'Presencial' ? (
-                                  <MapPin className="w-2.5 h-2.5 text-emerald-600" />
-                                ) : (
-                                  <Video className="w-2.5 h-2.5 text-blue-600" />
-                                )}
-                                {cita.modalidad}
-                              </span>
-
-                              <span className="bg-slate-50 text-slate-600 px-1 py-0.2 rounded text-[10px] font-medium border border-slate-100 truncate max-w-[65px]">
-                                {cita.tipo_servicio}
-                              </span>
-                            </div>
+                            <span
+                              className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                                cita.modalidad === 'Presencial'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
+                                  : 'bg-blue-50 text-blue-700 border border-blue-200/80'
+                              }`}
+                            >
+                              {cita.modalidad === 'Presencial' ? (
+                                <MapPin className="w-2.5 h-2.5 text-emerald-600" />
+                              ) : (
+                                <Video className="w-2.5 h-2.5 text-blue-600" />
+                              )}
+                              {cita.modalidad}
+                            </span>
                           </div>
 
-                          {/* Fila 3: Observaciones discretas de 1 línea si existen */}
-                          {cita.observaciones && (
-                            <p className="text-[10px] text-slate-500 truncate italic leading-none pt-0.5 font-normal">
-                              "{cita.observaciones}"
-                            </p>
-                          )}
+                          {/* Fila 3: Actividad Concreta (Tema específico destacado) */}
+                          <p className="text-xs font-bold text-slate-900 leading-snug line-clamp-2">
+                            {cita.observaciones ? cita.observaciones : `${cita.tipo_servicio} Programado`}
+                          </p>
+
+                          {/* Fila 4: Cliente / Empresa */}
+                          <div className="flex items-center gap-1 text-[11px] text-slate-600 font-medium truncate pt-1 border-t border-slate-100">
+                            <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span className="truncate text-slate-700 font-medium" title={cita.cliente_nombre}>
+                              {cita.cliente_nombre}
+                            </span>
+                          </div>
                         </div>
                       );
                     })}
