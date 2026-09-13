@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -70,6 +71,17 @@ export default function CalendarView({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedDayDetails]);
+
+  // Bloquear scroll de la página para evitar desplazamientos y cortes de fondo con el modal abierto
+  useEffect(() => {
+    if (selectedDayDetails) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
   }, [selectedDayDetails]);
 
   const year = currentDate.getFullYear();
@@ -1063,14 +1075,14 @@ export default function CalendarView({
         </div>
       )}
 
-      {/* MODAL DE DETALLE COMPLETO DEL DÍA (Diseño Conciso y Elegante) */}
-      {selectedDayDetails && (
+      {/* MODAL DE DETALLE COMPLETO DEL DÍA (Renderizado con Portal al body para cobertura 100% de pantalla sin recortes) */}
+      {selectedDayDetails && typeof document !== 'undefined' && createPortal(
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150"
+          className="fixed inset-0 z-[9999] w-screen h-screen bg-slate-950/75 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
           onClick={() => setSelectedDayDetails(null)}
         >
           <div 
-            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl sm:max-w-[700px] max-h-[88vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl sm:max-w-[700px] max-h-[88vh] flex flex-col overflow-hidden my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Cabecera del Modal Concisa y Moderna */}
@@ -1311,7 +1323,8 @@ export default function CalendarView({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
