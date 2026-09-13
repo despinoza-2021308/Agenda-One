@@ -719,18 +719,22 @@ export default function TrainerPortalView({
                   </div>
 
                   {/* WhatsApp directo al cliente si tiene número */}
-                  {cita.cliente_telefono && (
-                    <a
-                      href={`https://wa.me/${cita.cliente_telefono.replace(/[^0-9]/g, '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors"
-                      title="Escribir por WhatsApp al cliente"
-                    >
-                      <MessageCircle className="w-3.5 h-3.5" />
-                      <span>Chat Cliente</span>
-                    </a>
-                  )}
+                  {cita.cliente_telefono && (() => {
+                    let clean = cita.cliente_telefono.replace(/[^0-9]/g, '');
+                    if (clean.length === 8) clean = `502${clean}`;
+                    return (
+                      <a
+                        href={`https://api.whatsapp.com/send?phone=${clean}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors"
+                        title="Escribir por WhatsApp al cliente"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <span>Chat Cliente</span>
+                      </a>
+                    );
+                  })()}
                 </div>
               </div>
             );

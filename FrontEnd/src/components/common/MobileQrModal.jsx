@@ -63,7 +63,7 @@ export default function MobileQrModal({
 
   const handleShareWhatsApp = () => {
     const msg = `📲 *Acceso a tu Portal Móvil en Agenda One:*\n\nAbre tu itinerario y registra tus capacitaciones aquí:\n${targetUrl}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
   };
 
   if (!isOpen) return null;

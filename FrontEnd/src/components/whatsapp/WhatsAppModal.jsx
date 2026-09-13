@@ -67,6 +67,25 @@ export default function WhatsAppModal({
   const [savingPhone, setSavingPhone] = useState(false);
   const [includePortalLink, setIncludePortalLink] = useState(true);
 
+  // Sincronizar estado cuando se abre con nueva cita, capacitador o fecha
+  React.useEffect(() => {
+    if (targetCita) {
+      if (targetCita.capacitador_id) setSelectedTrainerId(targetCita.capacitador_id);
+      setMode('single');
+      if (targetCita.fecha) setSelectedDate(String(targetCita.fecha).split('T')[0]);
+    } else if (initialCapacitadorId) {
+      setSelectedTrainerId(initialCapacitadorId);
+      setMode('day');
+      if (initialDate) {
+        const d = initialDate instanceof Date ? initialDate.toISOString().split('T')[0] : String(initialDate).split('T')[0];
+        setSelectedDate(d);
+      }
+    } else if (initialDate) {
+      const d = initialDate instanceof Date ? initialDate.toISOString().split('T')[0] : String(initialDate).split('T')[0];
+      setSelectedDate(d);
+    }
+  }, [isOpen, targetCita, initialCapacitadorId, initialDate]);
+
   // Sincronizar teléfono cuando cambia de capacitador
   React.useEffect(() => {
     if (currentTrainer) {
@@ -142,8 +161,12 @@ export default function WhatsAppModal({
   // Generador del mensaje de WhatsApp
   const generatedMessage = useMemo(() => {
     const trainerName = currentTrainer ? currentTrainer.nombre_completo : 'Capacitador';
+    const trainerFirst = currentTrainer ? currentTrainer.nombre_completo.split(' ')[0] : 'Capacitador';
+
+    const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const baseHost = isLocal ? 'http://192.168.0.12:3000' : (typeof window !== 'undefined' ? window.location.origin : '');
     const portalUrl = (includePortalLink && currentTrainer?.iniciales)
-      ? `\n📲 *Acceso a tu portal móvil:* ${window.location.origin}/?portal=${currentTrainer.iniciales}\n`
+      ? `\n📲 *Acceso a tu portal móvil:* ${baseHost}/?portal=${currentTrainer.iniciales}\n`
       : '';
 
     if (mode === 'single' && targetCita) {
@@ -250,15 +273,19 @@ export default function WhatsAppModal({
 
   // Abrir en WhatsApp Web / App
   const handleOpenWhatsApp = () => {
-    const cleanPhone = (customPhone || '').replace(/\D/g, '');
+    let cleanPhone = (customPhone || '').replace(/\D/g, '');
     if (customPhone && customPhone.trim() && cleanPhone.length < 8) {
       if (onShowToast) onShowToast('El número de teléfono parece incompleto (mínimo 8 dígitos).', 'error');
       return;
     }
+    // Si tiene 8 dígitos (formato estándar de Guatemala), anteponer el código de país 502
+    if (cleanPhone.length === 8) {
+      cleanPhone = `502${cleanPhone}`;
+    }
     const encoded = encodeURIComponent(generatedMessage);
     const url = cleanPhone
-      ? `https://wa.me/${cleanPhone}?text=${encoded}`
-      : `https://wa.me/?text=${encoded}`;
+      ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encoded}`
+      : `https://api.whatsapp.com/send?text=${encoded}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
