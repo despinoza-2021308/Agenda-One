@@ -65,6 +65,7 @@ export default function WhatsAppModal({
   const [customPhone, setCustomPhone] = useState(currentTrainer?.telefono || '');
   const [copied, setCopied] = useState(false);
   const [savingPhone, setSavingPhone] = useState(false);
+  const [includePortalLink, setIncludePortalLink] = useState(true);
 
   // Sincronizar teléfono cuando cambia de capacitador
   React.useEffect(() => {
@@ -141,7 +142,9 @@ export default function WhatsAppModal({
   // Generador del mensaje de WhatsApp
   const generatedMessage = useMemo(() => {
     const trainerName = currentTrainer ? currentTrainer.nombre_completo : 'Capacitador';
-    const trainerFirst = trainerName.split(' ')[0];
+    const portalUrl = (includePortalLink && currentTrainer?.iniciales)
+      ? `\n📲 *Acceso a tu portal móvil:* ${window.location.origin}/?portal=${currentTrainer.iniciales}\n`
+      : '';
 
     if (mode === 'single' && targetCita) {
       const stEmoji = STATUS_EMOJI[targetCita.estado] || '🗓️';
@@ -153,8 +156,7 @@ export default function WhatsAppModal({
 ⏰ *Horario:* ${targetCita.hora_inicio} - ${targetCita.hora_fin} (${targetCita.horas} hrs)
 🏷️ *Estado:* ${stEmoji} *${targetCita.estado || 'Programada'}*
 📌 *Servicio:* ${targetCita.tipo_servicio}
-📍 *Modalidad:* ${targetCita.modalidad}${targetCita.observaciones ? `\n📝 *Observaciones:* ${targetCita.observaciones}` : ''}
-
+📍 *Modalidad:* ${targetCita.modalidad}${targetCita.observaciones ? `\n📝 *Observaciones:* ${targetCita.observaciones}` : ''}${portalUrl}
 ━━━━━━━━━━━━━━━━━━━
 ✨ *Agenda One - One Consulting*`
       );
@@ -164,8 +166,7 @@ export default function WhatsAppModal({
       const friendlyDate = formatFriendlyDate(selectedDate);
       if (relevantCitas.length === 0) {
         return (
-`👋 *Hola ${trainerFirst}*, te informamos que no tienes actividades programadas para el *${friendlyDate}*.
-
+`👋 *Hola ${trainerFirst}*, te informamos que no tienes actividades programadas para el *${friendlyDate}*.${portalUrl}
 ━━━━━━━━━━━━━━━━━━━
 ✨ *Agenda One - One Consulting*`
         );
@@ -183,6 +184,10 @@ export default function WhatsAppModal({
         text += `   📍 Modalidad: ${c.modalidad}\n\n`;
       });
 
+      if (portalUrl) {
+        text += `${portalUrl}\n`;
+      }
+
       text += `━━━━━━━━━━━━━━━━━━━\n`;
       text += `📊 *Total asignado:* ${relevantCitas.length} actividad(es) | *${totalHoras} hrs efectivas*\n`;
       text += `✨ *Agenda One - One Consulting*`;
@@ -192,8 +197,7 @@ export default function WhatsAppModal({
     if (mode === 'week') {
       if (relevantCitas.length === 0) {
         return (
-`👋 *Hola ${trainerFirst}*, no tienes capacitaciones agendadas para esta semana.
-
+`👋 *Hola ${trainerFirst}*, no tienes capacitaciones agendadas para esta semana.${portalUrl}
 ━━━━━━━━━━━━━━━━━━━
 ✨ *Agenda One - One Consulting*`
         );
@@ -219,6 +223,10 @@ export default function WhatsAppModal({
         text += `\n`;
       });
 
+      if (portalUrl) {
+        text += `${portalUrl}\n`;
+      }
+
       text += `━━━━━━━━━━━━━━━━━━━\n`;
       text += `📊 *Total semanal:* ${relevantCitas.length} actividad(es) | *${totalHoras} horas efectivas*\n`;
       text += `✨ *Agenda One - One Consulting*`;
@@ -226,7 +234,7 @@ export default function WhatsAppModal({
     }
 
     return '';
-  }, [mode, targetCita, currentTrainer, selectedDate, relevantCitas, totalHoras]);
+  }, [mode, targetCita, currentTrainer, selectedDate, relevantCitas, totalHoras, includePortalLink]);
 
   // Copiar al portapapeles
   const handleCopy = async () => {
@@ -427,6 +435,32 @@ export default function WhatsAppModal({
                 <span className="text-[10px] text-rose-600 dark:text-rose-400 font-bold mt-0.5">Mínimo 8 dígitos</span>
               )}
             </div>
+          </div>
+
+          {/* Opción para incluir enlace al portal móvil */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                <Sparkles className="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  Incluir enlace al Portal Móvil del Capacitador
+                </p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                  Permite al capacitador abrir su itinerario, iniciar sesión y redactar bitácoras desde WhatsApp
+                </p>
+              </div>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-2">
+              <input
+                type="checkbox"
+                checked={includePortalLink}
+                onChange={(e) => setIncludePortalLink(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-9 h-5 bg-slate-300 peer-focus:outline-hidden rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
           </div>
 
           {/* Vista Previa de Burbuja de WhatsApp */}

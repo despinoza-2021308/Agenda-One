@@ -6,10 +6,14 @@ const capacitadoresRoutes = require('./capacitadoresRoutes');
 const clientesRoutes = require('./clientesRoutes');
 const citasRoutes = require('./citasRoutes');
 const reportesRoutes = require('./reportesRoutes');
+const portalRoutes = require('./portalRoutes');
 const { requireAdminAuth } = require('../middlewares/auth');
 
 // Ruta de autenticación y verificación de PIN
 router.use('/auth', authRoutes);
+
+// Portal Móvil del Capacitador (acceso por código de iniciales, sin requerir PIN)
+router.use('/portal', portalRoutes);
 
 // Rutas de recursos: Las lecturas (GET) son públicas; las mutaciones (POST, PUT, DELETE) requieren autorización de Administrador
 router.use('/capacitadores', requireAdminAuth, capacitadoresRoutes);

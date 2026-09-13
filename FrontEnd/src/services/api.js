@@ -90,5 +90,23 @@ export const api = {
   getResumenMensual: (year, month) => {
     return request(`/reportes/resumen-mensual?year=${year}&month=${month}`);
   },
-  getHistorico: () => request('/reportes/historico')
+  getHistorico: () => request('/reportes/historico'),
+
+  // Portal Móvil del Capacitador
+  getTrainerPortal: (codigo, params = {}) => {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        query.append(key, value);
+      }
+    });
+    const qs = query.toString();
+    return request(`/portal/${encodeURIComponent(codigo)}${qs ? `?${qs}` : ''}`);
+  },
+  updateTrainerCita: (codigo, id, data) => {
+    return request(`/portal/${encodeURIComponent(codigo)}/citas/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    });
+  }
 };

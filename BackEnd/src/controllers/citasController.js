@@ -25,6 +25,7 @@ async function getCitas(req, res, next) {
           c.tipo_servicio,
           COALESCE(c.estado, 'Programada') AS estado,
           c.observaciones,
+          c.bitacora,
           c.created_at,
           c.updated_at
         FROM citas c
@@ -165,7 +166,8 @@ async function getCitaById(req, res, next) {
           c.horas::FLOAT AS horas,
           c.modalidad, c.tipo_servicio,
           COALESCE(c.estado, 'Programada') AS estado,
-          c.observaciones
+          c.observaciones,
+          c.bitacora
          FROM citas c
          LEFT JOIN clientes cl ON c.cliente_id = cl.id
          INNER JOIN capacitadores cp ON c.capacitador_id = cp.id
@@ -417,7 +419,8 @@ async function updateCita(req, res, next) {
       tipo_servicio,
       estado,
       observaciones,
-      descripcion
+      descripcion,
+      bitacora
     } = req.body;
 
     if (cliente_nombre !== undefined) {
@@ -562,8 +565,9 @@ async function updateCita(req, res, next) {
             modalidad = COALESCE($8, modalidad),
             tipo_servicio = COALESCE($9, tipo_servicio),
             estado = COALESCE($10, estado),
-            observaciones = COALESCE($11, observaciones)
-        WHERE id = $12
+            observaciones = COALESCE($11, observaciones),
+            bitacora = COALESCE($12, bitacora)
+        WHERE id = $13
         RETURNING *
       `;
 
@@ -579,6 +583,7 @@ async function updateCita(req, res, next) {
         tipo_servicio,
         estadoFinal,
         obs,
+        bitacora !== undefined ? bitacora : null,
         id
       ]);
 
@@ -602,6 +607,7 @@ async function updateCita(req, res, next) {
     if (tipo_servicio !== undefined) cita.tipo_servicio = tipo_servicio;
     if (estadoFinal !== undefined) cita.estado = estadoFinal;
     if (obs !== undefined) cita.observaciones = obs;
+    if (bitacora !== undefined) cita.bitacora = bitacora;
 
     const cap = db.mockStore.capacitadores.find(cp => cp.id === cita.capacitador_id) || {};
 

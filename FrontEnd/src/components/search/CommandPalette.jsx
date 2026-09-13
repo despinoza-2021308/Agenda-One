@@ -16,7 +16,8 @@ import {
   MessageSquare,
   CornerDownLeft,
   Banknote,
-  Moon
+  Moon,
+  Smartphone
 } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -64,6 +65,15 @@ const SYSTEM_ACTIONS = [
     color: 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60',
     type: 'accion',
     actionId: 'nav-fees'
+  },
+  {
+    id: 'act-nav-portal',
+    title: 'Portal Móvil del Capacitador',
+    subtitle: 'Acceso móvil directo para instructores por código de iniciales',
+    icon: Smartphone,
+    color: 'text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/60',
+    type: 'accion',
+    actionId: 'nav-portal'
   },
   {
     id: 'act-nav-trainers',

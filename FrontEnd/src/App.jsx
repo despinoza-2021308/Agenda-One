@@ -9,11 +9,27 @@ import AppointmentModal from './components/appointments/AppointmentModal';
 import WhatsAppModal from './components/whatsapp/WhatsAppModal';
 import CommandPalette from './components/search/CommandPalette';
 import AdminLoginModal from './components/auth/AdminLoginModal';
+import TrainerPortalView from './components/portal/TrainerPortalView';
 import { api, authStorage } from './services/api';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('calendar'); // 'calendar' | 'reports' | 'fees' | 'trainers' | 'clients'
+  // Detección inicial de acceso directo por URL (ej. ?portal=MO)
+  const initialPortalParam = (() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const p = params.get('portal');
+      if (p) return p.trim().toUpperCase();
+      if (window.location.hash && window.location.hash.toLowerCase().includes('portal')) {
+        const parts = window.location.hash.split(/[-/=]/);
+        return parts[parts.length - 1] ? parts[parts.length - 1].trim().toUpperCase() : null;
+      }
+    } catch (_) {}
+    return null;
+  })();
+
+  const [activeTab, setActiveTab] = useState(() => initialPortalParam ? 'portal' : 'calendar'); // 'calendar' | 'reports' | 'fees' | 'portal' | 'trainers' | 'clients'
+  const [urlPortalCode, setUrlPortalCode] = useState(initialPortalParam);
   const [currentDate, setCurrentDate] = useState(new Date(2026, 8, 9)); // Septiembre 2026
 
   // Control de Tema (Modo Oscuro / Claro)
@@ -372,6 +388,9 @@ export default function App() {
       case 'nav-fees':
         setActiveTab('fees');
         break;
+      case 'nav-portal':
+        setActiveTab('portal');
+        break;
       case 'nav-trainers':
         setActiveTab('trainers');
         break;
@@ -454,6 +473,18 @@ export default function App() {
             isAdmin={isAdmin}
             onOpenAdminLogin={() => setIsAdminLoginModalOpen(true)}
             onShowToast={showToast}
+          />
+        )}
+
+        {activeTab === 'portal' && (
+          <TrainerPortalView
+            initialTrainerCode={urlPortalCode}
+            availableTrainers={capacitadores}
+            onBackToAdmin={() => setActiveTab('calendar')}
+            onNotifyAdmin={() => {
+              loadCitas();
+              showToast('Itinerario y horas sincronizadas con la agenda central 🔄');
+            }}
           />
         )}
 

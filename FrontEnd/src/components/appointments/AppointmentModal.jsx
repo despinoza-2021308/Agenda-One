@@ -59,7 +59,8 @@ export default function AppointmentModal({
     tipo_servicio: 'Curso',
     estado: 'Programada',
     descripcion: '',
-    observaciones: ''
+    observaciones: '',
+    bitacora: ''
   });
 
   const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
@@ -95,7 +96,8 @@ export default function AppointmentModal({
         tipo_servicio: appointment.tipo_servicio || 'Curso',
         estado: appointment.estado || 'Programada',
         descripcion: appointment.observaciones || '',
-        observaciones: appointment.observaciones || ''
+        observaciones: appointment.observaciones || '',
+        bitacora: appointment.bitacora || ''
       });
       setIsManualHours(false);
     } else {
@@ -113,7 +115,8 @@ export default function AppointmentModal({
         tipo_servicio: 'Curso',
         estado: 'Programada',
         descripcion: '',
-        observaciones: ''
+        observaciones: '',
+        bitacora: ''
       });
       setIsManualHours(false);
     }
@@ -1021,6 +1024,35 @@ export default function AppointmentModal({
                 ⚠️ Las observaciones no deben superar los 500 caracteres.
               </p>
             )}
+          </div>
+
+          {/* Bitácora de Sesión (Portal Móvil del Capacitador) */}
+          <div className="p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-black text-emerald-900 dark:text-emerald-200 uppercase tracking-wider flex items-center gap-1.5">
+                <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span>Bitácora de Sesión (Portal del Capacitador)</span>
+              </label>
+              {formData.bitacora ? (
+                <span className="text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/80 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 px-2 py-0.5 rounded-full">
+                  Registrada en campo
+                </span>
+              ) : (
+                <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                  Sin registro previo
+                </span>
+              )}
+            </div>
+            <textarea
+              rows={3}
+              value={formData.bitacora || ''}
+              onChange={(e) => setFormData({ ...formData, bitacora: e.target.value })}
+              placeholder="Notas redactadas por el capacitador sobre la sesión, temas cubiertos y compromisos..."
+              className="w-full px-3.5 py-2.5 bg-white dark:bg-slate-800/90 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs sm:text-sm font-normal text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none placeholder:text-slate-400"
+            />
+            <p className="text-[10px] text-emerald-800/80 dark:text-emerald-400/80 mt-1">
+              Esta bitácora puede ser completada tanto por la administración como por el capacitador desde su portal móvil al terminar el servicio.
+            </p>
           </div>
 
           {/* Botones de acción */}

@@ -42,10 +42,13 @@ CREATE TABLE IF NOT EXISTS citas (
     tipo_servicio VARCHAR(30) NOT NULL CHECK (tipo_servicio IN ('Asesoría', 'Curso', 'Auditoría', 'Reunión', 'Seguimiento')),
     estado VARCHAR(25) NOT NULL DEFAULT 'Programada' CHECK (estado IN ('Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada')),
     observaciones TEXT,
+    bitacora TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT chk_coherencia_horaria CHECK (hora_fin > hora_inicio)
 );
+
+ALTER TABLE citas ADD COLUMN IF NOT EXISTS bitacora TEXT;
 
 -- 4. Índices de Alto Rendimiento para Calendario y Filtros
 CREATE INDEX IF NOT EXISTS idx_citas_fecha ON citas(fecha);
