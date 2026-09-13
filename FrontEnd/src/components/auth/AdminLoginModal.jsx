@@ -23,9 +23,9 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess, onShowToas
     try {
       const response = await api.loginAdmin(pin.trim());
       if (response && response.token) {
-        authStorage.setToken(response.token, true);
+        authStorage.setToken(response.token);
         if (onShowToast) {
-          onShowToast('Modo Administrador activado con éxito 🛡️', 'success');
+          onShowToast('Modo Administrador activado temporalmente 🛡️', 'success');
         }
         setPin('');
         onClose();
@@ -69,7 +69,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess, onShowToas
               Acceso Administrativo
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              Ingresa el PIN de seguridad para habilitar las acciones de agendar, editar y eliminar citas o catálogos.
+              Ingresa el PIN de seguridad para habilitar las acciones de agendar, editar y eliminar. Por seguridad, <strong>la sesión expira automáticamente al salir de la agenda</strong>.
             </p>
           </div>
         </div>

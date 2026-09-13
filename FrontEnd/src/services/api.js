@@ -2,17 +2,30 @@ const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const TOKEN_STORAGE_KEY = 'agenda_admin_token';
 
 export const authStorage = {
-  getToken: () => localStorage.getItem(TOKEN_STORAGE_KEY) || sessionStorage.getItem(TOKEN_STORAGE_KEY),
-  setToken: (token, remember = true) => {
-    if (remember) {
-      localStorage.setItem(TOKEN_STORAGE_KEY, token);
-    } else {
+  // El token de administrador NUNCA se persiste en localStorage.
+  // Solo se mantiene en sessionStorage durante la pestaña activa y se destruye automáticamente al salir o cerrar la agenda.
+  getToken: () => {
+    if (typeof window !== 'undefined') {
+      if (localStorage.getItem(TOKEN_STORAGE_KEY)) {
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+      }
+      return sessionStorage.getItem(TOKEN_STORAGE_KEY);
+    }
+    return null;
+  },
+  setToken: (token) => {
+    if (typeof window !== 'undefined') {
+      // Eliminar cualquier persistencia en localStorage
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      // Guardar únicamente en sessionStorage (volátil, expira al cerrar la pestaña o el navegador)
       sessionStorage.setItem(TOKEN_STORAGE_KEY, token);
     }
   },
   clearToken: () => {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
-    sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+    }
   }
 };
 

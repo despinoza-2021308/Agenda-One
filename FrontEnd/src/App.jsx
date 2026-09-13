@@ -85,8 +85,13 @@ export default function App() {
     }, 4000);
   };
 
-  // Verificar validez del token en backend al cargar la app
+  // Verificar validez del token en backend al cargar la app (exclusivamente volátil en sessionStorage)
   useEffect(() => {
+    // Purgar inmediatamente cualquier token persistente en localStorage de versiones anteriores
+    try {
+      localStorage.removeItem('agenda_admin_token');
+    } catch (_) {}
+
     const token = authStorage.getToken();
     if (token) {
       api.verifyAdmin()
@@ -95,8 +100,46 @@ export default function App() {
           authStorage.clearToken();
           setIsAdmin(false);
         });
+    } else {
+      setIsAdmin(false);
     }
   }, []);
+
+  // Auto-cierre de sesión administrativa por inactividad (15 min) para evitar dejarla abierta
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    let timeoutId;
+    const INACTIVITY_LIMIT_MS = 15 * 60 * 1000; // 15 minutos
+
+    const resetInactivityTimer = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        authStorage.clearToken();
+        setIsAdmin(false);
+        showToast('Sesión administrativa cerrada por inactividad (15 min) 🔒', 'info');
+      }, INACTIVITY_LIMIT_MS);
+    };
+
+    const userActivityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
+    userActivityEvents.forEach((evt) => window.addEventListener(evt, resetInactivityTimer, { passive: true }));
+    resetInactivityTimer();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      userActivityEvents.forEach((evt) => window.removeEventListener(evt, resetInactivityTimer));
+    };
+  }, [isAdmin]);
+
+  // Si se accede a la vista de portal de capacitadores, revocar automáticamente la sesión administrativa
+  useEffect(() => {
+    if (urlPortalCode || activeTab === 'portal') {
+      if (authStorage.getToken() || isAdmin) {
+        authStorage.clearToken();
+        setIsAdmin(false);
+      }
+    }
+  }, [urlPortalCode, activeTab, isAdmin]);
 
   // Atajo de teclado global Ctrl + K / Cmd + K para abrir el Command Palette
   useEffect(() => {
