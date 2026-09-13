@@ -1,0 +1,18 @@
+{
+  "name": "Agenda One - Portal Móvil del Capacitador",
+  "short_name": "Agenda One",
+  "description": "Control de capacitaciones, horas y bitácoras para capacitadores",
+  "start_url": "/?portal",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

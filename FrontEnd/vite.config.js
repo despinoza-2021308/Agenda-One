@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true, // Expone en la red local (ej. 192.168.0.12:3000) para pruebas en teléfonos
     port: 3000,
     proxy: {
       '/api': {

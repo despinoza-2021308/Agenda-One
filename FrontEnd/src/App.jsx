@@ -10,6 +10,7 @@ import WhatsAppModal from './components/whatsapp/WhatsAppModal';
 import CommandPalette from './components/search/CommandPalette';
 import AdminLoginModal from './components/auth/AdminLoginModal';
 import TrainerPortalView from './components/portal/TrainerPortalView';
+import MobileQrModal from './components/common/MobileQrModal';
 import { api, authStorage } from './services/api';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
@@ -28,8 +29,23 @@ export default function App() {
     return null;
   })();
 
-  const [activeTab, setActiveTab] = useState(() => initialPortalParam ? 'portal' : 'calendar'); // 'calendar' | 'reports' | 'fees' | 'portal' | 'trainers' | 'clients'
+  // Detección de dispositivo móvil (pantalla estrecha o User Agent de teléfono)
+  const isMobileInitial = (() => {
+    if (typeof window === 'undefined') return false;
+    const isNarrow = window.innerWidth < 768;
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
+    return isNarrow || isMobileUA;
+  })();
+
+  // Si se abre desde un teléfono celular, mostrar el Portal Móvil por defecto; en computadora el Calendario
+  const [activeTab, setActiveTab] = useState(() => {
+    if (initialPortalParam) return 'portal';
+    if (isMobileInitial) return 'portal';
+    return 'calendar';
+  }); // 'calendar' | 'reports' | 'fees' | 'portal' | 'trainers' | 'clients'
+
   const [urlPortalCode, setUrlPortalCode] = useState(initialPortalParam);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date(2026, 8, 9)); // Septiembre 2026
 
   // Control de Tema (Modo Oscuro / Claro)
@@ -478,6 +494,7 @@ export default function App() {
         setActiveTab={setActiveTab}
         onNewAppointment={() => handleOpenNewAppointment()}
         onOpenSearch={() => setIsCommandPaletteOpen(true)}
+        onOpenQrModal={() => setIsQrModalOpen(true)}
         capacitadores={capacitadores}
         isAdmin={isAdmin}
         onOpenAdminLogin={() => setIsAdminLoginModalOpen(true)}
@@ -598,6 +615,14 @@ export default function App() {
           setPendingAdminAction(null);
         }}
         onSuccess={handleAdminLoginSuccess}
+        onShowToast={showToast}
+      />
+
+      {/* Modal de Código QR para Celular */}
+      <MobileQrModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        capacitadores={capacitadores}
         onShowToast={showToast}
       />
     </div>

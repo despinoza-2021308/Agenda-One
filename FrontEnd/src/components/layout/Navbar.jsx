@@ -1,11 +1,12 @@
 import React from 'react';
-import { Calendar, BarChart3, Users, Building2, Plus, Search, Shield, Lock, LogOut, Banknote, Sun, Moon, Smartphone } from 'lucide-react';
+import { Calendar, BarChart3, Users, Building2, Plus, Search, Shield, Lock, LogOut, Banknote, Sun, Moon, Smartphone, QrCode } from 'lucide-react';
 
 export default function Navbar({ 
   activeTab, 
   setActiveTab, 
   onNewAppointment, 
   onOpenSearch, 
+  onOpenQrModal,
   capacitadores = [],
   isAdmin = false,
   onOpenAdminLogin,
@@ -88,6 +89,20 @@ export default function Navbar({
             >
               <Search className="w-4 h-4 text-slate-600 dark:text-slate-400" />
             </button>
+
+            {/* Botón Abrir en Celular (Código QR) */}
+            {onOpenQrModal && (
+              <button
+                type="button"
+                onClick={onOpenQrModal}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 dark:border-blue-800/80 bg-blue-50/80 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                title="Escanear código QR para abrir el portal en tu celular"
+              >
+                <QrCode className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                <span className="hidden lg:inline">Ver en Celular</span>
+                <span className="lg:hidden">QR</span>
+              </button>
+            )}
 
             {/* Conmutador de Modo Oscuro / Claro */}
             <button
