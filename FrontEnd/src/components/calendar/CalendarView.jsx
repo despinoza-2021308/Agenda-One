@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -57,9 +57,20 @@ export default function CalendarView({
     const [y, m, d] = dateStr.split('-').map(Number);
     const dt = new Date(y, m - 1, d);
     const dayName = DAY_NAMES_FULL[dt.getDay()];
-    const monthName = MONTH_NAMES[m - 1];
+    const monthName = MONTH_NAMES[m - 1]?.toLowerCase();
     return `${dayName}, ${d} de ${monthName} de ${y}`;
   };
+
+  // Cerrar modal de detalle de día al presionar Escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && selectedDayDetails) {
+        setSelectedDayDetails(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedDayDetails]);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth(); // 0-indexed
@@ -603,7 +614,7 @@ export default function CalendarView({
                           </p>
 
                           {/* Fila 4: Cliente / Empresa */}
-                          <div className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate pt-1 border-t border-slate-100 dark:border-slate-750">
+                          <div className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400 font-medium truncate pt-1 border-t border-slate-100 dark:border-slate-700/60">
                             <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
                             <span className="truncate text-slate-700 dark:text-slate-300 font-medium" title={cita.cliente_nombre}>
                               {cita.cliente_nombre}
@@ -652,7 +663,7 @@ export default function CalendarView({
         <div className="space-y-4 animate-in fade-in duration-200">
           
           {/* Banner de Resumen del Día */}
-          <div className="bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-slate-50 dark:from-slate-800 dark:via-slate-850 dark:to-slate-900 border border-blue-100 dark:border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-slate-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900 border border-blue-100 dark:border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/25 shrink-0">
                 <Users className="w-5 h-5" />
@@ -1052,66 +1063,40 @@ export default function CalendarView({
         </div>
       )}
 
-      {/* MODAL DE DETALLE COMPLETO DEL DÍA (Apertura al hacer clic en un día con múltiples citas) */}
+      {/* MODAL DE DETALLE COMPLETO DEL DÍA (Diseño Conciso y Elegante) */}
       {selectedDayDetails && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150"
           onClick={() => setSelectedDayDetails(null)}
         >
           <div 
-            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl sm:max-w-[700px] max-h-[88vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Cabecera del Modal */}
-            <div className="px-5 py-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-white flex items-center justify-between gap-4 border-b border-slate-800">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center shrink-0">
-                  <CalendarIcon className="w-5 h-5 text-blue-400" />
+            {/* Cabecera del Modal Concisa y Moderna */}
+            <div className="px-4 sm:px-5 py-3.5 bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="w-9 h-9 rounded-xl bg-blue-600/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/20">
+                  <CalendarIcon className="w-5 h-5" />
                 </div>
-                <div className="min-w-0">
-                  <h3 className="text-base sm:text-lg font-bold text-white capitalize truncate">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate leading-tight">
                     {formatLongDate(selectedDayDetails.dateString)}
                   </h3>
-                  <p className="text-xs text-slate-300 font-medium flex items-center gap-2 mt-0.5">
-                    <span className="font-semibold text-blue-300">
-                      {modalDayCitas.length} {modalDayCitas.length === 1 ? 'cita programada' : 'citas programadas'}
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">
+                      {modalDayCitas.length} {modalDayCitas.length === 1 ? 'cita' : 'citas'}
                     </span>
                     <span>•</span>
-                    <span className="font-mono text-emerald-300 font-bold">
-                      {modalDayTotalHoras}h de capacitación
+                    <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                      {modalDayTotalHoras}h total
                     </span>
-                  </p>
+                  </div>
                 </div>
               </div>
 
+              {/* Acciones directas integradas en la cabecera */}
               <div className="flex items-center gap-1.5 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const [y, m, d] = selectedDayDetails.dateString.split('-').map(Number);
-                    setCurrentDate(new Date(y, m - 1, d));
-                    setCalendarMode('day');
-                    setSelectedDayDetails(null);
-                  }}
-                  title="Abrir en vista detallada de turnos por hora"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white border border-white/15 transition-colors"
-                >
-                  <span>Ver Turnos</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedDayDetails(null)}
-                  className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Barra de Acciones Rápidas */}
-            <div className="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -1119,10 +1104,10 @@ export default function CalendarView({
                     setSelectedDayDetails(null);
                     onAddCitaDate(dateStr);
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-2xs transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                  <span>Nueva Cita</span>
+                  <span className="hidden sm:inline">Nueva Cita</span>
                 </button>
 
                 {onOpenWhatsApp && modalDayCitas.length > 0 && (
@@ -1134,38 +1119,48 @@ export default function CalendarView({
                         capacitadorId: selectedCapacitadorId !== 'ALL' ? selectedCapacitadorId : null 
                       });
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 text-xs font-bold transition-colors"
+                    title="Enviar itinerario por WhatsApp"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 text-xs font-semibold transition-colors"
                   >
                     <MessageSquare className="w-3.5 h-3.5 fill-emerald-600/20" />
-                    <span>WhatsApp del Día</span>
+                    <span className="hidden sm:inline">WhatsApp</span>
                   </button>
                 )}
-              </div>
 
-              {/* Botón móvil para ver turnos */}
-              <button
-                type="button"
-                onClick={() => {
-                  const [y, m, d] = selectedDayDetails.dateString.split('-').map(Number);
-                  setCurrentDate(new Date(y, m - 1, d));
-                  setCalendarMode('day');
-                  setSelectedDayDetails(null);
-                }}
-                className="sm:hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold"
-              >
-                <span>Vista Turnos</span>
-                <ArrowRight className="w-3 h-3" />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const [y, m, d] = selectedDayDetails.dateString.split('-').map(Number);
+                    setCurrentDate(new Date(y, m - 1, d));
+                    setCalendarMode('day');
+                    setSelectedDayDetails(null);
+                  }}
+                  title="Ver en vista detallada de turnos"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-medium border border-slate-200 dark:border-slate-600 transition-colors"
+                >
+                  <span className="hidden sm:inline">Turnos</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedDayDetails(null)}
+                  className="p-1.5 rounded-lg hover:bg-slate-200/70 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors ml-0.5"
+                  title="Cerrar (Esc)"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Lista Scrollable de Citas del Día */}
-            <div className="p-4 sm:p-5 overflow-y-auto max-h-[58vh] space-y-3 scrollbar-thin">
+            <div className="p-3.5 sm:p-4 overflow-y-auto max-h-[62vh] space-y-2.5 scrollbar-thin">
               {modalDayCitas.length === 0 ? (
-                <div className="py-12 text-center text-slate-500 dark:text-slate-400 space-y-3">
-                  <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500">
-                    <CalendarIcon className="w-7 h-7" />
+                <div className="py-10 text-center text-slate-500 dark:text-slate-400 space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500">
+                    <CalendarIcon className="w-6 h-6" />
                   </div>
-                  <p className="font-bold text-slate-700 dark:text-slate-300 text-sm">No hay citas registradas en este día</p>
+                  <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm">No hay citas registradas en este día</p>
                   <button
                     type="button"
                     onClick={() => {
@@ -1173,9 +1168,9 @@ export default function CalendarView({
                       setSelectedDayDetails(null);
                       onAddCitaDate(dateStr);
                     }}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors"
                   >
-                    <Plus className="w-4 h-4 stroke-[2.5]" />
+                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                     <span>Agendar Primera Cita</span>
                   </button>
                 </div>
@@ -1190,58 +1185,66 @@ export default function CalendarView({
                   return (
                     <div
                       key={cita.id}
-                      className={`p-3.5 sm:p-4 rounded-xl border transition-all duration-150 space-y-2.5 ${
+                      className={`p-3 sm:p-3.5 rounded-xl border transition-all duration-150 ${
                         isCancelada
-                          ? 'bg-rose-50/20 dark:bg-rose-950/20 border-dashed border-rose-200 dark:border-rose-900 opacity-75'
+                          ? 'bg-rose-50/15 dark:bg-rose-950/15 border-dashed border-rose-200 dark:border-rose-900/60 opacity-80 hover:opacity-100'
                           : isImpartida
-                          ? 'bg-emerald-50/20 dark:bg-emerald-950/20 border-emerald-200/80 dark:border-emerald-800 shadow-2xs hover:shadow-xs'
-                          : 'bg-white dark:bg-slate-800/90 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs hover:shadow-xs'
+                          ? 'bg-emerald-50/20 dark:bg-emerald-950/20 border-emerald-200/70 dark:border-emerald-800/70 hover:border-emerald-300 dark:hover:border-emerald-700 shadow-2xs'
+                          : 'bg-white dark:bg-slate-800/70 border-slate-200/90 dark:border-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs hover:shadow-xs'
                       }`}
                       style={{
-                        borderLeftWidth: '5px',
+                        borderLeftWidth: '4px',
                         borderLeftColor: isCancelada ? '#F43F5E' : color
                       }}
                     >
-                      {/* Fila 1: Capacitador, Horario, Duración y Acciones */}
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-2.5 flex-wrap min-w-0">
-                          {/* Avatar de Capacitador */}
-                          <div className="flex items-center gap-2">
-                            <span
-                              className="w-7 h-7 rounded-lg text-xs font-black text-white flex items-center justify-center shrink-0 shadow-xs leading-none"
-                              style={{ backgroundColor: color }}
-                              title={`Capacitador: ${cita.capacitador_nombre}`}
-                            >
-                              {cita.capacitador_iniciales}
-                            </span>
-                            <div className="min-w-0">
-                              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-                                {cita.capacitador_nombre}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Horario y Horas */}
-                          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700/80 px-2 py-1 rounded-lg border border-slate-200/80 dark:border-slate-600 font-mono text-xs">
-                            <Clock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-                            <span className={`font-bold ${isCancelada ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'}`}>
+                      {/* Fila 1: Horario, Insignias y Acciones */}
+                      <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                        <div className="flex items-center gap-2 flex-wrap min-w-0">
+                          {/* Horario y Duración */}
+                          <div className="flex items-center gap-1.5 font-mono text-xs">
+                            <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                            <span className={`font-bold ${isCancelada ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
                               {cita.hora_inicio} - {cita.hora_fin}
                             </span>
-                            <span className="text-slate-400 dark:text-slate-500 font-normal">|</span>
-                            <span className="font-bold text-blue-700 dark:text-blue-300">
+                            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/60">
                               {cita.horas}h
+                            </span>
+                          </div>
+
+                          {/* Insignias de Estado, Modalidad y Tipo */}
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold border ${estadoCfg.badge}`}>
+                              <span>{estadoCfg.emoji}</span>
+                              <span>{estadoCfg.label}</span>
+                            </span>
+
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border ${
+                              cita.modalidad === 'Presencial'
+                                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/70'
+                                : 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200/70 dark:border-blue-800/70'
+                            }`}>
+                              {cita.modalidad === 'Presencial' ? (
+                                <MapPin className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                              ) : (
+                                <Video className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                              )}
+                              <span>{cita.modalidad}</span>
+                            </span>
+
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-600 uppercase tracking-wider">
+                              {cita.tipo_servicio}
                             </span>
                           </div>
                         </div>
 
-                        {/* Botones de acción para la cita */}
-                        <div className="flex items-center gap-1 shrink-0">
+                        {/* Botones de acción directos */}
+                        <div className="flex items-center gap-1 shrink-0 ml-auto">
                           {onOpenWhatsApp && (
                             <button
                               type="button"
                               onClick={() => onOpenWhatsApp({ cita })}
                               title="Enviar por WhatsApp"
-                              className="p-1.5 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-lg transition-colors"
+                              className="p-1 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-lg transition-colors"
                             >
                               <MessageSquare className="w-4 h-4 fill-emerald-600/20" />
                             </button>
@@ -1252,57 +1255,41 @@ export default function CalendarView({
                               setSelectedDayDetails(null);
                               onSelectCita(cita);
                             }}
-                            className="px-2.5 py-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg transition-colors border border-blue-200/60 dark:border-blue-800"
+                            className="px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg transition-colors border border-blue-200/60 dark:border-blue-800/70"
                           >
                             Editar
                           </button>
                         </div>
                       </div>
 
-                      {/* Fila 2: Insignias de Estado, Modalidad y Tipo de Servicio */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold border ${estadoCfg.badge}`}>
-                          <span>{estadoCfg.emoji}</span>
-                          <span>{estadoCfg.label}</span>
-                        </span>
+                      {/* Fila 2: Actividad / Tema destacado (Elegante y conciso, sin cajones pesados) */}
+                      <p className={`text-xs sm:text-sm font-semibold leading-relaxed mt-2 ${
+                        isCancelada ? 'line-through text-slate-400 dark:text-slate-500 italic' : 'text-slate-800 dark:text-slate-100'
+                      }`}>
+                        {cita.observaciones || `${cita.tipo_servicio} Programado`}
+                      </p>
 
-                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-600 uppercase tracking-wider text-[10px]">
-                          {cita.tipo_servicio}
-                        </span>
+                      {/* Fila 3: Metadatos en 1 sola barra (Cliente y Capacitador) */}
+                      <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs gap-3">
+                        <div className="flex items-center gap-1.5 min-w-0 font-medium text-slate-600 dark:text-slate-400">
+                          <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="text-slate-400 dark:text-slate-500">Cliente:</span>
+                          <span className="truncate text-slate-800 dark:text-slate-200 font-semibold" title={cita.cliente_nombre}>
+                            {cita.cliente_nombre}
+                          </span>
+                        </div>
 
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold border ${
-                            cita.modalidad === 'Presencial'
-                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800'
-                              : 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800'
-                          }`}
-                        >
-                          {cita.modalidad === 'Presencial' ? (
-                            <MapPin className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                          ) : (
-                            <Video className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                          )}
-                          {cita.modalidad}
-                        </span>
-                      </div>
-
-                      {/* Fila 3: Tema / Actividad concreta */}
-                      <div className="bg-slate-50/80 dark:bg-slate-850 p-2.5 rounded-lg border border-slate-100 dark:border-slate-750">
-                        <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Actividad / Tema</p>
-                        <p className={`text-xs sm:text-sm font-semibold leading-relaxed ${
-                          isCancelada ? 'line-through text-slate-400 dark:text-slate-500 italic' : 'text-slate-800 dark:text-slate-200'
-                        }`}>
-                          {cita.observaciones || `${cita.tipo_servicio} Programado`}
-                        </p>
-                      </div>
-
-                      {/* Fila 4: Cliente */}
-                      <div className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 pt-1 border-t border-slate-100 dark:border-slate-750">
-                        <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span className="font-medium text-slate-500 dark:text-slate-400">Cliente:</span>
-                        <span className="font-bold text-slate-800 dark:text-slate-200 truncate" title={cita.cliente_nombre}>
-                          {cita.cliente_nombre}
-                        </span>
+                        <div className="flex items-center gap-1.5 shrink-0" title={`Capacitador: ${cita.capacitador_nombre}`}>
+                          <span
+                            className="w-5 h-5 rounded-md text-[10px] font-black text-white flex items-center justify-center shrink-0 shadow-2xs leading-none"
+                            style={{ backgroundColor: color }}
+                          >
+                            {cita.capacitador_iniciales}
+                          </span>
+                          <span className="text-slate-700 dark:text-slate-300 font-medium truncate max-w-[140px]">
+                            {cita.capacitador_nombre}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
@@ -1310,15 +1297,15 @@ export default function CalendarView({
               )}
             </div>
 
-            {/* Pie del Modal */}
-            <div className="px-5 py-3 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            {/* Pie del Modal Conciso */}
+            <div className="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="text-xs text-slate-500 dark:text-slate-400">
-                Mostrando <span className="font-bold text-slate-800 dark:text-slate-200">{modalDayCitas.length}</span> citas
+                Total: <span className="font-bold text-slate-800 dark:text-slate-200">{modalDayCitas.length}</span> {modalDayCitas.length === 1 ? 'cita' : 'citas'}
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedDayDetails(null)}
-                className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors"
+                className="px-3.5 py-1.5 rounded-lg bg-slate-200/80 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors"
               >
                 Cerrar
               </button>

@@ -796,7 +796,7 @@ export default function AppointmentModal({
                     {selectedTrainer ? selectedTrainer.nombre_completo : 'El capacitador'}
                   </strong> ya tiene otra actividad asignada en este mismo horario el {formData.fecha}:
                 </p>
-                <div className="bg-white/90 dark:bg-slate-850 rounded-xl p-2.5 border border-rose-200 dark:border-rose-900 text-slate-800 dark:text-slate-200 space-y-1 shadow-2xs">
+                <div className="bg-white/90 dark:bg-slate-800 rounded-xl p-2.5 border border-rose-200 dark:border-rose-900 text-slate-800 dark:text-slate-200 space-y-1 shadow-2xs">
                   <p className="font-extrabold text-xs text-slate-900 dark:text-white">
                     📌 {conflictingCita.observaciones || `${conflictingCita.tipo_servicio} Programado`}
                   </p>
@@ -834,7 +834,7 @@ export default function AppointmentModal({
                 <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
                   La empresa <strong className="text-amber-950 dark:text-amber-200 font-bold">{formData.cliente_nombre}</strong> ya tiene otra sesión programada en este mismo intervalo horario con otro capacitador:
                 </p>
-                <div className="bg-white/90 dark:bg-slate-850 rounded-xl p-2.5 border border-amber-200 dark:border-amber-900 text-slate-800 dark:text-slate-200 space-y-1 shadow-2xs">
+                <div className="bg-white/90 dark:bg-slate-800 rounded-xl p-2.5 border border-amber-200 dark:border-amber-900 text-slate-800 dark:text-slate-200 space-y-1 shadow-2xs">
                   <p className="font-extrabold text-xs text-slate-900 dark:text-white">
                     📌 {clientConflictCita.observaciones || `${clientConflictCita.tipo_servicio} Programado`}
                   </p>
