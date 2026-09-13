@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { 
   X, 
+  ArrowLeft,
   Clock, 
   Calendar as CalendarIcon, 
   Building2, 
@@ -39,6 +40,8 @@ export const ESTADOS = [
 export default function AppointmentModal({
   isOpen,
   onClose,
+  onBack,
+  returnToDayDetails,
   appointment, // null si es nueva, o objeto cita si es edición
   initialDate,
   capacitadores = [],
@@ -141,7 +144,8 @@ export default function AppointmentModal({
     if (!isOpen) return;
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && !isConfirmDeleteOpen) {
-        onClose();
+        if (onBack) onBack();
+        else onClose();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -151,7 +155,7 @@ export default function AppointmentModal({
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = originalOverflow;
     };
-  }, [isOpen, isConfirmDeleteOpen, onClose]);
+  }, [isOpen, isConfirmDeleteOpen, onBack, onClose]);
 
   // Cliente coincidente en catálogo
   const matchedClient = useMemo(() => {
@@ -449,7 +453,6 @@ export default function AppointmentModal({
   return createPortal(
     <div 
       className="fixed inset-0 z-[9999] w-screen h-screen bg-slate-950/75 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-hidden"
-      onClick={onClose}
     >
       <div 
         className="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150 relative"
@@ -458,21 +461,34 @@ export default function AppointmentModal({
         
         {/* Cabecera fija del modal (shrink-0) */}
         <div className="shrink-0 flex items-center justify-between px-6 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/70 backdrop-blur-xs">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm shadow-blue-500/30">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {/* Flechita para volver atrás */}
+            <button
+              type="button"
+              onClick={onBack || onClose}
+              className="p-1.5 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-slate-700/70 transition-colors flex items-center gap-1.5 group shrink-0 mr-1"
+              title={returnToDayDetails ? "Volver a las citas del día" : "Volver"}
+            >
+              <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-0.5 text-blue-600 dark:text-blue-400" />
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                {returnToDayDetails ? "Citas del Día" : "Volver"}
+              </span>
+            </button>
+
+            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm shadow-blue-500/30 shrink-0">
               <CalendarIcon className="w-5 h-5" />
             </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight">
+            <div className="min-w-0 truncate">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight truncate">
                 {appointment?.id ? 'Editar Cita Agendada' : 'Agendar Nueva Cita'}
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Agenda Digital y Control de Horas (AD-RE-11)</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">Agenda Digital y Control de Horas (AD-RE-11)</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0 ml-2"
           >
             <X className="w-5 h-5" />
           </button>
@@ -1101,7 +1117,7 @@ export default function AppointmentModal({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={onClose}
+              onClick={onBack || onClose}
               disabled={loading}
               className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >

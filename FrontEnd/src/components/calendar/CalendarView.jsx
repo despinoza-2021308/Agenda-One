@@ -15,7 +15,8 @@ import {
   MessageSquare,
   X,
   ExternalLink,
-  ArrowRight
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react';
 
 const MONTH_NAMES = [
@@ -45,12 +46,17 @@ export default function CalendarView({
   onAddCitaDate,
   onOpenWhatsApp,
   currentDate,
-  setCurrentDate 
+  setCurrentDate,
+  selectedDayDetails: propSelectedDayDetails,
+  onSelectDayDetails: propOnSelectDayDetails
 }) {
   const [selectedCapacitadorId, setSelectedCapacitadorId] = useState('ALL');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
   const [calendarMode, setCalendarMode] = useState('month'); // 'month' | 'day' | 'week' | 'list'
-  const [selectedDayDetails, setSelectedDayDetails] = useState(null); // { dateString, dayNumber, date }
+  const [localSelectedDayDetails, setLocalSelectedDayDetails] = useState(null);
+  
+  const selectedDayDetails = propSelectedDayDetails !== undefined ? propSelectedDayDetails : localSelectedDayDetails;
+  const setSelectedDayDetails = propOnSelectDayDetails !== undefined ? propOnSelectDayDetails : setLocalSelectedDayDetails;
 
   // Formato largo de fecha para encabezados y modales
   const formatLongDate = (dateStr) => {
@@ -256,11 +262,38 @@ export default function CalendarView({
 
             {calendarMode === 'day' ? (
               <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setCalendarMode('month')}
+                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors group flex items-center gap-1 shrink-0"
+                  title="Volver a la vista de mes"
+                >
+                  <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-blue-600 dark:text-blue-400" />
+                  <span className="text-xs font-bold hidden sm:inline">Mes</span>
+                </button>
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight capitalize">
                   {DAY_NAMES_FULL[currentDate.getDay()]}, {currentDate.getDate()} de {MONTH_NAMES[month]}
                 </h2>
                 <span className="text-[11px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                   Turnos
+                </span>
+              </div>
+            ) : calendarMode === 'list' ? (
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setCalendarMode('month')}
+                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors group flex items-center gap-1 shrink-0"
+                  title="Volver a la vista de mes"
+                >
+                  <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-blue-600 dark:text-blue-400" />
+                  <span className="text-xs font-bold hidden sm:inline">Mes</span>
+                </button>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight capitalize">
+                  {MONTH_NAMES[month]} <span className="text-slate-400 dark:text-slate-500 font-normal">{year}</span>
+                </h2>
+                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                  Lista
                 </span>
               </div>
             ) : (
@@ -1079,15 +1112,23 @@ export default function CalendarView({
       {selectedDayDetails && typeof document !== 'undefined' && createPortal(
         <div 
           className="fixed inset-0 z-[9999] w-screen h-screen bg-slate-950/75 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
-          onClick={() => setSelectedDayDetails(null)}
         >
           <div 
             className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl sm:max-w-[700px] max-h-[88vh] flex flex-col overflow-hidden my-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Cabecera del Modal Concisa y Moderna */}
+            {/* Cabecera del Modal Concisa y Moderna con Flechita Volver Atrás */}
             <div className="px-4 sm:px-5 py-3.5 bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <button
+                  type="button"
+                  onClick={() => setSelectedDayDetails(null)}
+                  className="p-1.5 rounded-xl hover:bg-slate-200/70 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors group flex items-center gap-1 shrink-0 mr-0.5"
+                  title="Volver al calendario"
+                >
+                  <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-0.5 text-blue-600 dark:text-blue-400" />
+                  <span className="text-xs font-bold hidden sm:inline text-slate-600 dark:text-slate-300">Volver</span>
+                </button>
                 <div className="w-9 h-9 rounded-xl bg-blue-600/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/20">
                   <CalendarIcon className="w-5 h-5" />
                 </div>
@@ -1113,8 +1154,7 @@ export default function CalendarView({
                   type="button"
                   onClick={() => {
                     const dateStr = selectedDayDetails.dateString;
-                    setSelectedDayDetails(null);
-                    onAddCitaDate(dateStr);
+                    onAddCitaDate(dateStr, null, selectedDayDetails);
                   }}
                   className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-2xs transition-colors"
                 >
@@ -1128,7 +1168,8 @@ export default function CalendarView({
                     onClick={() => {
                       onOpenWhatsApp({ 
                         date: selectedDayDetails.dateString, 
-                        capacitadorId: selectedCapacitadorId !== 'ALL' ? selectedCapacitadorId : null 
+                        capacitadorId: selectedCapacitadorId !== 'ALL' ? selectedCapacitadorId : null,
+                        fromDayDetails: selectedDayDetails
                       });
                     }}
                     title="Enviar itinerario por WhatsApp"
@@ -1177,8 +1218,7 @@ export default function CalendarView({
                     type="button"
                     onClick={() => {
                       const dateStr = selectedDayDetails.dateString;
-                      setSelectedDayDetails(null);
-                      onAddCitaDate(dateStr);
+                      onAddCitaDate(dateStr, null, selectedDayDetails);
                     }}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors"
                   >
@@ -1254,7 +1294,7 @@ export default function CalendarView({
                           {onOpenWhatsApp && (
                             <button
                               type="button"
-                              onClick={() => onOpenWhatsApp({ cita })}
+                              onClick={() => onOpenWhatsApp({ cita, fromDayDetails: selectedDayDetails })}
                               title="Enviar por WhatsApp"
                               className="p-1 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-lg transition-colors"
                             >
@@ -1264,8 +1304,7 @@ export default function CalendarView({
                           <button
                             type="button"
                             onClick={() => {
-                              setSelectedDayDetails(null);
-                              onSelectCita(cita);
+                              onSelectCita(cita, selectedDayDetails);
                             }}
                             className="px-2.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-lg transition-colors border border-blue-200/60 dark:border-blue-800/70"
                           >

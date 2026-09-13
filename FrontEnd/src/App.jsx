@@ -97,6 +97,10 @@ export default function App() {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [modalInitialDate, setModalInitialDate] = useState(null);
 
+  // Estado para persistencia y retorno de Citas del Día (flecha volver atrás)
+  const [selectedDayDetails, setSelectedDayDetails] = useState(null);
+  const [lastDayDetails, setLastDayDetails] = useState(null);
+
   // Estado del Modal de WhatsApp
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
   const [whatsAppData, setWhatsAppData] = useState({ cita: null, date: null, capacitadorId: null });
@@ -239,11 +243,16 @@ export default function App() {
   };
 
   // Handlers para Citas
-  const handleOpenNewAppointment = (dateString = null, prefill = null) => {
+  const handleOpenNewAppointment = (dateString = null, prefill = null, fromDay = null) => {
     if (!isAdmin) {
-      setPendingAdminAction(() => () => handleOpenNewAppointment(dateString, prefill));
+      setPendingAdminAction(() => () => handleOpenNewAppointment(dateString, prefill, fromDay));
       setIsAdminLoginModalOpen(true);
       return;
+    }
+
+    if (fromDay) {
+      setLastDayDetails(fromDay);
+      setSelectedDayDetails(null);
     }
 
     if (prefill) {
@@ -258,10 +267,40 @@ export default function App() {
     setIsAppointmentModalOpen(true);
   };
 
-  const handleSelectAppointment = (appointment) => {
+  const handleSelectAppointment = (appointment, fromDay = null) => {
+    if (fromDay) {
+      setLastDayDetails(fromDay);
+      setSelectedDayDetails(null);
+    }
     setSelectedAppointment(appointment);
-    setModalInitialDate(appointment.fecha);
+    setModalInitialDate(appointment?.fecha || currentDate.toISOString().split('T')[0]);
     setIsAppointmentModalOpen(true);
+  };
+
+  const handleBackFromAppointment = () => {
+    setIsAppointmentModalOpen(false);
+    if (lastDayDetails) {
+      setSelectedDayDetails(lastDayDetails);
+      setLastDayDetails(null);
+    }
+  };
+
+  const handleCloseAppointment = () => {
+    setIsAppointmentModalOpen(false);
+    setLastDayDetails(null);
+  };
+
+  const handleBackFromWhatsApp = () => {
+    setIsWhatsAppModalOpen(false);
+    if (lastDayDetails) {
+      setSelectedDayDetails(lastDayDetails);
+      setLastDayDetails(null);
+    }
+  };
+
+  const handleCloseWhatsApp = () => {
+    setIsWhatsAppModalOpen(false);
+    setLastDayDetails(null);
   };
 
   const handleSaveAppointment = async (formData) => {
@@ -280,6 +319,12 @@ export default function App() {
       }
       await loadCitas();
       await loadClientes();
+
+      // Si se editó o creó desde las Citas del Día, volver a abrir las citas del día con la información actualizada
+      if (lastDayDetails) {
+        setSelectedDayDetails(lastDayDetails);
+        setLastDayDetails(null);
+      }
     } catch (err) {
       if (err.unauthorized) {
         authStorage.clearToken();
@@ -301,6 +346,12 @@ export default function App() {
       await api.deleteCita(id);
       showToast('Cita eliminada de la agenda.');
       await loadCitas();
+
+      // Si se eliminó desde las Citas del Día, regresar a la vista del día actualizado
+      if (lastDayDetails) {
+        setSelectedDayDetails(lastDayDetails);
+        setLastDayDetails(null);
+      }
     } catch (err) {
       if (err.unauthorized) {
         authStorage.clearToken();
@@ -369,6 +420,10 @@ export default function App() {
 
   // Handler para WhatsApp
   const handleOpenWhatsApp = (params = {}) => {
+    if (params.fromDayDetails) {
+      setLastDayDetails(params.fromDayDetails);
+      setSelectedDayDetails(null);
+    }
     setWhatsAppData({
       cita: params.cita || null,
       date: params.date || currentDate.toISOString().split('T')[0],
@@ -533,12 +588,15 @@ export default function App() {
             onSelectCita={handleSelectAppointment}
             onAddCitaDate={handleOpenNewAppointment}
             onOpenWhatsApp={handleOpenWhatsApp}
+            selectedDayDetails={selectedDayDetails}
+            onSelectDayDetails={setSelectedDayDetails}
           />
         )}
 
         {activeTab === 'reports' && (
           <MonthlyReportView
             initialDate={currentDate}
+            onBackToCalendar={() => setActiveTab('calendar')}
           />
         )}
 
@@ -552,6 +610,7 @@ export default function App() {
             isAdmin={isAdmin}
             onOpenAdminLogin={() => setIsAdminLoginModalOpen(true)}
             onShowToast={showToast}
+            onBackToCalendar={() => setActiveTab('calendar')}
           />
         )}
 
@@ -575,6 +634,7 @@ export default function App() {
             citas={citas}
             onSaveCapacitador={handleSaveCapacitador}
             onDeleteCapacitador={handleDeleteCapacitador}
+            onBackToCalendar={() => setActiveTab('calendar')}
           />
         )}
 
@@ -584,6 +644,7 @@ export default function App() {
             citas={citas}
             onSaveCliente={handleSaveCliente}
             onDeleteCliente={handleDeleteCliente}
+            onBackToCalendar={() => setActiveTab('calendar')}
           />
         )}
       </main>
@@ -591,7 +652,9 @@ export default function App() {
       {/* Modal de Agendamiento / Edición de Cita */}
       <AppointmentModal
         isOpen={isAppointmentModalOpen}
-        onClose={() => setIsAppointmentModalOpen(false)}
+        onClose={handleCloseAppointment}
+        onBack={handleBackFromAppointment}
+        returnToDayDetails={lastDayDetails}
         appointment={selectedAppointment}
         initialDate={modalInitialDate}
         capacitadores={capacitadores}
@@ -605,7 +668,9 @@ export default function App() {
       {/* Modal de Notificaciones WhatsApp */}
       <WhatsAppModal
         isOpen={isWhatsAppModalOpen}
-        onClose={() => setIsWhatsAppModalOpen(false)}
+        onClose={handleCloseWhatsApp}
+        onBack={handleBackFromWhatsApp}
+        returnToDayDetails={lastDayDetails}
         capacitadores={capacitadores}
         citas={citas}
         initialCapacitadorId={whatsAppData.capacitadorId}

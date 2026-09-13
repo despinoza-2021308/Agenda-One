@@ -6,7 +6,8 @@ import {
   FileSpreadsheet,
   Clock,
   UserCheck,
-  Banknote
+  Banknote,
+  ArrowLeft
 } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -15,7 +16,7 @@ const MONTH_NAMES = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
-export default function MonthlyReportView({ initialDate = new Date() }) {
+export default function MonthlyReportView({ initialDate = new Date(), onBackToCalendar }) {
   const [selectedYear, setSelectedYear] = useState(initialDate.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(initialDate.getMonth() + 1); // 1-12
   const [reportData, setReportData] = useState(null);
@@ -105,6 +106,17 @@ export default function MonthlyReportView({ initialDate = new Date() }) {
       {/* Barra de Filtros de Periodo y Acciones */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 no-print transition-colors">
         <div className="flex items-center gap-3 flex-wrap">
+          {onBackToCalendar && (
+            <button
+              type="button"
+              onClick={onBackToCalendar}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all shadow-2xs group cursor-pointer"
+              title="Volver al calendario"
+            >
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-blue-600 dark:text-blue-400" />
+              <span>Volver al Calendario</span>
+            </button>
+          )}
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mes:</span>
             <select

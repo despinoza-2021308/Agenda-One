@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Building2, Plus, Search, Phone, Mail, User, Edit2, Trash2, Check, X, AlertCircle } from 'lucide-react';
+import { Building2, Plus, Search, Phone, Mail, User, Edit2, Trash2, Check, X, AlertCircle, ArrowLeft } from 'lucide-react';
 import ConfirmModal from '../common/ConfirmModal';
 
-export default function ClientesView({ clientes = [], citas = [], onSaveCliente, onDeleteCliente }) {
+export default function ClientesView({ clientes = [], citas = [], onSaveCliente, onDeleteCliente, onBackToCalendar }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCliente, setEditingCliente] = useState(null);
@@ -125,14 +125,27 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
     <div className="space-y-6">
       {/* Barra superior de catálogo */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            Catálogo de Clientes y Empresas ({clientes.length})
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Empresas a las que se les imparten cursos, auditorías y asesorías
-          </p>
+        <div className="flex items-center gap-3">
+          {onBackToCalendar && (
+            <button
+              type="button"
+              onClick={onBackToCalendar}
+              className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors shrink-0 group flex items-center gap-1.5"
+              title="Volver al calendario"
+            >
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-blue-600 dark:text-blue-400" />
+              <span className="text-xs font-bold hidden sm:inline">Volver</span>
+            </button>
+          )}
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              Catálogo de Clientes y Empresas ({clientes.length})
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Empresas a las que se les imparten cursos, auditorías y asesorías
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -242,12 +255,26 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
       {/* Modal para Crear / Editar Cliente */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div 
+            className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                {editingCliente ? 'Editar Cliente' : 'Registrar Nuevo Cliente'}
-              </h3>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                  title="Volver"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  {editingCliente ? 'Editar Cliente' : 'Registrar Nuevo Cliente'}
+                </h3>
+              </div>
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               >

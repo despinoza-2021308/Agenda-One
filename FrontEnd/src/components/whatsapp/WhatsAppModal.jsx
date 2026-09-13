@@ -1,16 +1,18 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   X, 
+  ArrowLeft,
   Copy, 
   Check, 
   MessageSquare, 
   Calendar as CalendarIcon, 
   Clock, 
   Building2, 
-  ExternalLink,
-  Phone,
-  Sparkles,
-  Share2
+  ExternalLink, 
+  Phone, 
+  Sparkles, 
+  Share2 
 } from 'lucide-react';
 
 const MONTH_NAMES = [
@@ -25,6 +27,8 @@ const DAY_NAMES = [
 export default function WhatsAppModal({
   isOpen,
   onClose,
+  onBack,
+  returnToDayDetails,
   capacitadores = [],
   citas = [],
   initialCapacitadorId = null,
@@ -33,6 +37,24 @@ export default function WhatsAppModal({
   onUpdateCapacitadorPhone,
   onShowToast
 }) {
+  // Cerrar con Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (onBack) onBack();
+        else onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen, onBack, onClose]);
+
   if (!isOpen) return null;
 
   // Capacitador seleccionado
@@ -308,13 +330,27 @@ export default function WhatsAppModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh]">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] w-screen h-screen overflow-y-auto bg-slate-900/60 dark:bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+      <div 
+        className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Encabezado Verde WhatsApp */}
         <div className="px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white flex items-center justify-between shrink-0 shadow-sm">
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onBack || onClose}
+              className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 group shrink-0"
+              title={returnToDayDetails ? "Volver a las citas del día" : "Volver"}
+            >
+              <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-0.5" />
+              <span className="text-xs font-bold text-white/95">
+                {returnToDayDetails ? "Citas del Día" : "Volver"}
+              </span>
+            </button>
             <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs">
               <MessageSquare className="w-5 h-5 fill-white/20" />
             </div>
@@ -329,6 +365,7 @@ export default function WhatsAppModal({
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors"
           >
@@ -550,6 +587,7 @@ export default function WhatsAppModal({
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

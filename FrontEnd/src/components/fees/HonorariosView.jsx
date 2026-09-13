@@ -16,7 +16,8 @@ import {
   Coins, 
   Check, 
   X,
-  FileSpreadsheet
+  FileSpreadsheet,
+  ArrowLeft
 } from 'lucide-react';
 
 const MONTH_NAMES = [
@@ -40,7 +41,8 @@ export default function HonorariosView({
   onSaveCapacitador,
   isAdmin = false,
   onOpenAdminLogin,
-  onShowToast
+  onShowToast,
+  onBackToCalendar
 }) {
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth());
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
@@ -287,7 +289,18 @@ export default function HonorariosView({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+            {onBackToCalendar && (
+              <button
+                type="button"
+                onClick={onBackToCalendar}
+                className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors shrink-0 group flex items-center gap-1.5 mr-1"
+                title="Volver al calendario"
+              >
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-xs font-bold hidden sm:inline">Volver</span>
+              </button>
+            )}
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 shrink-0">
               <Banknote className="w-5 h-5" />
             </div>
             <div>
