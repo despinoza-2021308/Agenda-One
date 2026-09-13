@@ -22,7 +22,8 @@ import {
   CheckCircle2,
   Phone,
   Mail,
-  Car
+  Car,
+  MessageSquare
 } from 'lucide-react';
 import ConfirmModal from '../common/ConfirmModal';
 
@@ -49,7 +50,8 @@ export default function AppointmentModal({
   onQuickCreateCliente,
   allCitas = [],
   onSave,
-  onDelete
+  onDelete,
+  onOpenWhatsApp
 }) {
   const [formData, setFormData] = useState({
     cliente_nombre: '',
@@ -485,13 +487,26 @@ export default function AppointmentModal({
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate">Agenda Digital y Control de Horas (AD-RE-11)</p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0 ml-2"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0 ml-2">
+            {onOpenWhatsApp && appointment?.id && (
+              <button
+                type="button"
+                onClick={() => onOpenWhatsApp({ cita: appointment, fromAppointmentModal: appointment })}
+                className="p-1.5 rounded-xl text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 transition-colors flex items-center gap-1.5"
+                title="Notificar esta cita por WhatsApp"
+              >
+                <MessageSquare className="w-5 h-5 fill-emerald-600/20" />
+                <span className="text-xs font-bold hidden sm:inline">WhatsApp</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Formulario con flex flex-col flex-1 min-h-0 */}
@@ -1103,15 +1118,30 @@ export default function AppointmentModal({
         {/* Pie fijo con botones de acción (shrink-0) */}
         <div className="shrink-0 px-6 py-3.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-800/80 backdrop-blur-xs flex items-center justify-between gap-3">
           {appointment?.id ? (
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={loading}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
-            >
-              <Trash2 className="w-4 h-4" />
-              Eliminar Cita
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={loading}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Eliminar Cita</span>
+                <span className="sm:hidden">Eliminar</span>
+              </button>
+
+              {onOpenWhatsApp && (
+                <button
+                  type="button"
+                  onClick={() => onOpenWhatsApp({ cita: appointment, fromAppointmentModal: appointment })}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-800 transition-all shadow-2xs group"
+                  title="Enviar itinerario y detalles de esta cita por WhatsApp"
+                >
+                  <MessageSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400 fill-emerald-600/20 group-hover:scale-110 transition-transform" />
+                  <span>Notificar WhatsApp</span>
+                </button>
+              )}
+            </div>
           ) : <div />}
 
           <div className="flex items-center gap-2">

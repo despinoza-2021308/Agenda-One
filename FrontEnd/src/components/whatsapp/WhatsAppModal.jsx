@@ -28,6 +28,7 @@ export default function WhatsAppModal({
   isOpen,
   onClose,
   onBack,
+  returnToSource = null,
   returnToDayDetails,
   capacitadores = [],
   citas = [],
@@ -55,8 +56,6 @@ export default function WhatsAppModal({
     };
   }, [isOpen, onBack, onClose]);
 
-  if (!isOpen) return null;
-
   // Capacitador seleccionado
   const [selectedTrainerId, setSelectedTrainerId] = useState(
     targetCita?.capacitador_id || initialCapacitadorId || (capacitadores[0]?.id || '')
@@ -79,6 +78,15 @@ export default function WhatsAppModal({
 
   const [selectedDate, setSelectedDate] = useState(defaultDateStr);
 
+  // Asegurar que si selectedTrainerId no existe en la lista de capacitadores o está vacío, se elija el primero disponible
+  useEffect(() => {
+    if (capacitadores.length > 0) {
+      if (!selectedTrainerId || !capacitadores.some(cp => String(cp.id) === String(selectedTrainerId))) {
+        setSelectedTrainerId(capacitadores[0].id);
+      }
+    }
+  }, [capacitadores, selectedTrainerId]);
+
   // Teléfono editable
   const currentTrainer = useMemo(() => {
     return capacitadores.find(cp => String(cp.id) === String(selectedTrainerId));
@@ -90,7 +98,8 @@ export default function WhatsAppModal({
   const [includePortalLink, setIncludePortalLink] = useState(true);
 
   // Sincronizar estado cuando se abre con nueva cita, capacitador o fecha
-  React.useEffect(() => {
+  useEffect(() => {
+    if (!isOpen) return;
     if (targetCita) {
       if (targetCita.capacitador_id) setSelectedTrainerId(targetCita.capacitador_id);
       setMode('single');
@@ -102,14 +111,21 @@ export default function WhatsAppModal({
         const d = initialDate instanceof Date ? initialDate.toISOString().split('T')[0] : String(initialDate).split('T')[0];
         setSelectedDate(d);
       }
-    } else if (initialDate) {
-      const d = initialDate instanceof Date ? initialDate.toISOString().split('T')[0] : String(initialDate).split('T')[0];
-      setSelectedDate(d);
+    } else {
+      // Apertura general desde calendario
+      setMode('day');
+      if (initialDate) {
+        const d = initialDate instanceof Date ? initialDate.toISOString().split('T')[0] : String(initialDate).split('T')[0];
+        setSelectedDate(d);
+      }
+      if ((!selectedTrainerId || !capacitadores.some(cp => String(cp.id) === String(selectedTrainerId))) && capacitadores.length > 0) {
+        setSelectedTrainerId(capacitadores[0].id);
+      }
     }
-  }, [isOpen, targetCita, initialCapacitadorId, initialDate]);
+  }, [isOpen, targetCita, initialCapacitadorId, initialDate, capacitadores]);
 
   // Sincronizar teléfono cuando cambia de capacitador
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentTrainer) {
       setCustomPhone(currentTrainer.telefono || '');
     }
@@ -133,7 +149,7 @@ export default function WhatsAppModal({
 
     if (!selectedTrainerId) return [];
 
-    if (mode === 'day') {
+    if (mode === 'day' || mode === 'single') {
       return citas.filter(c => {
         const sameCap = String(c.capacitador_id) === String(selectedTrainerId);
         const cDate = String(c.fecha).split('T')[0];
@@ -207,7 +223,7 @@ export default function WhatsAppModal({
       );
     }
 
-    if (mode === 'day') {
+    if (mode === 'day' || (mode === 'single' && !targetCita)) {
       const friendlyDate = formatFriendlyDate(selectedDate);
       if (relevantCitas.length === 0) {
         return (
@@ -293,7 +309,7 @@ export default function WhatsAppModal({
     }
   };
 
-  // Abrir en WhatsApp Web / App
+  // Abrir en WhatsApp Web / App de forma segura sin salir de Agenda One
   const handleOpenWhatsApp = () => {
     let cleanPhone = (customPhone || '').replace(/\D/g, '');
     if (customPhone && customPhone.trim() && cleanPhone.length < 8) {
@@ -308,7 +324,19 @@ export default function WhatsAppModal({
     const url = cleanPhone
       ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encoded}`
       : `https://api.whatsapp.com/send?text=${encoded}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    
+    // Abrir de forma segura en una nueva pestaña sin interferir con la sesión de la app
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    if (onShowToast) {
+      onShowToast(`Abriendo chat de WhatsApp para ${currentTrainer?.nombre_completo || 'el capacitador'}...`);
+    }
   };
 
   // Guardar teléfono rápido en el perfil del capacitador
@@ -330,6 +358,8 @@ export default function WhatsAppModal({
     }
   };
 
+  if (!isOpen) return null;
+
   return createPortal(
     <div className="fixed inset-0 z-[9999] w-screen h-screen overflow-y-auto bg-slate-900/60 dark:bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
       <div 
@@ -344,11 +374,17 @@ export default function WhatsAppModal({
               type="button"
               onClick={onBack || onClose}
               className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 group shrink-0"
-              title={returnToDayDetails ? "Volver a las citas del día" : "Volver"}
+              title={
+                returnToSource === 'appointment'
+                  ? "Volver a la cita"
+                  : (returnToSource === 'day' || returnToDayDetails ? "Volver a las citas del día" : "Volver")
+              }
             >
               <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-0.5" />
               <span className="text-xs font-bold text-white/95">
-                {returnToDayDetails ? "Citas del Día" : "Volver"}
+                {returnToSource === 'appointment'
+                  ? "Cita"
+                  : (returnToSource === 'day' || returnToDayDetails ? "Citas del Día" : "Volver")}
               </span>
             </button>
             <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-white border border-white/30 shadow-xs">
@@ -417,28 +453,44 @@ export default function WhatsAppModal({
               <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                 Tipo de Mensaje:
               </label>
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className={`grid ${targetCita ? 'grid-cols-3' : 'grid-cols-2'} gap-1.5`}>
+                {targetCita && (
+                  <button
+                    type="button"
+                    onClick={() => setMode('single')}
+                    className={`py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                      mode === 'single'
+                        ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs border border-emerald-300 dark:border-emerald-600'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60'
+                    }`}
+                  >
+                    <span>📌</span>
+                    <span className="truncate">Esta Cita</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => setMode('day')}
-                  className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
-                    mode === 'day'
+                  className={`py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                    mode === 'day' || (!targetCita && mode === 'single')
                       ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs border border-emerald-300 dark:border-emerald-600'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60'
                   }`}
                 >
-                  📅 Día Completo
+                  <span>📅</span>
+                  <span className="truncate">Día Completo</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setMode('week')}
-                  className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+                  className={`py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${
                     mode === 'week'
                       ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs border border-emerald-300 dark:border-emerald-600'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60'
                   }`}
                 >
-                  🗓️ Toda la Semana
+                  <span>🗓️</span>
+                  <span className="truncate">Toda la Semana</span>
                 </button>
               </div>
             </div>

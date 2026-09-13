@@ -100,6 +100,7 @@ export default function App() {
   // Estado para persistencia y retorno de Citas del Día (flecha volver atrás)
   const [selectedDayDetails, setSelectedDayDetails] = useState(null);
   const [lastDayDetails, setLastDayDetails] = useState(null);
+  const [lastAppointmentModal, setLastAppointmentModal] = useState(null);
 
   // Estado del Modal de WhatsApp
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
@@ -292,7 +293,11 @@ export default function App() {
 
   const handleBackFromWhatsApp = () => {
     setIsWhatsAppModalOpen(false);
-    if (lastDayDetails) {
+    if (lastAppointmentModal) {
+      setSelectedAppointment(lastAppointmentModal);
+      setIsAppointmentModalOpen(true);
+      setLastAppointmentModal(null);
+    } else if (lastDayDetails) {
       setSelectedDayDetails(lastDayDetails);
       setLastDayDetails(null);
     }
@@ -301,6 +306,7 @@ export default function App() {
   const handleCloseWhatsApp = () => {
     setIsWhatsAppModalOpen(false);
     setLastDayDetails(null);
+    setLastAppointmentModal(null);
   };
 
   const handleSaveAppointment = async (formData) => {
@@ -423,6 +429,10 @@ export default function App() {
     if (params.fromDayDetails) {
       setLastDayDetails(params.fromDayDetails);
       setSelectedDayDetails(null);
+    }
+    if (params.fromAppointmentModal) {
+      setLastAppointmentModal(params.fromAppointmentModal);
+      setIsAppointmentModalOpen(false);
     }
     setWhatsAppData({
       cita: params.cita || null,
@@ -663,6 +673,7 @@ export default function App() {
         allCitas={citas}
         onSave={handleSaveAppointment}
         onDelete={handleDeleteAppointment}
+        onOpenWhatsApp={handleOpenWhatsApp}
       />
 
       {/* Modal de Notificaciones WhatsApp */}
@@ -670,6 +681,7 @@ export default function App() {
         isOpen={isWhatsAppModalOpen}
         onClose={handleCloseWhatsApp}
         onBack={handleBackFromWhatsApp}
+        returnToSource={lastAppointmentModal ? 'appointment' : (lastDayDetails ? 'day' : null)}
         returnToDayDetails={lastDayDetails}
         capacitadores={capacitadores}
         citas={citas}

@@ -264,9 +264,19 @@ export default function HonorariosView({
     mensaje += `_Generado automáticamente por el Sistema de Agenda Centralizada AD-RE-11_`;
 
     if (trainer.telefono) {
-      const cleanPhone = trainer.telefono.replace(/[^0-9]/g, '');
-      const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(mensaje)}`;
-      window.open(url, '_blank');
+      let cleanPhone = trainer.telefono.replace(/[^0-9]/g, '');
+      if (cleanPhone.length === 8) {
+        cleanPhone = `502${cleanPhone}`;
+      }
+      const url = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(mensaje)}`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      if (onShowToast) onShowToast(`Enviando liquidación de honorarios a ${trainer.nombre_completo}...`);
     } else {
       // Si no tiene teléfono configurado, copiar al portapapeles
       navigator.clipboard.writeText(mensaje).then(() => {
