@@ -67,28 +67,83 @@ const mockStore = {
     { id: 5, nombre_completo: 'Josue Bautista', iniciales: 'JB', color: '#DC2626', telefono: '+502 5555-1005', tarifa_hora: 150.00, activo: true, created_at: new Date() }
   ],
   clientes: [
-    { id: 1, nombre_empresa: 'Industrias Alimentarias del Norte S.A.', contacto: 'Ing. Roberto Silva', telefono: '+506 2234-5678', correo: 'rsilva@alimnorte.com', activo: true, created_at: new Date() },
-    { id: 2, nombre_empresa: 'Manufacturas Globales S.A.', contacto: 'Lic. Mariana Soto', telefono: '+506 2289-9012', correo: 'msoto@manuglobal.com', activo: true, created_at: new Date() },
-    { id: 3, nombre_empresa: 'Distribuidora Logística Central', contacto: 'Carlos Alvarado', telefono: '+506 2440-1122', correo: 'calvarado@districentral.com', activo: true, created_at: new Date() },
-    { id: 4, nombre_empresa: 'Servicios Médicos Especializados', contacto: 'Dra. Andrea Morales', telefono: '+506 2520-3344', correo: 'amorales@medicosesp.com', activo: true, created_at: new Date() },
-    { id: 5, nombre_empresa: 'Corporación Financiera del Valle', contacto: 'Rodrigo Jiménez', telefono: '+506 2201-5566', correo: 'rjimenez@finanzascv.com', activo: true, created_at: new Date() }
+    { id: 1, nombre_empresa: 'Industrias Alimentarias del Norte S.A.', contacto: 'Ing. Roberto Silva', telefono: '+502 5555-1122', correo: 'rsilva@alimnorte.gt', activo: true, created_at: new Date() },
+    { id: 2, nombre_empresa: 'Manufacturas Globales S.A.', contacto: 'Lic. Mariana Soto', telefono: '+502 5555-2233', correo: 'msoto@manuglobal.gt', activo: true, created_at: new Date() },
+    { id: 3, nombre_empresa: 'Distribuidora Logística Central', contacto: 'Carlos Alvarado', telefono: '+502 5555-3344', correo: 'calvarado@districentral.gt', activo: true, created_at: new Date() },
+    { id: 4, nombre_empresa: 'Servicios Médicos Especializados', contacto: 'Dra. Andrea Morales', telefono: '+502 5555-4455', correo: 'amorales@medicosesp.gt', activo: true, created_at: new Date() },
+    { id: 5, nombre_empresa: 'Corporación Financiera del Valle', contacto: 'Rodrigo Jiménez', telefono: '+502 5555-5566', correo: 'rjimenez@finanzascv.gt', activo: true, created_at: new Date() },
+    { id: 6, nombre_empresa: 'Agropecuaria San Francisco S.A.', contacto: 'Ing. Carlos Mendoza', telefono: '+502 5555-6677', correo: 'cmendoza@agrosanfrancisco.gt', activo: true, created_at: new Date() },
+    { id: 7, nombre_empresa: 'Farmacéutica Panamericana S.A.', contacto: 'Licda. Sofía Castillo', telefono: '+502 5555-7788', correo: 'scastillo@farmapanamericana.gt', activo: true, created_at: new Date() },
+    { id: 8, nombre_empresa: 'Constructora e Inmobiliaria Metropolitana', contacto: 'Arq. Fernando Ramos', telefono: '+502 5555-8899', correo: 'framos@metropolitana.gt', activo: true, created_at: new Date() },
+    { id: 9, nombre_empresa: 'Banco Regional del Sur', contacto: 'Lic. Claudia Estrada', telefono: '+502 5555-9900', correo: 'cestrada@bancoregional.gt', activo: true, created_at: new Date() },
+    { id: 10, nombre_empresa: 'Supermercados La Unión S.A.', contacto: 'Lic. Mario Velásquez', telefono: '+502 5555-0011', correo: 'mvelasquez@launion.gt', activo: true, created_at: new Date() }
   ],
   citas: [
-    { id: 1, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 1, fecha: '2026-09-07', hora_inicio: '08:00', hora_fin: '12:00', horas: 4.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Impartida', observaciones: 'Módulo 1: Buenas Prácticas de Manufactura.', bitacora: 'Se capacitó al personal operativo de planta (18 personas). Evaluación final con promedio de 88/100.' },
-    { id: 2, cliente_nombre: 'Manufacturas Globales S.A.', capacitador_id: 2, fecha: '2026-09-07', hora_inicio: '09:00', hora_fin: '11:30', horas: 2.50, modalidad: 'Virtual', tipo_servicio: 'Asesoría', estado: 'Impartida', observaciones: 'Revisión documental del Sistema de Gestión.', bitacora: 'Revisados los procedimientos PR-01 al PR-04. Quedó pendiente actualizar la matriz de riesgos.' },
-    { id: 3, cliente_nombre: 'Distribuidora Logística Central', capacitador_id: 3, fecha: '2026-09-08', hora_inicio: '08:30', hora_fin: '14:30', horas: 6.00, modalidad: 'Presencial', tipo_servicio: 'Auditoría', estado: 'Impartida', observaciones: 'Auditoría interna de procesos en planta.', bitacora: 'Auditoría completada satisfactoriamente. Se levantaron 2 no conformidades menores.' },
-    { id: 4, cliente_nombre: 'Servicios Médicos Especializados', capacitador_id: 1, fecha: '2026-09-09', hora_inicio: '14:00', hora_fin: '16:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Reunión', estado: 'En Curso', observaciones: 'Reunión de coordinación con gerencia.', bitacora: null },
-    { id: 5, cliente_nombre: 'Corporación Financiera del Valle', capacitador_id: 4, fecha: '2026-09-10', hora_inicio: '08:00', hora_fin: '13:00', horas: 5.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Capacitación en Seguridad Ocupacional.', bitacora: null },
-    { id: 6, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 2, fecha: '2026-09-11', hora_inicio: '10:00', hora_fin: '12:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Seguimiento', estado: 'Programada', observaciones: 'Seguimiento a planes de acción correctiva.', bitacora: null },
-    { id: 7, cliente_nombre: 'Manufacturas Globales S.A.', capacitador_id: 5, fecha: '2026-09-14', hora_inicio: '08:00', hora_fin: '16:00', horas: 8.00, modalidad: 'Presencial', tipo_servicio: 'Auditoría', estado: 'Programada', observaciones: 'Jornada completa de auditoría de calidad.', bitacora: null },
-    { id: 8, cliente_nombre: 'Distribuidora Logística Central', capacitador_id: 1, fecha: '2026-09-15', hora_inicio: '09:00', hora_fin: '12:30', horas: 3.50, modalidad: 'Presencial', tipo_servicio: 'Asesoría', estado: 'Programada', observaciones: 'Asesoría en control estadístico de procesos.', bitacora: null },
-    { id: 9, cliente_nombre: 'Servicios Médicos Especializados', capacitador_id: 3, fecha: '2026-09-16', hora_inicio: '13:00', hora_fin: '17:00', horas: 4.00, modalidad: 'Virtual', tipo_servicio: 'Curso', estado: 'Cancelada', observaciones: 'Taller virtual de gestión por procesos.', bitacora: null },
-    { id: 10, cliente_nombre: 'Corporación Financiera del Valle', capacitador_id: 2, fecha: '2026-09-18', hora_inicio: '09:00', hora_fin: '11:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Reunión', estado: 'Reprogramada', observaciones: 'Cierre de ciclo de capacitación trimestral.', bitacora: null }
+    // Semana 1: Septiembre 01 - 04
+    { id: 1, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 1, fecha: '2026-09-01', hora_inicio: '08:30', hora_fin: '11:30', horas: 3.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Impartida', observaciones: 'Inducción de Seguridad Industrial para nuevos ingresos.', bitacora: 'Inducción impartida a 16 operarios de nuevo ingreso. Aprobación del test al 100%.' },
+    { id: 2, cliente_nombre: 'Agropecuaria San Francisco S.A.', capacitador_id: 2, fecha: '2026-09-01', hora_inicio: '14:00', hora_fin: '16:30', horas: 2.50, modalidad: 'Virtual', tipo_servicio: 'Asesoría', estado: 'Impartida', observaciones: 'Revisión preliminar de protocolos de inocuidad agrícola.', bitacora: 'Revisados 8 procedimientos de empaque de hortalizas y trazabilidad de campo.' },
+    { id: 3, cliente_nombre: 'Manufacturas Globales S.A.', capacitador_id: 4, fecha: '2026-09-02', hora_inicio: '09:00', hora_fin: '13:00', horas: 4.00, modalidad: 'Virtual', tipo_servicio: 'Curso', estado: 'Impartida', observaciones: 'Taller de Liderazgo Estratégico y Trabajo en Equipo.', bitacora: 'Taller participativo con 14 mandos medios. Dinámica de retroalimentación concluida.' },
+    { id: 4, cliente_nombre: 'Farmacéutica Panamericana S.A.', capacitador_id: 3, fecha: '2026-09-02', hora_inicio: '14:00', hora_fin: '17:00', horas: 3.00, modalidad: 'Presencial', tipo_servicio: 'Asesoría', estado: 'Impartida', observaciones: 'Validación de áreas limpias y bitácoras de temperatura.', bitacora: 'Inspeccionadas 3 cámaras frías. Se calibraron los termohigrómetros de control ambiental.' },
+    { id: 5, cliente_nombre: 'Distribuidora Logística Central', capacitador_id: 5, fecha: '2026-09-03', hora_inicio: '08:00', hora_fin: '14:00', horas: 6.00, modalidad: 'Presencial', tipo_servicio: 'Auditoría', estado: 'Impartida', observaciones: 'Auditoría ISO 9001 - Fase 1: Almacenes y distribución.', bitacora: 'Auditoría concluida con éxito. 2 no conformidades menores en señalización de pasillos.' },
+    { id: 6, cliente_nombre: 'Constructora e Inmobiliaria Metropolitana', capacitador_id: 1, fecha: '2026-09-03', hora_inicio: '09:30', hora_fin: '12:00', horas: 2.50, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Impartida', observaciones: 'Prevención de riesgos en trabajos de altura y uso de arnés.', bitacora: 'Capacitación práctica con 22 operarios y armadores. Revisión física de líneas de vida.' },
+    { id: 7, cliente_nombre: 'Servicios Médicos Especializados', capacitador_id: 2, fecha: '2026-09-04', hora_inicio: '09:00', hora_fin: '12:00', horas: 3.00, modalidad: 'Virtual', tipo_servicio: 'Asesoría', estado: 'Impartida', observaciones: 'Estandarización de procesos clínicos y consentimiento digital.', bitacora: 'Aprobado el flujo de atención para consulta externa y expedientes electrónicos.' },
+    { id: 8, cliente_nombre: 'Banco Regional del Sur', capacitador_id: 4, fecha: '2026-09-04', hora_inicio: '14:00', hora_fin: '16:30', horas: 2.50, modalidad: 'Virtual', tipo_servicio: 'Reunión', estado: 'Impartida', observaciones: 'Alineación de necesidades formativas de servicio al cliente.', bitacora: 'Definido el cronograma de capacitación para cajeros y personal de plataforma.' },
+
+    // Semana 2: Septiembre 07 - 11
+    { id: 9, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 1, fecha: '2026-09-07', hora_inicio: '08:00', hora_fin: '12:00', horas: 4.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Impartida', observaciones: 'Módulo 1: Buenas Prácticas de Manufactura en planta.', bitacora: 'Se capacitó al personal operativo de planta (18 personas). Evaluación promedio: 88/100.' },
+    { id: 10, cliente_nombre: 'Manufacturas Globales S.A.', capacitador_id: 2, fecha: '2026-09-07', hora_inicio: '09:00', hora_fin: '11:30', horas: 2.50, modalidad: 'Virtual', tipo_servicio: 'Asesoría', estado: 'Impartida', observaciones: 'Revisión documental del Sistema de Gestión de Calidad.', bitacora: 'Revisados los procedimientos PR-01 al PR-04. Pendiente actualizar matriz de riesgos.' },
+    { id: 11, cliente_nombre: 'Supermercados La Unión S.A.', capacitador_id: 3, fecha: '2026-09-07', hora_inicio: '14:00', hora_fin: '17:00', horas: 3.00, modalidad: 'Presencial', tipo_servicio: 'Asesoría', estado: 'Impartida', observaciones: 'Control de mermas y protocolos de higiene en perecederos.', bitacora: 'Capacitado el equipo de carnicería y frutas. Se establecieron checklists diarios.' },
+    { id: 12, cliente_nombre: 'Distribuidora Logística Central', capacitador_id: 3, fecha: '2026-09-08', hora_inicio: '08:30', hora_fin: '14:30', horas: 6.00, modalidad: 'Presencial', tipo_servicio: 'Auditoría', estado: 'Impartida', observaciones: 'Auditoría interna de procesos en planta y transporte.', bitacora: 'Auditoría completada satisfactoriamente. Se levantaron 2 no conformidades menores.' },
+    { id: 13, cliente_nombre: 'Banco Regional del Sur', capacitador_id: 5, fecha: '2026-09-08', hora_inicio: '10:00', hora_fin: '12:30', horas: 2.50, modalidad: 'Virtual', tipo_servicio: 'Curso', estado: 'Impartida', observaciones: 'Ciberseguridad y prevención de phishing para ejecutivos.', bitacora: 'Participaron 28 oficiales de crédito. Se realizó simulación de correo malicioso.' },
+    { id: 14, cliente_nombre: 'Agropecuaria San Francisco S.A.', capacitador_id: 4, fecha: '2026-09-09', hora_inicio: '08:30', hora_fin: '11:30', horas: 3.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Impartida', observaciones: 'Manejo seguro de químicos agrícolas y primeros auxilios.', bitacora: 'Taller de campo en finca. 15 técnicos completaron la prueba de uso correcto de caretas.' },
+    { id: 15, cliente_nombre: 'Servicios Médicos Especializados', capacitador_id: 1, fecha: '2026-09-09', hora_inicio: '14:00', hora_fin: '16:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Reunión', estado: 'Impartida', observaciones: 'Reunión de coordinación con gerencia médica.', bitacora: 'Módulo concluido con 15 asistentes. Acuerdos: entrega de informe final el viernes.' },
+    { id: 16, cliente_nombre: 'Corporación Financiera del Valle', capacitador_id: 2, fecha: '2026-09-09', hora_inicio: '14:00', hora_fin: '16:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Asesoría', estado: 'En Curso', observaciones: 'Sesión de análisis de riesgo crediticio y auditoría de carteras.', bitacora: null },
+    { id: 17, cliente_nombre: 'Farmacéutica Panamericana S.A.', capacitador_id: 3, fecha: '2026-09-09', hora_inicio: '16:30', hora_fin: '18:30', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Seguimiento', estado: 'Programada', observaciones: 'Revisión del plan de capacitación de fin de año.', bitacora: null },
+    { id: 18, cliente_nombre: 'Corporación Financiera del Valle', capacitador_id: 4, fecha: '2026-09-10', hora_inicio: '08:00', hora_fin: '13:00', horas: 5.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Capacitación en Seguridad Ocupacional y brigadas de evacuación.', bitacora: null },
+    { id: 19, cliente_nombre: 'Constructora e Inmobiliaria Metropolitana', capacitador_id: 5, fecha: '2026-09-10', hora_inicio: '09:00', hora_fin: '12:00', horas: 3.00, modalidad: 'Presencial', tipo_servicio: 'Asesoría', estado: 'Programada', observaciones: 'Supervisión de protocolos de seguridad en obra gris.', bitacora: null },
+    { id: 20, cliente_nombre: 'Farmacéutica Panamericana S.A.', capacitador_id: 3, fecha: '2026-09-10', hora_inicio: '14:00', hora_fin: '16:30', horas: 2.50, modalidad: 'Virtual', tipo_servicio: 'Seguimiento', estado: 'Programada', observaciones: 'Seguimiento a planes de acción correctiva de auditoría interna.', bitacora: null },
+    { id: 21, cliente_nombre: 'Supermercados La Unión S.A.', capacitador_id: 1, fecha: '2026-09-11', hora_inicio: '08:30', hora_fin: '12:00', horas: 3.50, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Atención de quejas y resolución de conflictos en punto de venta.', bitacora: null },
+    { id: 22, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 2, fecha: '2026-09-11', hora_inicio: '10:00', hora_fin: '12:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Seguimiento', estado: 'Programada', observaciones: 'Seguimiento a planes de acción de HACCP.', bitacora: null },
+    { id: 23, cliente_nombre: 'Manufacturas Globales S.A.', capacitador_id: 5, fecha: '2026-09-11', hora_inicio: '14:00', hora_fin: '17:00', horas: 3.00, modalidad: 'Presencial', tipo_servicio: 'Asesoría', estado: 'Programada', observaciones: 'Revisión de planos eléctricos y etiquetado LOTO.', bitacora: null },
+
+    // Semana 3: Septiembre 14 - 18
+    { id: 24, cliente_nombre: 'Manufacturas Globales S.A.', capacitador_id: 5, fecha: '2026-09-14', hora_inicio: '08:00', hora_fin: '16:00', horas: 8.00, modalidad: 'Presencial', tipo_servicio: 'Auditoría', estado: 'Programada', observaciones: 'Jornada completa de auditoría de calidad ISO 9001.', bitacora: null },
+    { id: 25, cliente_nombre: 'Agropecuaria San Francisco S.A.', capacitador_id: 1, fecha: '2026-09-14', hora_inicio: '09:00', hora_fin: '12:30', horas: 3.50, modalidad: 'Presencial', tipo_servicio: 'Asesoría', estado: 'Programada', observaciones: 'Asesoría en Buenas Prácticas Agrícolas (BPA).', bitacora: null },
+    { id: 26, cliente_nombre: 'Distribuidora Logística Central', capacitador_id: 1, fecha: '2026-09-15', hora_inicio: '09:00', hora_fin: '12:30', horas: 3.50, modalidad: 'Presencial', tipo_servicio: 'Asesoría', estado: 'Programada', observaciones: 'Asesoría en control estadístico de procesos de entrega.', bitacora: null },
+    { id: 27, cliente_nombre: 'Banco Regional del Sur', capacitador_id: 2, fecha: '2026-09-15', hora_inicio: '14:00', hora_fin: '17:00', horas: 3.00, modalidad: 'Virtual', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Taller de Cumplimiento Regulatorio y Prevención de Lavado de Dinero.', bitacora: null },
+    { id: 28, cliente_nombre: 'Farmacéutica Panamericana S.A.', capacitador_id: 3, fecha: '2026-09-16', hora_inicio: '08:30', hora_fin: '12:30', horas: 4.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Buenas Prácticas de Almacenamiento y Distribución (BPAD).', bitacora: null },
+    { id: 29, cliente_nombre: 'Servicios Médicos Especializados', capacitador_id: 3, fecha: '2026-09-16', hora_inicio: '13:00', hora_fin: '17:00', horas: 4.00, modalidad: 'Virtual', tipo_servicio: 'Curso', estado: 'Cancelada', observaciones: 'Taller virtual de gestión por procesos (Reprogramado a solicitud de cliente).', bitacora: null },
+    { id: 30, cliente_nombre: 'Supermercados La Unión S.A.', capacitador_id: 4, fecha: '2026-09-16', hora_inicio: '14:00', hora_fin: '16:30', horas: 2.50, modalidad: 'Presencial', tipo_servicio: 'Seguimiento', estado: 'Programada', observaciones: 'Revisión de implementación de metodología 5S en bodega central.', bitacora: null },
+    { id: 31, cliente_nombre: 'Corporación Financiera del Valle', capacitador_id: 3, fecha: '2026-09-17', hora_inicio: '08:00', hora_fin: '12:00', horas: 4.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Reprogramada', observaciones: 'Capacitación en Manejo Defensivo y Seguridad de Flotilla.', bitacora: null },
+    { id: 32, cliente_nombre: 'Constructora e Inmobiliaria Metropolitana', capacitador_id: 5, fecha: '2026-09-17', hora_inicio: '09:00', hora_fin: '13:00', horas: 4.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Seguridad en Espacios Confinados y Excavaciones.', bitacora: null },
+    { id: 33, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 1, fecha: '2026-09-17', hora_inicio: '14:30', hora_fin: '17:00', horas: 2.50, modalidad: 'Virtual', tipo_servicio: 'Asesoría', estado: 'Programada', observaciones: 'Diseño de indicadores de desempeño para supervisores.', bitacora: null },
+    { id: 34, cliente_nombre: 'Corporación Financiera del Valle', capacitador_id: 2, fecha: '2026-09-18', hora_inicio: '09:00', hora_fin: '11:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Reunión', estado: 'Programada', observaciones: 'Cierre de ciclo de capacitación trimestral y entrega de notas.', bitacora: null },
+    { id: 35, cliente_nombre: 'Agropecuaria San Francisco S.A.', capacitador_id: 4, fecha: '2026-09-18', hora_inicio: '13:30', hora_fin: '16:30', horas: 3.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Comité de Salud y Seguridad Ocupacional: Funciones y responsabilidades.', bitacora: null },
+
+    // Semana 4: Septiembre 21 - 25
+    { id: 36, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 5, fecha: '2026-09-21', hora_inicio: '08:00', hora_fin: '13:00', horas: 5.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Mantenimiento Productivo Total (TPM) en líneas de envasado.', bitacora: null },
+    { id: 37, cliente_nombre: 'Banco Regional del Sur', capacitador_id: 3, fecha: '2026-09-21', hora_inicio: '14:00', hora_fin: '17:00', horas: 3.00, modalidad: 'Virtual', tipo_servicio: 'Asesoría', estado: 'Programada', observaciones: 'Optimización de tiempos de espera y atención en agencias.', bitacora: null },
+    { id: 38, cliente_nombre: 'Manufacturas Globales S.A.', capacitador_id: 1, fecha: '2026-09-22', hora_inicio: '08:30', hora_fin: '15:00', horas: 6.50, modalidad: 'Presencial', tipo_servicio: 'Auditoría', estado: 'Programada', observaciones: 'Auditoría de Cumplimiento Ambiental y Gestión de Residuos.', bitacora: null },
+    { id: 39, cliente_nombre: 'Farmacéutica Panamericana S.A.', capacitador_id: 2, fecha: '2026-09-22', hora_inicio: '09:00', hora_fin: '12:00', horas: 3.00, modalidad: 'Virtual', tipo_servicio: 'Asesoría', estado: 'Programada', observaciones: 'Análisis de Causa Raíz (RCA) para desviaciones de calidad.', bitacora: null },
+    { id: 40, cliente_nombre: 'Distribuidora Logística Central', capacitador_id: 4, fecha: '2026-09-23', hora_inicio: '09:00', hora_fin: '12:00', horas: 3.00, modalidad: 'Virtual', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Seminario de Finanzas y Costos Operativos para Jefaturas.', bitacora: null },
+    { id: 41, cliente_nombre: 'Supermercados La Unión S.A.', capacitador_id: 5, fecha: '2026-09-23', hora_inicio: '14:00', hora_fin: '17:30', horas: 3.50, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Manejo Seguro de Montacargas y Equipos de Tracción.', bitacora: null },
+    { id: 42, cliente_nombre: 'Constructora e Inmobiliaria Metropolitana', capacitador_id: 1, fecha: '2026-09-24', hora_inicio: '08:30', hora_fin: '12:30', horas: 4.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Liderazgo de Cuadrillas y Comunicación Efectiva en Obra.', bitacora: null },
+    { id: 43, cliente_nombre: 'Servicios Médicos Especializados', capacitador_id: 2, fecha: '2026-09-24', hora_inicio: '14:00', hora_fin: '16:00', horas: 2.00, modalidad: 'Virtual', tipo_servicio: 'Seguimiento', estado: 'Programada', observaciones: 'Seguimiento a acciones correctivas de bioseguridad hospitalaria.', bitacora: null },
+    { id: 44, cliente_nombre: 'Corporación Financiera del Valle', capacitador_id: 3, fecha: '2026-09-25', hora_inicio: '09:00', hora_fin: '13:00', horas: 4.00, modalidad: 'Presencial', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Evaluación y Certificación de Competencias Laborales.', bitacora: null },
+    { id: 45, cliente_nombre: 'Agropecuaria San Francisco S.A.', capacitador_id: 4, fecha: '2026-09-25', hora_inicio: '14:00', hora_fin: '17:00', horas: 3.00, modalidad: 'Virtual', tipo_servicio: 'Asesoría', estado: 'Programada', observaciones: 'Revisión del Manual de Bienestar Laboral y Clima Organizacional.', bitacora: null },
+
+    // Semana 5: Septiembre 28 - 30
+    { id: 46, cliente_nombre: 'Farmacéutica Panamericana S.A.', capacitador_id: 5, fecha: '2026-09-28', hora_inicio: '08:30', hora_fin: '12:30', horas: 4.00, modalidad: 'Presencial', tipo_servicio: 'Auditoría', estado: 'Programada', observaciones: 'Pre-auditoría de Certificación BPM ante autoridad sanitaria.', bitacora: null },
+    { id: 47, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 1, fecha: '2026-09-28', hora_inicio: '14:00', hora_fin: '16:30', horas: 2.50, modalidad: 'Virtual', tipo_servicio: 'Reunión', estado: 'Programada', observaciones: 'Reunión de Cierre Mensual y revisión de KPIs del Modelo AD-RE-11.', bitacora: null },
+    { id: 48, cliente_nombre: 'Manufacturas Globales S.A.', capacitador_id: 4, fecha: '2026-09-29', hora_inicio: '09:00', hora_fin: '12:00', horas: 3.00, modalidad: 'Virtual', tipo_servicio: 'Curso', estado: 'Programada', observaciones: 'Ergonomía en el Puesto de Trabajo y Prevención de Lesiones.', bitacora: null },
+    { id: 49, cliente_nombre: 'Banco Regional del Sur', capacitador_id: 2, fecha: '2026-09-29', hora_inicio: '13:30', hora_fin: '16:30', horas: 3.00, modalidad: 'Virtual', tipo_servicio: 'Asesoría', estado: 'Programada', observaciones: 'Asesoría en Plan de Continuidad de Negocio (BCP).', bitacora: null },
+    { id: 50, cliente_nombre: 'Distribuidora Logística Central', capacitador_id: 5, fecha: '2026-09-30', hora_inicio: '08:00', hora_fin: '12:00', horas: 4.00, modalidad: 'Presencial', tipo_servicio: 'Auditoría', estado: 'Programada', observaciones: 'Presentación de Resultados Finales de Auditoría de Cierre Trimestral.', bitacora: null },
+    { id: 51, cliente_nombre: 'Supermercados La Unión S.A.', capacitador_id: 3, fecha: '2026-09-30', hora_inicio: '13:00', hora_fin: '16:00', horas: 3.00, modalidad: 'Presencial', tipo_servicio: 'Reunión', estado: 'Programada', observaciones: 'Sesión ejecutiva de balance de horas y satisfacción de capacitaciones.', bitacora: null }
   ],
   nextIds: {
     capacitadores: 6,
-    clientes: 6,
-    citas: 11
+    clientes: 11,
+    citas: 52
   }
 };
 
@@ -108,7 +163,6 @@ async function autoInitTables(client) {
       ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS telefono VARCHAR(30);
       ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS tarifa_hora NUMERIC(10, 2) NOT NULL DEFAULT 150.00;
 
-      -- Actualizar tarifas horarias oficiales si aún no están fijadas
       UPDATE capacitadores SET tarifa_hora = 200.00 WHERE iniciales = 'OQ' AND tarifa_hora = 150.00;
       UPDATE capacitadores SET tarifa_hora = 175.00 WHERE iniciales IN ('MO', 'PF') AND tarifa_hora = 150.00;
 
@@ -155,24 +209,70 @@ async function autoInitTables(client) {
         ON CONFLICT (iniciales) DO UPDATE SET tarifa_hora = EXCLUDED.tarifa_hora;
 
         INSERT INTO clientes (nombre_empresa, contacto, telefono, correo) VALUES
-        ('Industrias Alimentarias del Norte S.A.', 'Ing. Roberto Silva', '+506 2234-5678', 'rsilva@alimnorte.com'),
-        ('Manufacturas Globales S.A.', 'Lic. Mariana Soto', '+506 2289-9012', 'msoto@manuglobal.com'),
-        ('Distribuidora Logística Central', 'Carlos Alvarado', '+506 2440-1122', 'calvarado@districentral.com'),
-        ('Servicios Médicos Especializados', 'Dra. Andrea Morales', '+506 2520-3344', 'amorales@medicosesp.com'),
-        ('Corporación Financiera del Valle', 'Rodrigo Jiménez', '+506 2201-5566', 'rjimenez@finanzascv.com')
+        ('Industrias Alimentarias del Norte S.A.', 'Ing. Roberto Silva', '+502 5555-1122', 'rsilva@alimnorte.gt'),
+        ('Manufacturas Globales S.A.', 'Lic. Mariana Soto', '+502 5555-2233', 'msoto@manuglobal.gt'),
+        ('Distribuidora Logística Central', 'Carlos Alvarado', '+502 5555-3344', 'calvarado@districentral.gt'),
+        ('Servicios Médicos Especializados', 'Dra. Andrea Morales', '+502 5555-4455', 'amorales@medicosesp.gt'),
+        ('Corporación Financiera del Valle', 'Rodrigo Jiménez', '+502 5555-5566', 'rjimenez@finanzascv.gt'),
+        ('Agropecuaria San Francisco S.A.', 'Ing. Carlos Mendoza', '+502 5555-6677', 'cmendoza@agrosanfrancisco.gt'),
+        ('Farmacéutica Panamericana S.A.', 'Licda. Sofía Castillo', '+502 5555-7788', 'scastillo@farmapanamericana.gt'),
+        ('Constructora e Inmobiliaria Metropolitana', 'Arq. Fernando Ramos', '+502 5555-8899', 'framos@metropolitana.gt'),
+        ('Banco Regional del Sur', 'Lic. Claudia Estrada', '+502 5555-9900', 'cestrada@bancoregional.gt'),
+        ('Supermercados La Unión S.A.', 'Lic. Mario Velásquez', '+502 5555-0011', 'mvelasquez@launion.gt')
         ON CONFLICT (nombre_empresa) DO NOTHING;
 
         INSERT INTO citas (cliente_id, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones) VALUES
-        (1, 1, '2026-09-07', '08:00', '12:00', 4.00, 'Presencial', 'Curso', 'Impartida', 'Módulo 1: Buenas Prácticas de Manufactura.'),
-        (2, 2, '2026-09-07', '09:00', '11:30', 2.50, 'Virtual', 'Asesoría', 'Impartida', 'Revisión documental del Sistema de Gestión.'),
-        (3, 3, '2026-09-08', '08:30', '14:30', 6.00, 'Presencial', 'Auditoría', 'Impartida', 'Auditoría interna de procesos en planta.'),
-        (4, 1, '2026-09-09', '14:00', '16:00', 2.00, 'Virtual', 'Reunión', 'En Curso', 'Reunión de coordinación con gerencia.'),
-        (5, 4, '2026-09-10', '08:00', '13:00', 5.00, 'Presencial', 'Curso', 'Programada', 'Capacitación en Seguridad Ocupacional.'),
-        (1, 2, '2026-09-11', '10:00', '12:00', 2.00, 'Virtual', 'Seguimiento', 'Programada', 'Seguimiento a planes de acción correctiva.'),
-        (2, 5, '2026-09-14', '08:00', '16:00', 8.00, 'Presencial', 'Auditoría', 'Programada', 'Jornada completa de auditoría de calidad.'),
-        (3, 1, '2026-09-15', '09:00', '12:30', 3.50, 'Presencial', 'Asesoría', 'Programada', 'Asesoría en control estadístico de procesos.'),
-        (4, 3, '2026-09-16', '13:00', '17:00', 4.00, 'Virtual', 'Curso', 'Cancelada', 'Taller virtual de gestión por procesos.'),
-        (5, 2, '2026-09-18', '09:00', '11:00', 2.00, 'Virtual', 'Reunión', 'Reprogramada', 'Cierre de ciclo de capacitación trimestral.');
+        (1, 1, '2026-09-01', '08:30', '11:30', 3.00, 'Presencial', 'Curso', 'Impartida', 'Inducción de Seguridad Industrial para nuevos ingresos.'),
+        (6, 2, '2026-09-01', '14:00', '16:30', 2.50, 'Virtual', 'Asesoría', 'Impartida', 'Revisión preliminar de protocolos de inocuidad agrícola.'),
+        (2, 4, '2026-09-02', '09:00', '13:00', 4.00, 'Virtual', 'Curso', 'Impartida', 'Taller de Liderazgo Estratégico y Trabajo en Equipo.'),
+        (7, 3, '2026-09-02', '14:00', '17:00', 3.00, 'Presencial', 'Asesoría', 'Impartida', 'Validación de áreas limpias y bitácoras de temperatura.'),
+        (3, 5, '2026-09-03', '08:00', '14:00', 6.00, 'Presencial', 'Auditoría', 'Impartida', 'Auditoría ISO 9001 - Fase 1: Almacenes y distribución.'),
+        (8, 1, '2026-09-03', '09:30', '12:00', 2.50, 'Presencial', 'Curso', 'Impartida', 'Prevención de riesgos en trabajos de altura y uso de arnés.'),
+        (4, 2, '2026-09-04', '09:00', '12:00', 3.00, 'Virtual', 'Asesoría', 'Impartida', 'Estandarización de procesos clínicos y consentimiento digital.'),
+        (9, 4, '2026-09-04', '14:00', '16:30', 2.50, 'Virtual', 'Reunión', 'Impartida', 'Alineación de necesidades formativas de servicio al cliente.'),
+        (1, 1, '2026-09-07', '08:00', '12:00', 4.00, 'Presencial', 'Curso', 'Impartida', 'Módulo 1: Buenas Prácticas de Manufactura en planta.'),
+        (2, 2, '2026-09-07', '09:00', '11:30', 2.50, 'Virtual', 'Asesoría', 'Impartida', 'Revisión documental del Sistema de Gestión de Calidad.'),
+        (10, 3, '2026-09-07', '14:00', '17:00', 3.00, 'Presencial', 'Asesoría', 'Impartida', 'Control de mermas y protocolos de higiene en perecederos.'),
+        (3, 3, '2026-09-08', '08:30', '14:30', 6.00, 'Presencial', 'Auditoría', 'Impartida', 'Auditoría interna de procesos en planta y transporte.'),
+        (9, 5, '2026-09-08', '10:00', '12:30', 2.50, 'Virtual', 'Curso', 'Impartida', 'Ciberseguridad y prevención de phishing para ejecutivos.'),
+        (6, 4, '2026-09-09', '08:30', '11:30', 3.00, 'Presencial', 'Curso', 'Impartida', 'Manejo seguro de químicos agrícolas y primeros auxilios.'),
+        (4, 1, '2026-09-09', '14:00', '16:00', 2.00, 'Virtual', 'Reunión', 'Impartida', 'Reunión de coordinación con gerencia médica.'),
+        (5, 2, '2026-09-09', '14:00', '16:00', 2.00, 'Virtual', 'Asesoría', 'En Curso', 'Sesión de análisis de riesgo crediticio y auditoría de carteras.'),
+        (7, 3, '2026-09-09', '16:30', '18:30', 2.00, 'Virtual', 'Seguimiento', 'Programada', 'Revisión del plan de capacitación de fin de año.'),
+        (5, 4, '2026-09-10', '08:00', '13:00', 5.00, 'Presencial', 'Curso', 'Programada', 'Capacitación en Seguridad Ocupacional y brigadas de evacuación.'),
+        (8, 5, '2026-09-10', '09:00', '12:00', 3.00, 'Presencial', 'Asesoría', 'Programada', 'Supervisión de protocolos de seguridad en obra gris.'),
+        (7, 3, '2026-09-10', '14:00', '16:30', 2.50, 'Virtual', 'Seguimiento', 'Programada', 'Seguimiento a planes de acción correctiva de auditoría interna.'),
+        (10, 1, '2026-09-11', '08:30', '12:00', 3.50, 'Presencial', 'Curso', 'Programada', 'Atención de quejas y resolución de conflictos en punto de venta.'),
+        (1, 2, '2026-09-11', '10:00', '12:00', 2.00, 'Virtual', 'Seguimiento', 'Programada', 'Seguimiento a planes de acción de HACCP.'),
+        (2, 5, '2026-09-11', '14:00', '17:00', 3.00, 'Presencial', 'Asesoría', 'Programada', 'Revisión de planos eléctricos y etiquetado LOTO.'),
+        (2, 5, '2026-09-14', '08:00', '16:00', 8.00, 'Presencial', 'Auditoría', 'Programada', 'Jornada completa de auditoría de calidad ISO 9001.'),
+        (6, 1, '2026-09-14', '09:00', '12:30', 3.50, 'Presencial', 'Asesoría', 'Programada', 'Asesoría en Buenas Prácticas Agrícolas (BPA).'),
+        (3, 1, '2026-09-15', '09:00', '12:30', 3.50, 'Presencial', 'Asesoría', 'Programada', 'Asesoría en control estadístico de procesos de entrega.'),
+        (9, 2, '2026-09-15', '14:00', '17:00', 3.00, 'Virtual', 'Curso', 'Programada', 'Taller de Cumplimiento Regulatorio y Prevención de Lavado de Dinero.'),
+        (7, 3, '2026-09-16', '08:30', '12:30', 4.00, 'Presencial', 'Curso', 'Programada', 'Buenas Prácticas de Almacenamiento y Distribución (BPAD).'),
+        (4, 3, '2026-09-16', '13:00', '17:00', 4.00, 'Virtual', 'Curso', 'Cancelada', 'Taller virtual de gestión por procesos (Reprogramado a solicitud de cliente).'),
+        (10, 4, '2026-09-16', '14:00', '16:30', 2.50, 'Presencial', 'Seguimiento', 'Programada', 'Revisión de implementación de metodología 5S en bodega central.'),
+        (5, 3, '2026-09-17', '08:00', '12:00', 4.00, 'Presencial', 'Curso', 'Reprogramada', 'Capacitación en Manejo Defensivo y Seguridad de Flotilla.'),
+        (8, 5, '2026-09-17', '09:00', '13:00', 4.00, 'Presencial', 'Curso', 'Programada', 'Seguridad en Espacios Confinados y Excavaciones.'),
+        (1, 1, '2026-09-17', '14:30', '17:00', 2.50, 'Virtual', 'Asesoría', 'Programada', 'Diseño de indicadores de desempeño para supervisores.'),
+        (5, 2, '2026-09-18', '09:00', '11:00', 2.00, 'Virtual', 'Reunión', 'Programada', 'Cierre de ciclo de capacitación trimestral y entrega de notas.'),
+        (6, 4, '2026-09-18', '13:30', '16:30', 3.00, 'Presencial', 'Curso', 'Programada', 'Comité de Salud y Seguridad Ocupacional: Funciones y responsabilidades.'),
+        (1, 5, '2026-09-21', '08:00', '13:00', 5.00, 'Presencial', 'Curso', 'Programada', 'Mantenimiento Productivo Total (TPM) en líneas de envasado.'),
+        (9, 3, '2026-09-21', '14:00', '17:00', 3.00, 'Virtual', 'Asesoría', 'Programada', 'Optimización de tiempos de espera y atención en agencias.'),
+        (2, 1, '2026-09-22', '08:30', '15:00', 6.50, 'Presencial', 'Auditoría', 'Programada', 'Auditoría de Cumplimiento Ambiental y Gestión de Residuos.'),
+        (7, 2, '2026-09-22', '09:00', '12:00', 3.00, 'Virtual', 'Asesoría', 'Programada', 'Análisis de Causa Raíz (RCA) para desviaciones de calidad.'),
+        (3, 4, '2026-09-23', '09:00', '12:00', 3.00, 'Virtual', 'Curso', 'Programada', 'Seminario de Finanzas y Costos Operativos para Jefaturas.'),
+        (10, 5, '2026-09-23', '14:00', '17:30', 3.50, 'Presencial', 'Curso', 'Programada', 'Manejo Seguro de Montacargas y Equipos de Tracción.'),
+        (8, 1, '2026-09-24', '08:30', '12:30', 4.00, 'Presencial', 'Curso', 'Programada', 'Liderazgo de Cuadrillas y Comunicación Efectiva en Obra.'),
+        (4, 2, '2026-09-24', '14:00', '16:00', 2.00, 'Virtual', 'Seguimiento', 'Programada', 'Seguimiento a acciones correctivas de bioseguridad hospitalaria.'),
+        (5, 3, '2026-09-25', '09:00', '13:00', 4.00, 'Presencial', 'Curso', 'Programada', 'Evaluación y Certificación de Competencias Laborales.'),
+        (6, 4, '2026-09-25', '14:00', '17:00', 3.00, 'Virtual', 'Asesoría', 'Programada', 'Revisión del Manual de Bienestar Laboral y Clima Organizacional.'),
+        (7, 5, '2026-09-28', '08:30', '12:30', 4.00, 'Presencial', 'Auditoría', 'Programada', 'Pre-auditoría de Certificación BPM ante autoridad sanitaria.'),
+        (1, 1, '2026-09-28', '14:00', '16:30', 2.50, 'Virtual', 'Reunión', 'Programada', 'Reunión de Cierre Mensual y revisión de KPIs del Modelo AD-RE-11.'),
+        (2, 4, '2026-09-29', '09:00', '12:00', 3.00, 'Virtual', 'Curso', 'Programada', 'Ergonomía en el Puesto de Trabajo y Prevención de Lesiones.'),
+        (9, 2, '2026-09-29', '13:30', '16:30', 3.00, 'Virtual', 'Asesoría', 'Programada', 'Asesoría en Plan de Continuidad de Negocio (BCP).'),
+        (3, 5, '2026-09-30', '08:00', '12:00', 4.00, 'Presencial', 'Auditoría', 'Programada', 'Presentación de Resultados Finales de Auditoría de Cierre Trimestral.'),
+        (10, 3, '2026-09-30', '13:00', '16:00', 3.00, 'Presencial', 'Reunión', 'Programada', 'Sesión ejecutiva de balance de horas y satisfacción de capacitaciones.');
       `);
       console.log('🌱 [DB] Tablas y datos semilla creados exitosamente en PostgreSQL.');
     }
