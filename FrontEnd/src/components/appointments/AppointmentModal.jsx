@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   X, 
   Clock, 
@@ -134,6 +135,23 @@ export default function AppointmentModal({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Bloquear scroll de fondo y permitir cerrar con tecla Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && !isConfirmDeleteOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen, isConfirmDeleteOpen, onClose]);
 
   // Cliente coincidente en catálogo
   const matchedClient = useMemo(() => {
@@ -428,24 +446,31 @@ export default function AppointmentModal({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-150">
+  return createPortal(
+    <div 
+      className="fixed inset-0 z-[9999] w-screen h-screen bg-slate-950/75 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-hidden"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150 relative"
+        onClick={(e) => e.stopPropagation()}
+      >
         
-        {/* Cabecera del modal */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/60">
+        {/* Cabecera fija del modal (shrink-0) */}
+        <div className="shrink-0 flex items-center justify-between px-6 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/70 backdrop-blur-xs">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm shadow-blue-500/30">
               <CalendarIcon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight">
                 {appointment?.id ? 'Editar Cita Agendada' : 'Agendar Nueva Cita'}
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Agenda Digital y Control de Horas</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Agenda Digital y Control de Horas (AD-RE-11)</p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
@@ -453,16 +478,19 @@ export default function AppointmentModal({
           </button>
         </div>
 
-        {/* Mensaje de error si ocurre */}
-        {error && (
-          <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span className="font-medium">{error}</span>
-          </div>
-        )}
-
-        {/* Formulario */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        {/* Formulario con flex flex-col flex-1 min-h-0 */}
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+          
+          {/* Cuerpo del formulario con scroll vertical interno suave */}
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            
+            {/* Mensaje de error si ocurre */}
+            {error && (
+              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span className="font-medium">{error}</span>
+              </div>
+            )}
           
           {/* Nombre del Cliente / Empresa con Autocompletado Inteligente */}
           <div ref={clientInputWrapperRef} className="relative">
@@ -645,7 +673,7 @@ export default function AppointmentModal({
               <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               Capacitador Asignado <span className="text-rose-500">*</span>
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
               {capacitadores.map((cap) => {
                 const isSelected = String(cap.id) === String(formData.capacitador_id);
                 return (
@@ -934,7 +962,7 @@ export default function AppointmentModal({
               )}
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2">
               {ESTADOS.map((est) => {
                 const isActive = (formData.estado || 'Programada') === est.id;
                 return (
@@ -942,12 +970,12 @@ export default function AppointmentModal({
                     key={est.id}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, estado: est.id }))}
-                    className={`px-2 py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
+                    className={`px-2 py-2 rounded-xl text-[11px] sm:text-xs font-bold border transition-all flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap ${
                       isActive ? est.activeClass : `${est.colorClass} border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800`
                     }`}
                   >
                     <span>{est.emoji}</span>
-                    <span className="truncate">{est.label}</span>
+                    <span>{est.label}</span>
                   </button>
                 );
               })}
@@ -1054,74 +1082,76 @@ export default function AppointmentModal({
               Esta bitácora puede ser completada tanto por la administración como por el capacitador desde su portal móvil al terminar el servicio.
             </p>
           </div>
+        </div>
 
-          {/* Botones de acción */}
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
-            {appointment?.id ? (
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={loading}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-                Eliminar Cita
-              </button>
-            ) : <div />}
+        {/* Pie fijo con botones de acción (shrink-0) */}
+        <div className="shrink-0 px-6 py-3.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-800/80 backdrop-blur-xs flex items-center justify-between gap-3">
+          {appointment?.id ? (
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={loading}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              Eliminar Cita
+            </button>
+          ) : <div />}
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={loading}
-                className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                disabled={loading || !!conflictingCita || isTimeRangeInvalid || isTrainerInactive || (formData.descripcion || '').length > 500}
-                title={
-                  conflictingCita
-                    ? 'Conflicto de horario: El capacitador ya está ocupado en ese rango'
-                    : isTimeRangeInvalid
-                    ? 'Horario inválido: Hora fin debe ser mayor a hora inicio'
-                    : isTrainerInactive
-                    ? 'Capacitador inactivo'
-                    : ''
-                }
-                className={`inline-flex items-center gap-2 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all transform active:scale-95 ${
-                  conflictingCita || isTimeRangeInvalid || isTrainerInactive || (formData.descripcion || '').length > 500
-                    ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600 cursor-not-allowed shadow-none'
-                    : 'bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/25'
-                }`}
-              >
-                <Check className="w-4 h-4 stroke-[3]" />
-                {loading ? 'Guardando...' : appointment?.id ? 'Guardar Cambios' : 'Registrar Cita'}
-              </button>
-            </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !!conflictingCita || isTimeRangeInvalid || isTrainerInactive || (formData.descripcion || '').length > 500}
+              title={
+                conflictingCita
+                  ? 'Conflicto de horario: El capacitador ya está ocupado en ese rango'
+                  : isTimeRangeInvalid
+                  ? 'Horario inválido: Hora fin debe ser mayor a hora inicio'
+                  : isTrainerInactive
+                  ? 'Capacitador inactivo'
+                  : ''
+              }
+              className={`inline-flex items-center gap-2 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all transform active:scale-95 ${
+                conflictingCita || isTimeRangeInvalid || isTrainerInactive || (formData.descripcion || '').length > 500
+                  ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600 cursor-not-allowed shadow-none'
+                  : 'bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/25'
+              }`}
+            >
+              <Check className="w-4 h-4 stroke-[3]" />
+              {loading ? 'Guardando...' : appointment?.id ? 'Guardar Cambios' : 'Registrar Cita'}
+            </button>
           </div>
-        </form>
-      </div>
-
-      {/* Modal de confirmación elegante para eliminar cita */}
-      <ConfirmModal
-        isOpen={isConfirmDeleteOpen}
-        onClose={() => setIsConfirmDeleteOpen(false)}
-        onConfirm={handleConfirmDelete}
-        loading={loading}
-        title="¿Eliminar esta cita agendada?"
-        message={`¿Estás seguro de que deseas eliminar la cita con ${appointment?.cliente_nombre || 'el cliente'} programada para el ${appointment?.fecha} (${appointment?.hora_inicio} - ${appointment?.hora_fin})?`}
-        detail={
-          <div>
-            <p className="font-bold text-slate-800">📌 Actividad: {appointment?.observaciones || appointment?.tipo_servicio || 'Capacitación'}</p>
-            <p className="text-slate-500 mt-1">Esta acción eliminará la cita de la agenda y liberará el horario del capacitador asignado.</p>
-          </div>
-        }
-        confirmText="Sí, Eliminar Cita"
-        cancelText="Conservar Cita"
-        variant="danger"
-      />
+        </div>
+      </form>
     </div>
-  );
+
+    {/* Modal de confirmación elegante para eliminar cita */}
+    <ConfirmModal
+      isOpen={isConfirmDeleteOpen}
+      onClose={() => setIsConfirmDeleteOpen(false)}
+      onConfirm={handleConfirmDelete}
+      loading={loading}
+      title="¿Eliminar esta cita agendada?"
+      message={`¿Estás seguro de que deseas eliminar la cita con ${appointment?.cliente_nombre || 'el cliente'} programada para el ${appointment?.fecha} (${appointment?.hora_inicio} - ${appointment?.hora_fin})?`}
+      detail={
+        <div>
+          <p className="font-bold text-slate-800">📌 Actividad: {appointment?.observaciones || appointment?.tipo_servicio || 'Capacitación'}</p>
+          <p className="text-slate-500 mt-1">Esta acción eliminará la cita de la agenda y liberará el horario del capacitador asignado.</p>
+        </div>
+      }
+      confirmText="Sí, Eliminar Cita"
+      cancelText="Conservar Cita"
+      variant="danger"
+    />
+  </div>,
+  document.body
+);
 }

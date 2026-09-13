@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, Trash2, X, Loader2 } from 'lucide-react';
 
 export default function ConfirmModal({
@@ -29,9 +30,9 @@ export default function ConfirmModal({
     ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-600/20'
     : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20';
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150"
+      className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/70 dark:bg-slate-950/85 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={!loading ? onClose : undefined}
     >
       <div
@@ -97,6 +98,7 @@ export default function ConfirmModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
