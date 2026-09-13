@@ -22,7 +22,9 @@ import {
   HelpCircle,
   Banknote,
   Send,
-  X
+  X,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -36,8 +38,10 @@ const MONTH_NAMES = [
 export default function TrainerPortalView({
   initialTrainerCode = null,
   availableTrainers = [],
-  onBackToAdmin,
-  onNotifyAdmin
+  onBackToAdmin = null,
+  onNotifyAdmin,
+  theme = 'light',
+  onToggleTheme
 }) {
   // Código activo del capacitador
   const [trainerCode, setTrainerCode] = useState(() => {
@@ -178,32 +182,51 @@ export default function TrainerPortalView({
   // ==========================================
   if (!trainerCode || !portalData) {
     return (
-      <div className="flex-1 flex items-center justify-center py-6 sm:py-12 px-4 animate-in fade-in duration-300">
-        <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 relative overflow-hidden">
+      <div className="flex-1 w-full max-w-md mx-auto flex items-center justify-center py-4 sm:py-10 px-3 sm:px-4 animate-in fade-in duration-300 overflow-x-hidden">
+        <div className="w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-8 relative overflow-hidden">
           
           {/* Acento estético superior */}
           <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500" />
 
-          {/* Botón Volver al Administrador si aplica */}
-          {onBackToAdmin && (
-            <button
-              onClick={onBackToAdmin}
-              className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white mb-5 transition-colors cursor-pointer"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Volver a la Agenda Central</span>
-            </button>
-          )}
+          {/* Fila superior: Volver (solo si viene de desktop admin) y Toggle de Tema */}
+          <div className="flex items-center justify-between mb-5">
+            {onBackToAdmin ? (
+              <button
+                type="button"
+                onClick={onBackToAdmin}
+                className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Volver a la Agenda</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 text-[11px] font-bold tracking-wider uppercase">
+                <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                <span>Portal Móvil</span>
+              </div>
+            )}
+
+            {onToggleTheme && (
+              <button
+                type="button"
+                onClick={onToggleTheme}
+                className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+              </button>
+            )}
+          </div>
 
           <div className="text-center mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center mx-auto shadow-lg shadow-blue-500/25 mb-4">
-              <User className="w-8 h-8" />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center mx-auto shadow-lg shadow-blue-500/25 mb-3.5">
+              <User className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
               Portal del Capacitador
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1.5">
-              Acceso móvil rápido a tu agenda, control de horas e informe de sesiones.
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Acceso móvil a tu itinerario, horas y reporte de sesiones.
             </p>
           </div>
 
@@ -308,7 +331,7 @@ export default function TrainerPortalView({
       : citas_mes.filter(c => c.estado === 'Impartida');
 
   return (
-    <div className="flex-1 w-full max-w-3xl mx-auto py-3 sm:py-6 px-3 sm:px-4 flex flex-col gap-4 animate-in fade-in duration-200">
+    <div className="flex-1 w-full max-w-xl mx-auto py-2 sm:py-6 px-2.5 sm:px-4 flex flex-col gap-3.5 animate-in fade-in duration-200 overflow-x-hidden">
       
       {/* Toast Flotante Interno */}
       {toast && (
@@ -323,34 +346,44 @@ export default function TrainerPortalView({
       )}
 
       {/* Barra de Perfil Móvil */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-3.5 sm:p-5 shadow-xs">
+        <div className="flex items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
             {/* Avatar con iniciales */}
             <div 
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-md shrink-0"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center text-white font-black text-base sm:text-lg shadow-md shrink-0"
               style={{ backgroundColor: capacitador.color || '#3B82F6' }}
             >
               {capacitador.iniciales}
             </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h1 className="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate">
                   {capacitador.nombre_completo}
                 </h1>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shrink-0">
                   [{capacitador.iniciales}]
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 truncate flex items-center gap-1.5 mt-0.5">
-                <Banknote className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate flex items-center gap-1 mt-0.5">
+                <Banknote className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>Tarifa: <strong>{formatQ(capacitador.tarifa_hora)}</strong> / hr</span>
               </p>
             </div>
           </div>
 
-          {/* Acciones de Cabecera */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Acciones de Cabecera Móvil */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {onToggleTheme && (
+              <button
+                type="button"
+                onClick={onToggleTheme}
+                title={theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
+                className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-amber-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+              </button>
+            )}
             <button
               onClick={() => fetchPortalData(trainerCode)}
               disabled={loading}
@@ -361,28 +394,42 @@ export default function TrainerPortalView({
             </button>
             <button
               onClick={handleLogout}
-              title="Cerrar sesión en este teléfono"
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-xs font-semibold transition-colors cursor-pointer"
+              title="Cambiar capacitador o salir"
+              className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-xs font-semibold transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Salir</span>
             </button>
           </div>
         </div>
+
+        {/* Solo en desktop admin: enlace para volver a la agenda */}
+        {onBackToAdmin && (
+          <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+            <button
+              type="button"
+              onClick={onBackToAdmin}
+              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Volver a la Agenda Central (Administración)</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Tarjeta de Resumen Mensual (KPIs & Honorarios en Quetzales) */}
-      <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-950 text-white rounded-3xl p-5 sm:p-6 shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-950 text-white rounded-3xl p-4 sm:p-6 shadow-xl relative overflow-hidden">
         {/* Adorno visual de fondo */}
         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-48 h-48 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
 
         {/* Selector de Mes */}
-        <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-blue-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-200">Resumen del Período</span>
+        <div className="flex items-center justify-between pb-3.5 border-b border-white/10 mb-3.5">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Calendar className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-200 truncate">Período Mensual</span>
           </div>
-          <div className="flex items-center gap-1 bg-white/10 backdrop-blur rounded-xl p-0.5">
+          <div className="flex items-center gap-1 bg-white/10 backdrop-blur rounded-xl p-0.5 shrink-0">
             <button
               onClick={handlePrevMonth}
               className="p-1 hover:bg-white/10 rounded-lg text-white/80 hover:text-white transition-colors cursor-pointer"
@@ -390,7 +437,7 @@ export default function TrainerPortalView({
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="px-2.5 text-xs font-black tracking-wide">
+            <span className="px-2 text-xs font-black tracking-wide">
               {currentMonthName} {currentYear}
             </span>
             <button
@@ -404,40 +451,40 @@ export default function TrainerPortalView({
         </div>
 
         {/* Métricas Principales */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
           {/* Honorarios Impartidos */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5 backdrop-blur">
-            <p className="text-[11px] font-semibold text-blue-300 uppercase tracking-wider">Honorarios Ganados</p>
-            <p className="text-xl sm:text-2xl font-black text-emerald-400 mt-1">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur min-w-0">
+            <p className="text-[10px] sm:text-[11px] font-semibold text-blue-300 uppercase tracking-wider truncate">Ganado Este Mes</p>
+            <p className="text-lg sm:text-2xl font-black text-emerald-400 mt-0.5 truncate">
               {formatQ(resumen.honorarios_impartidos)}
             </p>
-            <p className="text-[10px] text-white/60 mt-0.5">
-              Por {resumen.horas_impartidas} hrs impartidas
+            <p className="text-[10px] text-white/60 mt-0.5 truncate">
+              {resumen.horas_impartidas} hrs impartidas
             </p>
           </div>
 
           {/* Honorarios Proyectados */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5 backdrop-blur">
-            <p className="text-[11px] font-semibold text-blue-300 uppercase tracking-wider">Total Proyectado</p>
-            <p className="text-xl sm:text-2xl font-black text-white mt-1">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur min-w-0">
+            <p className="text-[10px] sm:text-[11px] font-semibold text-blue-300 uppercase tracking-wider truncate">Total Proyectado</p>
+            <p className="text-lg sm:text-2xl font-black text-white mt-0.5 truncate">
               {formatQ(resumen.honorarios_proyectados)}
             </p>
-            <p className="text-[10px] text-white/60 mt-0.5">
+            <p className="text-[10px] text-white/60 mt-0.5 truncate">
               {resumen.horas_totales_mes} hrs programadas
             </p>
           </div>
 
           {/* Conteo de Citas */}
-          <div className="col-span-2 sm:col-span-1 bg-white/5 border border-white/10 rounded-2xl p-3.5 backdrop-blur flex sm:flex-col justify-between items-center sm:items-start">
-            <div>
-              <p className="text-[11px] font-semibold text-blue-300 uppercase tracking-wider">Capacitaciones</p>
-              <p className="text-xl sm:text-2xl font-black text-white mt-1">
+          <div className="col-span-2 sm:col-span-1 bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur flex sm:flex-col justify-between items-center sm:items-start min-w-0">
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-[11px] font-semibold text-blue-300 uppercase tracking-wider">Capacitaciones</p>
+              <p className="text-lg sm:text-2xl font-black text-white mt-0.5">
                 {resumen.citas_impartidas} <span className="text-xs font-normal text-white/60">/ {resumen.total_citas_mes}</span>
               </p>
             </div>
-            <div className="flex gap-2 sm:mt-1">
+            <div className="flex gap-2 sm:mt-1 shrink-0">
               <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded-full font-bold">
-                {resumen.citas_impartidas} completadas
+                {resumen.citas_impartidas} listas
               </span>
             </div>
           </div>

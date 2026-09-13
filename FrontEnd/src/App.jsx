@@ -15,15 +15,28 @@ import { api, authStorage } from './services/api';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function App() {
-  // Detección inicial de acceso directo por URL (ej. ?portal=MO)
+  // Detección si se accedió explícitamente vía código QR / enlace directo al Portal (?portal o ?portal=MO)
+  const isDirectPortalAccess = (() => {
+    try {
+      if (typeof window === 'undefined') return false;
+      const search = window.location.search || '';
+      const hash = window.location.hash || '';
+      if (search.includes('portal') || hash.toLowerCase().includes('portal')) return true;
+    } catch (_) {}
+    return false;
+  })();
+
   const initialPortalParam = (() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const p = params.get('portal');
-      if (p) return p.trim().toUpperCase();
+      if (p && p.trim()) return p.trim().toUpperCase();
       if (window.location.hash && window.location.hash.toLowerCase().includes('portal')) {
         const parts = window.location.hash.split(/[-/=]/);
-        return parts[parts.length - 1] ? parts[parts.length - 1].trim().toUpperCase() : null;
+        const last = parts[parts.length - 1];
+        if (last && last.trim() && last.toLowerCase() !== 'portal') {
+          return last.trim().toUpperCase();
+        }
       }
     } catch (_) {}
     return null;
@@ -37,9 +50,9 @@ export default function App() {
     return isNarrow || isMobileUA;
   })();
 
-  // Si se abre desde un teléfono celular, mostrar el Portal Móvil por defecto; en computadora el Calendario
+  // Si se abre desde QR (?portal) o teléfono celular, mostrar el Portal Móvil exclusivamente
   const [activeTab, setActiveTab] = useState(() => {
-    if (initialPortalParam) return 'portal';
+    if (isDirectPortalAccess) return 'portal';
     if (isMobileInitial) return 'portal';
     return 'calendar';
   }); // 'calendar' | 'reports' | 'fees' | 'portal' | 'trainers' | 'clients'
@@ -488,23 +501,29 @@ export default function App() {
         </div>
       )}
 
-      {/* Navbar Superior */}
-      <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onNewAppointment={() => handleOpenNewAppointment()}
-        onOpenSearch={() => setIsCommandPaletteOpen(true)}
-        onOpenQrModal={() => setIsQrModalOpen(true)}
-        capacitadores={capacitadores}
-        isAdmin={isAdmin}
-        onOpenAdminLogin={() => setIsAdminLoginModalOpen(true)}
-        onLogoutAdmin={handleLogoutAdmin}
-        theme={theme}
-        onToggleTheme={toggleTheme}
-      />
+      {/* Navbar Superior (Oculta en modo Portal Móvil para que el capacitador vea exclusivamente su itinerario sin desbordamientos) */}
+      {activeTab !== 'portal' && (
+        <Navbar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onNewAppointment={() => handleOpenNewAppointment()}
+          onOpenSearch={() => setIsCommandPaletteOpen(true)}
+          onOpenQrModal={() => setIsQrModalOpen(true)}
+          capacitadores={capacitadores}
+          isAdmin={isAdmin}
+          onOpenAdminLogin={() => setIsAdminLoginModalOpen(true)}
+          onLogoutAdmin={handleLogoutAdmin}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
+      )}
 
       {/* Contenido Dinámico por Pestaña */}
-      <main className="flex-1 w-full px-3 sm:px-6 lg:px-8 xl:px-10 py-4 sm:py-6 flex flex-col">
+      <main className={`flex-1 w-full flex flex-col ${
+        activeTab === 'portal'
+          ? 'p-2 sm:p-4 max-w-full overflow-x-hidden'
+          : 'px-3 sm:px-6 lg:px-8 xl:px-10 py-4 sm:py-6'
+      }`}>
         {activeTab === 'calendar' && (
           <CalendarView
             citas={citas}
@@ -540,7 +559,9 @@ export default function App() {
           <TrainerPortalView
             initialTrainerCode={urlPortalCode}
             availableTrainers={capacitadores}
-            onBackToAdmin={() => setActiveTab('calendar')}
+            onBackToAdmin={(isDirectPortalAccess || isMobileInitial) ? null : () => setActiveTab('calendar')}
+            theme={theme}
+            onToggleTheme={toggleTheme}
             onNotifyAdmin={() => {
               loadCitas();
               showToast('Itinerario y horas sincronizadas con la agenda central 🔄');
