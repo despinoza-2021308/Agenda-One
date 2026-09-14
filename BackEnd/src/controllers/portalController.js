@@ -70,6 +70,10 @@ async function getTrainerPortalData(req, res, next) {
           COALESCE(c.estado, 'Programada') AS estado,
           c.observaciones,
           c.bitacora,
+          c.firma_cliente,
+          c.firmante_nombre,
+          c.firmante_puesto,
+          c.firmado_at,
           c.created_at,
           c.updated_at
         FROM citas c
@@ -95,7 +99,11 @@ async function getTrainerPortalData(req, res, next) {
             capacitador_iniciales: capacitador.iniciales,
             capacitador_color: capacitador.color,
             estado: c.estado || 'Programada',
-            horas: Number(c.horas)
+            horas: Number(c.horas),
+            firma_cliente: c.firma_cliente || null,
+            firmante_nombre: c.firmante_nombre || null,
+            firmante_puesto: c.firmante_puesto || null,
+            firmado_at: c.firmado_at || null
           };
         })
         .sort((a, b) => (a.fecha + a.hora_inicio).localeCompare(b.fecha + b.hora_inicio));
@@ -181,12 +189,12 @@ async function getTrainerPortalData(req, res, next) {
   }
 }
 
-// Actualizar estado y/o bitácora de una cita asignada al capacitador
+// Actualizar estado, bitácora y/o firma de conformidad de una cita
 async function updateTrainerCita(req, res, next) {
   try {
     const rawCodigo = req.params.codigo;
     const { id } = req.params;
-    const { estado, bitacora } = req.body;
+    const { estado, bitacora, firma_cliente, firmante_nombre, firmante_puesto } = req.body;
 
     if (!rawCodigo || !String(rawCodigo).trim()) {
       return res.status(400).json({ error: true, message: 'Código de capacitador no proporcionado.' });
@@ -196,7 +204,9 @@ async function updateTrainerCita(req, res, next) {
 
     // Validar estado permitido
     const allowedEstados = ['Programada', 'En Curso', 'Impartida'];
-    if (estado !== undefined && !allowedEstados.includes(estado)) {
+    const resolvedEstado = firma_cliente ? 'Impartida' : estado;
+
+    if (resolvedEstado !== undefined && !allowedEstados.includes(resolvedEstado)) {
       return res.status(400).json({
         error: true,
         message: `Estado no válido para el portal. Valores permitidos: ${allowedEstados.join(', ')}.`
@@ -238,19 +248,26 @@ async function updateTrainerCita(req, res, next) {
         UPDATE citas
         SET estado = COALESCE($1, estado),
             bitacora = COALESCE($2, bitacora),
+            firma_cliente = COALESCE($3, firma_cliente),
+            firmante_nombre = COALESCE($4, firmante_nombre),
+            firmante_puesto = COALESCE($5, firmante_puesto),
+            firmado_at = CASE WHEN $3 IS NOT NULL THEN CURRENT_TIMESTAMP ELSE firmado_at END,
             updated_at = CURRENT_TIMESTAMP
-        WHERE id = $3
+        WHERE id = $6
         RETURNING *
       `;
       const updateRes = await db.pool.query(updateQuery, [
-        estado || null,
+        resolvedEstado || null,
         bitacora !== undefined ? bitacora : null,
+        firma_cliente || null,
+        firmante_nombre || null,
+        firmante_puesto || null,
         id
       ]);
 
       return res.json({
         success: true,
-        message: 'Cita actualizada exitosamente.',
+        message: firma_cliente ? 'Conformidad y firma registradas exitosamente.' : 'Cita actualizada exitosamente.',
         cita: updateRes.rows[0]
       });
     }
@@ -271,16 +288,27 @@ async function updateTrainerCita(req, res, next) {
       return res.status(403).json({ error: true, message: 'No tienes autorización para modificar esta cita.' });
     }
 
-    if (estado !== undefined) {
-      cita.estado = estado;
+    if (resolvedEstado !== undefined) {
+      cita.estado = resolvedEstado;
     }
     if (bitacora !== undefined) {
       cita.bitacora = bitacora;
     }
+    if (firma_cliente !== undefined) {
+      cita.firma_cliente = firma_cliente;
+      cita.estado = 'Impartida';
+      cita.firmado_at = new Date().toISOString();
+    }
+    if (firmante_nombre !== undefined) {
+      cita.firmante_nombre = firmante_nombre;
+    }
+    if (firmante_puesto !== undefined) {
+      cita.firmante_puesto = firmante_puesto;
+    }
 
     return res.json({
       success: true,
-      message: 'Cita actualizada exitosamente.',
+      message: firma_cliente ? 'Conformidad y firma registradas exitosamente.' : 'Cita actualizada exitosamente.',
       cita
     });
   } catch (error) {

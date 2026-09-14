@@ -1,18 +1,26 @@
 {
-  "name": "Agenda One - Portal Móvil del Capacitador",
-  "short_name": "Agenda One",
-  "description": "Control de capacitaciones, horas y bitácoras para capacitadores",
+  "name": "Agenda-One | Control de Horas AD-RE-11",
+  "short_name": "Agenda-One",
+  "description": "Sistema digital de agendamiento, control de horas efectivas y bitácoras de capacitación (AD-RE-11)",
   "start_url": "/?portal",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#2563eb",
   "orientation": "portrait-primary",
+  "categories": ["productivity", "business", "utilities"],
   "icons": [
     {
       "src": "/favicon.svg",
-      "sizes": "192x192 512x512",
+      "sizes": "192x192",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
     }
   ]
 }

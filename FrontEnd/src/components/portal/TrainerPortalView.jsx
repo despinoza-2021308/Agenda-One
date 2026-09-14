@@ -24,9 +24,23 @@ import {
   Send,
   X,
   Sun,
-  Moon
+  Moon,
+  PenTool,
+  BadgeCheck,
+  CalendarPlus,
+  Download,
+  Share2
 } from 'lucide-react';
 import { api } from '../../services/api';
+import DigitalSignatureModal from './DigitalSignatureModal';
+import ServiceSheetModal from './ServiceSheetModal';
+import PwaInstallBanner from '../common/PwaInstallBanner';
+import { 
+  buildGoogleCalendarUrl, 
+  generateIcsContent, 
+  generateDayItineraryIcs, 
+  downloadIcsFile 
+} from '../../utils/calendarExportUtils';
 
 const STORAGE_PORTAL_CODE = 'agenda_portal_trainer_code';
 
@@ -66,6 +80,15 @@ export default function TrainerPortalView({
   const [logText, setLogText] = useState('');
   const [savingLog, setSavingLog] = useState(false);
 
+  // Estado del Modal de Firma Digital de Conformidad
+  const [activeSignatureCita, setActiveSignatureCita] = useState(null);
+
+  // Estado del Modal de Hoja de Servicio Digital (Certificado)
+  const [activeServiceSheetCita, setActiveServiceSheetCita] = useState(null);
+
+  // Menú flotante de exportación a calendario por cita
+  const [calendarMenuCitaId, setCalendarMenuCitaId] = useState(null);
+
   // Notificación flotante interna
   const [toast, setToast] = useState(null);
 
@@ -74,11 +97,13 @@ export default function TrainerPortalView({
     setTimeout(() => setToast(null), 3500);
   };
 
-  // Cargar datos del capacitador desde la API
+  // Cargar datos del capacitador desde la API con soporte Offline por caché local
   const fetchPortalData = useCallback(async (codeToFetch) => {
     if (!codeToFetch) return;
     setLoading(true);
     setErrorMessage(null);
+
+    const cacheKey = `agenda_portal_cache_${codeToFetch}`;
 
     try {
       const year = queryDate.getFullYear();
@@ -88,8 +113,24 @@ export default function TrainerPortalView({
       const data = await api.getTrainerPortal(codeToFetch, { year, month, today: todayStr });
       setPortalData(data);
       localStorage.setItem(STORAGE_PORTAL_CODE, codeToFetch);
+      // Guardar copia local persistente para soporte sin conexión (offline)
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+      } catch (_) {}
     } catch (err) {
       console.error('Error al cargar portal de capacitador:', err);
+      // Si la red falla, intentar recuperar de caché local
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          setPortalData(parsed);
+          showToast('Modo sin conexión: Itinerario cargado desde la memoria local 📡', 'info');
+          setErrorMessage(null);
+          return;
+        } catch (_) {}
+      }
+
       setErrorMessage(err.message || 'No se pudo conectar con el portal del capacitador.');
       setPortalData(null);
     } finally {
@@ -144,6 +185,46 @@ export default function TrainerPortalView({
     } catch (err) {
       showToast(err.message || 'Error al actualizar estado', 'error');
     }
+  };
+
+  // Guardar firma digital de conformidad
+  const handleConfirmSignature = async (sigData) => {
+    if (!trainerCode || !activeSignatureCita) return;
+    try {
+      await api.updateTrainerCita(trainerCode, activeSignatureCita.id, {
+        firma_cliente: sigData.firma_cliente,
+        firmante_nombre: sigData.firmante_nombre,
+        firmante_puesto: sigData.firmante_puesto,
+        estado: 'Impartida'
+      });
+      showToast('¡Firma de conformidad registrada exitosamente! ✍️✅');
+      const updatedCita = {
+        ...activeSignatureCita,
+        firma_cliente: sigData.firma_cliente,
+        firmante_nombre: sigData.firmante_nombre,
+        firmante_puesto: sigData.firmante_puesto,
+        estado: 'Impartida',
+        firmado_at: new Date().toISOString()
+      };
+      await fetchPortalData(trainerCode);
+      if (onNotifyAdmin) onNotifyAdmin();
+      // Abrir automáticamente la Hoja de Servicio Digital
+      setActiveServiceSheetCita(updatedCita);
+    } catch (err) {
+      showToast(err.message || 'Error al guardar la firma', 'error');
+      throw err;
+    }
+  };
+
+  // Sincronizar jornada completa del día a calendario .ics
+  const handleExportDayItinerary = () => {
+    if (!portalData || !portalData.citas_hoy || portalData.citas_hoy.length === 0) {
+      showToast('No hay capacitaciones programadas para hoy para sincronizar.', 'info');
+      return;
+    }
+    const cap = portalData.capacitador;
+    const ics = generateDayItineraryIcs(portalData.citas_hoy, cap, portalData.resumen.today);
+    downloadIcsFile(`itinerario_${cap?.iniciales || 'trainer'}_${portalData.resumen.today}.ics`, ics);
   };
 
   // Abrir modal de bitácora
@@ -345,6 +426,9 @@ export default function TrainerPortalView({
         </div>
       )}
 
+      {/* Banner PWA y Estado de Conexión Offline */}
+      <PwaInstallBanner />
+
       {/* Barra de Perfil Móvil */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-3.5 sm:p-5 shadow-xs">
         <div className="flex items-center justify-between gap-2.5">
@@ -539,6 +623,23 @@ export default function TrainerPortalView({
           </span>
         </button>
       </div>
+      {/* Barra de acción rápida para el día de hoy */}
+      {activeSubTab === 'today' && citas_hoy.length > 0 && (
+        <div className="flex items-center justify-between px-1 text-xs">
+          <span className="font-bold text-slate-500 dark:text-slate-400">
+            Itinerario de hoy ({citas_hoy.length} {citas_hoy.length === 1 ? 'actividad' : 'actividades'})
+          </span>
+          <button
+            type="button"
+            onClick={handleExportDayItinerary}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-blue-700 dark:text-blue-300 font-bold border border-blue-200 dark:border-blue-900 transition-colors cursor-pointer text-[11px]"
+            title="Descargar archivo .ics con todas las citas de hoy para tu celular o calendario"
+          >
+            <CalendarPlus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <span>Sincronizar Día (.ics)</span>
+          </button>
+        </div>
+      )}
 
       {/* Lista de Citas */}
       <div className="space-y-3 pb-8">
@@ -683,14 +784,41 @@ export default function TrainerPortalView({
                   </div>
                 )}
 
+                {/* Insignia de Conformidad y Firma Digital si ya fue firmada */}
+                {cita.firma_cliente && (
+                  <div className="mt-3 p-3 rounded-2xl bg-teal-50/80 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800/80 flex items-center justify-between gap-3 text-xs text-teal-900 dark:text-teal-200">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <BadgeCheck className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-xs truncate">
+                          Conformidad firmada por <strong>{cita.firmante_nombre || cita.cliente_contacto || 'Cliente'}</strong>
+                        </p>
+                        <p className="text-[10px] text-teal-700 dark:text-teal-400 truncate">
+                          {cita.firmante_puesto ? `${cita.firmante_puesto} • ` : ''}
+                          {cita.firmado_at ? new Date(cita.firmado_at).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' }) : 'Certificado oficial'}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveServiceSheetCita(cita)}
+                      className="px-2.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-[11px] shrink-0 shadow-xs transition-colors cursor-pointer"
+                    >
+                      Ver Hoja
+                    </button>
+                  </div>
+                )}
+
                 {/* Botones de Acción Móvil en 1 toque */}
                 <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {/* Botón Iniciar Sesión (Pasa a En Curso) */}
                     {cita.estado === 'Programada' && (
                       <button
                         onClick={() => handleUpdateStatus(cita.id, 'En Curso')}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/20 transition-all transform active:scale-95 cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/20 transition-all transform active:scale-95 cursor-pointer"
                       >
                         <Play className="w-3.5 h-3.5 fill-current" />
                         <span>Iniciar Sesión</span>
@@ -701,40 +829,97 @@ export default function TrainerPortalView({
                     {cita.estado === 'En Curso' && (
                       <button
                         onClick={() => handleOpenLogModal(cita, true)}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all transform active:scale-95 cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all transform active:scale-95 cursor-pointer"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>Finalizar Sesión</span>
                       </button>
                     )}
 
-                    {/* Botón de Bitácora si no está finalizada o para redactar */}
+                    {/* Botón Firma Digital si no está firmada todavía y la sesión está en curso o completada */}
+                    {!cita.firma_cliente && (cita.estado === 'En Curso' || cita.estado === 'Impartida') && (
+                      <button
+                        type="button"
+                        onClick={() => setActiveSignatureCita(cita)}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all transform active:scale-95 cursor-pointer"
+                        title="Solicitar firma de conformidad al cliente"
+                      >
+                        <PenTool className="w-3.5 h-3.5" />
+                        <span>Firmar Conformidad</span>
+                      </button>
+                    )}
+
+                    {/* Botón de Bitácora */}
                     <button
                       onClick={() => handleOpenLogModal(cita)}
                       className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
                     >
                       <FileText className="w-3.5 h-3.5 text-slate-500" />
-                      <span>{cita.bitacora ? 'Ver / Editar Bitácora' : 'Registrar Bitácora'}</span>
+                      <span>{cita.bitacora ? 'Bitácora' : '+ Bitácora'}</span>
                     </button>
                   </div>
 
-                  {/* WhatsApp directo al cliente si tiene número */}
-                  {cita.cliente_telefono && (() => {
-                    let clean = cita.cliente_telefono.replace(/[^0-9]/g, '');
-                    if (clean.length === 8) clean = `502${clean}`;
-                    return (
-                      <a
-                        href={`https://api.whatsapp.com/send?phone=${clean}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors"
-                        title="Escribir por WhatsApp al cliente"
+                  {/* Acciones derechas: Calendario y WhatsApp */}
+                  <div className="flex items-center gap-1.5">
+                    {/* Botón Añadir a Calendario */}
+                    <div className="relative inline-block">
+                      <button
+                        type="button"
+                        onClick={() => setCalendarMenuCitaId(calendarMenuCitaId === cita.id ? null : cita.id)}
+                        className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
+                        title="Añadir a Google Calendar o Apple Calendar (.ics)"
                       >
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        <span>Chat Cliente</span>
-                      </a>
-                    );
-                  })()}
+                        <CalendarPlus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                        <span className="hidden sm:inline">Calendario</span>
+                      </button>
+
+                      {calendarMenuCitaId === cita.id && (
+                        <div className="absolute right-0 bottom-full mb-2 z-30 w-52 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-1.5 animate-in fade-in zoom-in-95 duration-100">
+                          <a
+                            href={buildGoogleCalendarUrl(cita, capacitador)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setCalendarMenuCitaId(null)}
+                            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-950/60 hover:text-blue-600 transition-colors"
+                          >
+                            <span>📅</span>
+                            <span>Google Calendar</span>
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const ics = generateIcsContent(cita, capacitador);
+                              downloadIcsFile(`cita_${cita.id}_agenda.ics`, ics);
+                              setCalendarMenuCitaId(null);
+                              showToast('Archivo .ics descargado para tu calendario 📲');
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 hover:text-indigo-600 transition-colors cursor-pointer text-left"
+                          >
+                            <span>📲</span>
+                            <span>Apple / Móvil (.ics)</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* WhatsApp directo al cliente si tiene número */}
+                    {cita.cliente_telefono && (() => {
+                      let clean = cita.cliente_telefono.replace(/[^0-9]/g, '');
+                      if (clean.length === 8) clean = `502${clean}`;
+                      return (
+                        <a
+                          href={`https://api.whatsapp.com/send?phone=${clean}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 px-2.5 py-2 rounded-xl text-xs font-bold transition-colors"
+                          title="Escribir por WhatsApp al cliente"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">WhatsApp</span>
+                        </a>
+                      );
+                    })()}
+                  </div>
                 </div>
               </div>
             );
@@ -823,6 +1008,23 @@ export default function TrainerPortalView({
                 Solo Guardar Notas
               </button>
 
+              {/* Botón Guardar y Pasar a Firma Digital */}
+              {activeLogCita.estado !== 'Impartida' && (
+                <button
+                  type="button"
+                  disabled={savingLog}
+                  onClick={async () => {
+                    const citaCopy = { ...activeLogCita, bitacora: logText.trim() };
+                    await handleSaveLog(false);
+                    setActiveSignatureCita(citaCopy);
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-blue-600/20 transition-all transform active:scale-95 cursor-pointer flex items-center gap-1.5"
+                >
+                  <PenTool className="w-3.5 h-3.5" />
+                  <span>Guardar y Pedir Firma</span>
+                </button>
+              )}
+
               {/* Botón Guardar y Marcar Impartida */}
               {activeLogCita.estado !== 'Impartida' && (
                 <button
@@ -832,13 +1034,34 @@ export default function TrainerPortalView({
                   className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all transform active:scale-95 cursor-pointer flex items-center gap-1.5"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Guardar y Marcar como Impartida</span>
+                  <span>Solo Marcar Impartida</span>
                 </button>
               )}
             </div>
           </div>
         </div>
       )}
+
+      {/* ==========================================
+          MODAL DE FIRMA DIGITAL DE CONFORMIDAD
+         ========================================== */}
+      <DigitalSignatureModal
+        isOpen={!!activeSignatureCita}
+        onClose={() => setActiveSignatureCita(null)}
+        cita={activeSignatureCita}
+        capacitador={capacitador}
+        onConfirmSignature={handleConfirmSignature}
+      />
+
+      {/* ==========================================
+          MODAL DE HOJA DE SERVICIO DIGITAL
+         ========================================== */}
+      <ServiceSheetModal
+        isOpen={!!activeServiceSheetCita}
+        onClose={() => setActiveServiceSheetCita(null)}
+        cita={activeServiceSheetCita}
+        capacitador={capacitador}
+      />
     </div>
   );
 }

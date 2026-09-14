@@ -26,6 +26,10 @@ async function getCitas(req, res, next) {
           COALESCE(c.estado, 'Programada') AS estado,
           c.observaciones,
           c.bitacora,
+          c.firma_cliente,
+          c.firmante_nombre,
+          c.firmante_puesto,
+          c.firmado_at,
           c.created_at,
           c.updated_at
         FROM citas c
@@ -70,11 +74,7 @@ async function getCitas(req, res, next) {
         )`;
       }
 
-      if (month && year) {
-        query += ` ORDER BY c.fecha ASC, c.hora_inicio ASC`;
-      } else {
-        query += ` ORDER BY c.fecha DESC, c.hora_inicio ASC`;
-      }
+      query += ` ORDER BY c.fecha DESC, c.hora_inicio DESC`;
 
       if (limit && !isNaN(parseInt(limit, 10))) {
         params.push(parseInt(limit, 10));
@@ -96,7 +96,11 @@ async function getCitas(req, res, next) {
         capacitador_iniciales: cap.iniciales || '??',
         capacitador_color: cap.color || '#3B82F6',
         estado: c.estado || 'Programada',
-        horas: Number(c.horas)
+        horas: Number(c.horas),
+        firma_cliente: c.firma_cliente || null,
+        firmante_nombre: c.firmante_nombre || null,
+        firmante_puesto: c.firmante_puesto || null,
+        firmado_at: c.firmado_at || null
       };
     });
 
@@ -167,7 +171,11 @@ async function getCitaById(req, res, next) {
           c.modalidad, c.tipo_servicio,
           COALESCE(c.estado, 'Programada') AS estado,
           c.observaciones,
-          c.bitacora
+          c.bitacora,
+          c.firma_cliente,
+          c.firmante_nombre,
+          c.firmante_puesto,
+          c.firmado_at
          FROM citas c
          LEFT JOIN clientes cl ON c.cliente_id = cl.id
          INNER JOIN capacitadores cp ON c.capacitador_id = cp.id
@@ -193,7 +201,11 @@ async function getCitaById(req, res, next) {
       capacitador_iniciales: cap.iniciales || '??',
       capacitador_color: cap.color || '#3B82F6',
       estado: c.estado || 'Programada',
-      horas: Number(c.horas)
+      horas: Number(c.horas),
+      firma_cliente: c.firma_cliente || null,
+      firmante_nombre: c.firmante_nombre || null,
+      firmante_puesto: c.firmante_puesto || null,
+      firmado_at: c.firmado_at || null
     });
   } catch (error) {
     next(error);
@@ -420,7 +432,11 @@ async function updateCita(req, res, next) {
       estado,
       observaciones,
       descripcion,
-      bitacora
+      bitacora,
+      firma_cliente,
+      firmante_nombre,
+      firmante_puesto,
+      firmado_at
     } = req.body;
 
     if (cliente_nombre !== undefined) {
@@ -566,8 +582,12 @@ async function updateCita(req, res, next) {
             tipo_servicio = COALESCE($9, tipo_servicio),
             estado = COALESCE($10, estado),
             observaciones = COALESCE($11, observaciones),
-            bitacora = COALESCE($12, bitacora)
-        WHERE id = $13
+            bitacora = COALESCE($12, bitacora),
+            firma_cliente = COALESCE($13, firma_cliente),
+            firmante_nombre = COALESCE($14, firmante_nombre),
+            firmante_puesto = COALESCE($15, firmante_puesto),
+            firmado_at = COALESCE($16, firmado_at)
+        WHERE id = $17
         RETURNING *
       `;
 
@@ -584,6 +604,10 @@ async function updateCita(req, res, next) {
         estadoFinal,
         obs,
         bitacora !== undefined ? bitacora : null,
+        firma_cliente !== undefined ? firma_cliente : null,
+        firmante_nombre !== undefined ? firmante_nombre : null,
+        firmante_puesto !== undefined ? firmante_puesto : null,
+        firmado_at !== undefined ? firmado_at : null,
         id
       ]);
 
@@ -608,6 +632,10 @@ async function updateCita(req, res, next) {
     if (estadoFinal !== undefined) cita.estado = estadoFinal;
     if (obs !== undefined) cita.observaciones = obs;
     if (bitacora !== undefined) cita.bitacora = bitacora;
+    if (firma_cliente !== undefined) cita.firma_cliente = firma_cliente;
+    if (firmante_nombre !== undefined) cita.firmante_nombre = firmante_nombre;
+    if (firmante_puesto !== undefined) cita.firmante_puesto = firmante_puesto;
+    if (firmado_at !== undefined) cita.firmado_at = firmado_at;
 
     const cap = db.mockStore.capacitadores.find(cp => cp.id === cita.capacitador_id) || {};
 

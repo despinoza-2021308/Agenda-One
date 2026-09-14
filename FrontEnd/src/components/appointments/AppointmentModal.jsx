@@ -23,9 +23,17 @@ import {
   Phone,
   Mail,
   Car,
-  MessageSquare
+  MessageSquare,
+  BadgeCheck,
+  CalendarPlus
 } from 'lucide-react';
 import ConfirmModal from '../common/ConfirmModal';
+import ServiceSheetModal from '../portal/ServiceSheetModal';
+import { 
+  buildGoogleCalendarUrl, 
+  generateIcsContent, 
+  downloadIcsFile 
+} from '../../utils/calendarExportUtils';
 
 const TIPOS_SERVICIO = ['Curso', 'Asesoría', 'Auditoría', 'Reunión', 'Seguimiento'];
 const MODALIDADES = ['Presencial', 'Virtual', 'Híbrida'];
@@ -77,6 +85,8 @@ export default function AppointmentModal({
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [isServiceSheetOpen, setIsServiceSheetOpen] = useState(false);
+  const [isCalendarExportOpen, setIsCalendarExportOpen] = useState(false);
 
   // Función interna para calcular horas decimales
   const calcHours = (inicio, fin) => {
@@ -103,7 +113,11 @@ export default function AppointmentModal({
         estado: appointment.estado || 'Programada',
         descripcion: appointment.observaciones || '',
         observaciones: appointment.observaciones || '',
-        bitacora: appointment.bitacora || ''
+        bitacora: appointment.bitacora || '',
+        firma_cliente: appointment.firma_cliente || null,
+        firmante_nombre: appointment.firmante_nombre || null,
+        firmante_puesto: appointment.firmante_puesto || null,
+        firmado_at: appointment.firmado_at || null
       });
       setIsManualHours(false);
     } else {
@@ -1113,6 +1127,50 @@ export default function AppointmentModal({
               Esta bitácora puede ser completada tanto por la administración como por el capacitador desde su portal móvil al terminar el servicio.
             </p>
           </div>
+
+          {/* Auditoría de Conformidad y Firma Digital del Cliente */}
+          {appointment?.firma_cliente && (
+            <div className="p-4 rounded-2xl bg-teal-50/80 dark:bg-teal-950/40 border-2 border-teal-300 dark:border-teal-800/80 text-teal-950 dark:text-teal-200 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between mb-2.5 pb-2.5 border-b border-teal-200 dark:border-teal-800/60">
+                <span className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 text-teal-900 dark:text-teal-300">
+                  <BadgeCheck className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                  <span>Auditoría: Firma Digital de Conformidad Registrada</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsServiceSheetOpen(true)}
+                  className="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer flex items-center gap-1"
+                >
+                  <span>Ver Hoja Oficial</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center text-xs">
+                <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-teal-200 dark:border-teal-800 flex flex-col items-center justify-center min-h-20 shadow-inner">
+                  <img
+                    src={appointment.firma_cliente}
+                    alt="Firma del Cliente"
+                    className="max-h-20 max-w-full object-contain"
+                  />
+                  <span className="text-[10px] text-slate-400 font-mono mt-1">Firma electrónica simple</span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-bold">Firmante Autorizado</p>
+                  <p className="text-sm font-black text-slate-900 dark:text-white">
+                    {appointment.firmante_nombre || appointment.cliente_contacto || 'Representante de Cliente'}
+                  </p>
+                  {appointment.firmante_puesto && (
+                    <p className="text-slate-600 dark:text-slate-300 font-semibold">
+                      Cargo: {appointment.firmante_puesto}
+                    </p>
+                  )}
+                  <p className="text-[11px] text-slate-400 font-mono">
+                    Fecha de firma: {appointment.firmado_at ? new Date(appointment.firmado_at).toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'short' }) : 'No especificada'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Pie fijo con botones de acción (shrink-0) */}
@@ -1129,6 +1187,46 @@ export default function AppointmentModal({
                 <span className="hidden sm:inline">Eliminar Cita</span>
                 <span className="sm:hidden">Eliminar</span>
               </button>
+
+              {/* Añadir a Calendario */}
+              <div className="relative inline-block">
+                <button
+                  type="button"
+                  onClick={() => setIsCalendarExportOpen(!isCalendarExportOpen)}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800 transition-all cursor-pointer"
+                  title="Añadir a Google Calendar o Apple Calendar (.ics)"
+                >
+                  <CalendarPlus className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <span className="hidden sm:inline">Calendario</span>
+                </button>
+
+                {isCalendarExportOpen && (
+                  <div className="absolute left-0 bottom-full mb-2 z-30 w-52 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-1.5 animate-in fade-in zoom-in-95 duration-100">
+                    <a
+                      href={buildGoogleCalendarUrl(appointment, selectedTrainer)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsCalendarExportOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-950/60 hover:text-blue-600 transition-colors"
+                    >
+                      <span>📅</span>
+                      <span>Google Calendar</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ics = generateIcsContent(appointment, selectedTrainer);
+                        downloadIcsFile(`cita_${appointment.id}_agenda.ics`, ics);
+                        setIsCalendarExportOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 hover:text-indigo-600 transition-colors cursor-pointer text-left"
+                    >
+                      <span>📲</span>
+                      <span>Apple / Móvil (.ics)</span>
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {onOpenWhatsApp && (
                 <button
@@ -1196,6 +1294,14 @@ export default function AppointmentModal({
       confirmText="Sí, Eliminar Cita"
       cancelText="Conservar Cita"
       variant="danger"
+    />
+
+    {/* Hoja de Servicio Digital para Auditoría Administrativa */}
+    <ServiceSheetModal
+      isOpen={isServiceSheetOpen}
+      onClose={() => setIsServiceSheetOpen(false)}
+      cita={appointment}
+      capacitador={selectedTrainer}
     />
   </div>,
   document.body
