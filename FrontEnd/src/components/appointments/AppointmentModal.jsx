@@ -25,10 +25,12 @@ import {
   Car,
   MessageSquare,
   BadgeCheck,
-  CalendarPlus
+  CalendarPlus,
+  History
 } from 'lucide-react';
 import ConfirmModal from '../common/ConfirmModal';
 import ServiceSheetModal from '../portal/ServiceSheetModal';
+import { api } from '../../services/api';
 import { 
   buildGoogleCalendarUrl, 
   generateIcsContent, 
@@ -87,6 +89,29 @@ export default function AppointmentModal({
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [isServiceSheetOpen, setIsServiceSheetOpen] = useState(false);
   const [isCalendarExportOpen, setIsCalendarExportOpen] = useState(false);
+
+  // Estado del Historial de Auditoría (Trazabilidad AD-RE-11)
+  const [auditoriaLogs, setAuditoriaLogs] = useState([]);
+  const [isAuditoriaOpen, setIsAuditoriaOpen] = useState(false);
+  const [loadingAuditoria, setLoadingAuditoria] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && appointment?.id) {
+      setLoadingAuditoria(true);
+      api.getCitaAuditoria(appointment.id)
+        .then(logs => {
+          setAuditoriaLogs(logs || []);
+        })
+        .catch(err => {
+          console.warn('No se pudo cargar auditoría:', err);
+          setAuditoriaLogs([]);
+        })
+        .finally(() => setLoadingAuditoria(false));
+    } else {
+      setAuditoriaLogs([]);
+      setIsAuditoriaOpen(false);
+    }
+  }, [isOpen, appointment?.id]);
 
   // Función interna para calcular horas decimales
   const calcHours = (inicio, fin) => {
@@ -1169,6 +1194,118 @@ export default function AppointmentModal({
                   </p>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Historial de Auditoría y Trazabilidad (AD-RE-11) */}
+          {appointment?.id && (
+            <div className="bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/90 dark:border-slate-700/80 rounded-2xl overflow-hidden transition-all">
+              <button
+                type="button"
+                onClick={() => setIsAuditoriaOpen(!isAuditoriaOpen)}
+                className="w-full p-3.5 flex items-center justify-between text-left hover:bg-slate-100/60 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60">
+                    <History className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-black text-slate-800 dark:text-slate-200">
+                        Historial de Auditoría y Trazabilidad
+                      </span>
+                      {auditoriaLogs.length > 0 && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                          {auditoriaLogs.length} eventos
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">
+                      Registro inmutable de creación, reprogramaciones, cancelaciones y firmas
+                    </span>
+                  </div>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isAuditoriaOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isAuditoriaOpen && (
+                <div className="px-3.5 pb-3.5 pt-1 border-t border-slate-200/60 dark:border-slate-700/60 space-y-2.5">
+                  {loadingAuditoria ? (
+                    <div className="py-4 text-center text-xs text-slate-400 animate-pulse">
+                      Cargando historial de auditoría...
+                    </div>
+                  ) : auditoriaLogs.length === 0 ? (
+                    <div className="py-3 text-center text-xs text-slate-400">
+                      No hay eventos registrados para esta cita aún.
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                      {auditoriaLogs.map((log) => {
+                        const badgeConfig = {
+                          'CREACION': { color: 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800', label: 'Creación', emoji: '✨' },
+                          'REPROGRAMACION': { color: 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800', label: 'Reprogramación', emoji: '🗓️' },
+                          'FIRMA_CONFORMIDAD': { color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800', label: 'Firma Conforme', emoji: '✍️' },
+                          'CANCELACION': { color: 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800', label: 'Cancelación', emoji: '❌' },
+                          'MODIFICACION': { color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700', label: 'Modificación', emoji: '📝' },
+                          'ELIMINACION': { color: 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800', label: 'Eliminación', emoji: '🗑️' }
+                        }[log.accion] || { color: 'bg-slate-100 text-slate-700', label: log.accion, emoji: '📌' };
+
+                        const fechaStr = log.created_at
+                          ? new Date(log.created_at).toLocaleString('es-GT', { dateStyle: 'short', timeStyle: 'short' })
+                          : 'Reciente';
+
+                        return (
+                          <div
+                            key={log.id}
+                            className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-start justify-between gap-2.5 text-xs shadow-2xs"
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className={`px-2 py-0.5 rounded-md font-bold text-[10px] border flex items-center gap-1 ${badgeConfig.color}`}>
+                                  <span>{badgeConfig.emoji}</span>
+                                  <span>{badgeConfig.label}</span>
+                                </span>
+                                <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">
+                                  {log.usuario || 'Sistema'}
+                                </span>
+                              </div>
+
+                              {log.detalles?.anterior && log.detalles?.nuevo && (
+                                <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                                  <span className="line-through text-slate-400 dark:text-slate-500 mr-1">{log.detalles.anterior}</span>
+                                  <span>➡️ {log.detalles.nuevo}</span>
+                                </p>
+                              )}
+
+                              {log.detalles?.firmante_nombre && (
+                                <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                                  Firmante: <strong>{log.detalles.firmante_nombre}</strong> {log.detalles.firmante_puesto ? `(${log.detalles.firmante_puesto})` : ''}
+                                </p>
+                              )}
+
+                              {log.detalles?.motivo && (
+                                <p className="text-[11px] text-slate-500 italic">
+                                  Motivo: "{log.detalles.motivo}"
+                                </p>
+                              )}
+
+                              {log.detalles?.horas && !log.detalles?.anterior && (
+                                <p className="text-[10px] text-slate-500">
+                                  {log.detalles.modalidad} · {log.detalles.tipo_servicio} · {log.detalles.horas} hrs
+                                </p>
+                              )}
+                            </div>
+
+                            <span className="text-[10px] font-mono text-slate-400 shrink-0">
+                              {fechaStr}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

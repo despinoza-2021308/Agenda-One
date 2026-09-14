@@ -1,6 +1,61 @@
 const db = require('../config/db');
 const { calcularHorasDecimales, validarHorarios, validarFecha } = require('../utils/timeUtils');
 
+// Utilidad para clasificar la acción de auditoría según los cambios detectados
+function resolverAccionAuditoria(prev, cambios) {
+  if (!prev) {
+    return { accion: 'MODIFICACION', detalles: cambios };
+  }
+  if (cambios.estadoFinal === 'Cancelada' && prev.estado !== 'Cancelada') {
+    return {
+      accion: 'CANCELACION',
+      detalles: {
+        motivo: cambios.obs || prev.observaciones || 'Cancelada en agenda central',
+        estado_anterior: prev.estado
+      }
+    };
+  }
+
+  const fPrev = String(prev.fecha || '').split('T')[0];
+  const fNext = cambios.fecha ? String(cambios.fecha).split('T')[0] : fPrev;
+  const hIniPrev = String(prev.hora_inicio || '').slice(0, 5);
+  const hIniNext = cambios.hora_inicio ? String(cambios.hora_inicio).slice(0, 5) : hIniPrev;
+  const hFinPrev = String(prev.hora_fin || '').slice(0, 5);
+  const hFinNext = cambios.hora_fin ? String(cambios.hora_fin).slice(0, 5) : hFinPrev;
+
+  if (fNext !== fPrev || hIniNext !== hIniPrev || hFinNext !== hFinPrev) {
+    return {
+      accion: 'REPROGRAMACION',
+      detalles: {
+        anterior: `${fPrev} (${hIniPrev} - ${hFinPrev})`,
+        nuevo: `${fNext} (${hIniNext} - ${hFinNext})`,
+        motivo: cambios.obs || null
+      }
+    };
+  }
+
+  if (cambios.firma_cliente && !prev.firma_cliente) {
+    return {
+      accion: 'FIRMA_CONFORMIDAD',
+      detalles: {
+        firmante_nombre: cambios.firmante_nombre,
+        firmante_puesto: cambios.firmante_puesto
+      }
+    };
+  }
+
+  return {
+    accion: 'MODIFICACION',
+    detalles: {
+      estado: cambios.estadoFinal || prev.estado,
+      horas: cambios.horasFinal || prev.horas,
+      modalidad: cambios.modalidad || prev.modalidad,
+      tipo_servicio: cambios.tipo_servicio || prev.tipo_servicio
+    }
+  };
+}
+
+
 // Obtener citas con filtros opcionales (rango de fechas, capacitador, cliente, estado)
 async function getCitas(req, res, next) {
   try {
@@ -381,7 +436,24 @@ async function createCita(req, res, next) {
         obs || null
       ]);
 
-      return res.status(201).json(result.rows[0]);
+      const created = result.rows[0];
+      await db.registrarAuditoria({
+        cita_id: created.id,
+        accion: 'CREACION',
+        usuario: 'Administrador',
+        detalles: {
+          cliente: nombreClienteFinal,
+          fecha,
+          hora_inicio,
+          hora_fin,
+          horas: horasCalculadas,
+          modalidad: mod,
+          tipo_servicio: serv
+        },
+        ip_origen: req.ip || req.headers['x-forwarded-for']
+      });
+
+      return res.status(201).json(created);
     }
 
     // Modo respaldo en memoria
@@ -400,6 +472,22 @@ async function createCita(req, res, next) {
     };
 
     db.mockStore.citas.push(newCita);
+
+    await db.registrarAuditoria({
+      cita_id: newCita.id,
+      accion: 'CREACION',
+      usuario: 'Administrador',
+      detalles: {
+        cliente: newCita.cliente_nombre,
+        fecha,
+        hora_inicio,
+        hora_fin,
+        horas: newCita.horas,
+        modalidad: newCita.modalidad,
+        tipo_servicio: newCita.tipo_servicio
+      },
+      ip_origen: req.ip || req.headers['x-forwarded-for']
+    });
 
     const cap = db.mockStore.capacitadores.find(cp => cp.id === newCita.capacitador_id) || {};
 
@@ -569,6 +657,12 @@ async function updateCita(req, res, next) {
     }
 
     if (db.isPostgresConnected()) {
+      const prevCheck = await db.pool.query('SELECT * FROM citas WHERE id = $1', [id]);
+      if (prevCheck.rows.length === 0) {
+        return res.status(404).json({ message: 'Cita no encontrada.' });
+      }
+      const prevCita = prevCheck.rows[0];
+
       const updateQuery = `
         UPDATE citas
         SET cliente_id = COALESCE($1, cliente_id),
@@ -614,12 +708,36 @@ async function updateCita(req, res, next) {
       if (result.rows.length === 0) {
         return res.status(404).json({ message: 'Cita no encontrada.' });
       }
+
+      const { accion, detalles } = resolverAccionAuditoria(prevCita, {
+        fecha,
+        hora_inicio,
+        hora_fin,
+        estadoFinal,
+        obs,
+        firma_cliente,
+        firmante_nombre,
+        firmante_puesto,
+        horasFinal,
+        modalidad,
+        tipo_servicio
+      });
+
+      await db.registrarAuditoria({
+        cita_id: id,
+        accion,
+        usuario: 'Administrador',
+        detalles,
+        ip_origen: req.ip || req.headers['x-forwarded-for']
+      });
+
       return res.json(result.rows[0]);
     }
 
     // Modo respaldo
     const cita = db.mockStore.citas.find(c => c.id === parseInt(id, 10));
     if (!cita) return res.status(404).json({ message: 'Cita no encontrada.' });
+    const prevCita = { ...cita };
 
     if (cliente_nombre !== undefined) cita.cliente_nombre = cliente_nombre.trim();
     if (capacitador_id !== undefined) cita.capacitador_id = parseInt(capacitador_id, 10);
@@ -636,6 +754,28 @@ async function updateCita(req, res, next) {
     if (firmante_nombre !== undefined) cita.firmante_nombre = firmante_nombre;
     if (firmante_puesto !== undefined) cita.firmante_puesto = firmante_puesto;
     if (firmado_at !== undefined) cita.firmado_at = firmado_at;
+
+    const { accion, detalles } = resolverAccionAuditoria(prevCita, {
+      fecha,
+      hora_inicio,
+      hora_fin,
+      estadoFinal,
+      obs,
+      firma_cliente,
+      firmante_nombre,
+      firmante_puesto,
+      horasFinal,
+      modalidad,
+      tipo_servicio
+    });
+
+    await db.registrarAuditoria({
+      cita_id: id,
+      accion,
+      usuario: 'Administrador',
+      detalles,
+      ip_origen: req.ip || req.headers['x-forwarded-for']
+    });
 
     const cap = db.mockStore.capacitadores.find(cp => cp.id === cita.capacitador_id) || {};
 
@@ -657,10 +797,17 @@ async function deleteCita(req, res, next) {
     const { id } = req.params;
 
     if (db.isPostgresConnected()) {
-      const result = await db.pool.query('DELETE FROM citas WHERE id = $1 RETURNING id', [id]);
+      const result = await db.pool.query('DELETE FROM citas WHERE id = $1 RETURNING id, cliente_nombre, fecha', [id]);
       if (result.rows.length === 0) {
         return res.status(404).json({ message: 'Cita no encontrada.' });
       }
+      await db.registrarAuditoria({
+        cita_id: id,
+        accion: 'ELIMINACION',
+        usuario: 'Administrador',
+        detalles: { cliente: result.rows[0].cliente_nombre, fecha: result.rows[0].fecha },
+        ip_origen: req.ip || req.headers['x-forwarded-for']
+      });
       return res.json({ message: 'Cita eliminada correctamente.', id: result.rows[0].id });
     }
 
@@ -669,8 +816,29 @@ async function deleteCita(req, res, next) {
       return res.status(404).json({ message: 'Cita no encontrada.' });
     }
 
+    const deletedCita = db.mockStore.citas[index];
     db.mockStore.citas.splice(index, 1);
+
+    await db.registrarAuditoria({
+      cita_id: id,
+      accion: 'ELIMINACION',
+      usuario: 'Administrador',
+      detalles: { cliente: deletedCita.cliente_nombre, fecha: deletedCita.fecha },
+      ip_origen: req.ip || req.headers['x-forwarded-for']
+    });
+
     return res.json({ message: 'Cita eliminada correctamente.', id });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Consultar trazabilidad / historial de auditoría de una cita
+async function getCitaAuditoria(req, res, next) {
+  try {
+    const { id } = req.params;
+    const historial = await db.obtenerAuditoriaPorCita(id);
+    return res.json(historial);
   } catch (error) {
     next(error);
   }
@@ -681,5 +849,6 @@ module.exports = {
   getCitaById,
   createCita,
   updateCita,
-  deleteCita
+  deleteCita,
+  getCitaAuditoria
 };

@@ -70,6 +70,10 @@ const mutationLimiter = rateLimit({
 // 4. Sanitización preventiva Anti-XSS recursiva
 function stripDangerousChars(val) {
   if (typeof val === 'string') {
+    // Si es una imagen en formato Data URL (ej: firma digital), proteger el Base64 de alteraciones accidentales
+    if (val.startsWith('data:image/')) {
+      return val.replace(/\0/g, '').replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    }
     return val
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Elimina scripts completos
       .replace(/javascript:/gi, '') // Elimina pseudo-protocolo javascript:

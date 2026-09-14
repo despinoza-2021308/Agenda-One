@@ -265,6 +265,17 @@ async function updateTrainerCita(req, res, next) {
         id
       ]);
 
+      const auditAccion = firma_cliente ? 'FIRMA_CONFORMIDAD' : (bitacora ? 'BITACORA_REGISTRADA' : 'CAMBIO_ESTADO');
+      await db.registrarAuditoria({
+        cita_id: id,
+        accion: auditAccion,
+        usuario: `Capacitador [${codigo}]`,
+        detalles: firma_cliente
+          ? { firmante_nombre, firmante_puesto, estado: 'Impartida' }
+          : { estado: resolvedEstado, tiene_bitacora: !!bitacora },
+        ip_origen: req.ip || req.headers['x-forwarded-for']
+      });
+
       return res.json({
         success: true,
         message: firma_cliente ? 'Conformidad y firma registradas exitosamente.' : 'Cita actualizada exitosamente.',
@@ -305,6 +316,17 @@ async function updateTrainerCita(req, res, next) {
     if (firmante_puesto !== undefined) {
       cita.firmante_puesto = firmante_puesto;
     }
+
+    const auditAccion = firma_cliente ? 'FIRMA_CONFORMIDAD' : (bitacora ? 'BITACORA_REGISTRADA' : 'CAMBIO_ESTADO');
+    await db.registrarAuditoria({
+      cita_id: id,
+      accion: auditAccion,
+      usuario: `Capacitador [${codigo}]`,
+      detalles: firma_cliente
+        ? { firmante_nombre, firmante_puesto, estado: 'Impartida' }
+        : { estado: resolvedEstado, tiene_bitacora: !!bitacora },
+      ip_origen: req.ip || req.headers['x-forwarded-for']
+    });
 
     return res.json({
       success: true,

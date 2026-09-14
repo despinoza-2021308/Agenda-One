@@ -8,6 +8,7 @@ router.param('id', validateNumericId);
 
 router.get('/', controller.getCitas);
 router.get('/:id', controller.getCitaById);
+router.get('/:id/auditoria', controller.getCitaAuditoria);
 router.post('/', controller.createCita);
 router.put('/:id', controller.updateCita);
 router.delete('/:id', controller.deleteCita);

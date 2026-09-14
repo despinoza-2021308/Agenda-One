@@ -140,10 +140,31 @@ const mockStore = {
     { id: 50, cliente_nombre: 'Distribuidora Logística Central', capacitador_id: 5, fecha: '2026-09-30', hora_inicio: '08:00', hora_fin: '12:00', horas: 4.00, modalidad: 'Presencial', tipo_servicio: 'Auditoría', estado: 'Programada', observaciones: 'Presentación de Resultados Finales de Auditoría de Cierre Trimestral.', bitacora: null },
     { id: 51, cliente_nombre: 'Supermercados La Unión S.A.', capacitador_id: 3, fecha: '2026-09-30', hora_inicio: '13:00', hora_fin: '16:00', horas: 3.00, modalidad: 'Presencial', tipo_servicio: 'Reunión', estado: 'Programada', observaciones: 'Sesión ejecutiva de balance de horas y satisfacción de capacitaciones.', bitacora: null }
   ],
+  auditoria_citas: [
+    {
+      id: 1,
+      cita_id: 1,
+      accion: 'CREACION',
+      usuario: 'Administrador',
+      detalles: { notas: 'Cita registrada en agendamiento central.' },
+      ip_origen: '127.0.0.1',
+      created_at: new Date('2026-08-25T10:00:00.000Z')
+    },
+    {
+      id: 2,
+      cita_id: 1,
+      accion: 'FIRMA_CONFORMIDAD',
+      usuario: 'Capacitador [MO]',
+      detalles: { firmante_nombre: 'Ing. Roberto Silva', firmante_puesto: 'Gerente de Planta' },
+      ip_origen: '127.0.0.1',
+      created_at: new Date('2026-09-01T11:35:00.000Z')
+    }
+  ],
   nextIds: {
     capacitadores: 6,
     clientes: 11,
-    citas: 52
+    citas: 52,
+    auditoria_citas: 3
   }
 };
 
@@ -273,6 +294,18 @@ async function autoInitTables(client) {
         (9, 2, '2026-09-29', '13:30', '16:30', 3.00, 'Virtual', 'Asesoría', 'Programada', 'Asesoría en Plan de Continuidad de Negocio (BCP).'),
         (3, 5, '2026-09-30', '08:00', '12:00', 4.00, 'Presencial', 'Auditoría', 'Programada', 'Presentación de Resultados Finales de Auditoría de Cierre Trimestral.'),
         (10, 3, '2026-09-30', '13:00', '16:00', 3.00, 'Presencial', 'Reunión', 'Programada', 'Sesión ejecutiva de balance de horas y satisfacción de capacitaciones.');
+
+        CREATE TABLE IF NOT EXISTS auditoria_citas (
+          id SERIAL PRIMARY KEY,
+          cita_id INT NOT NULL,
+          accion VARCHAR(50) NOT NULL,
+          usuario VARCHAR(100) NOT NULL DEFAULT 'Administrador',
+          detalles JSONB,
+          ip_origen VARCHAR(45),
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_auditoria_cita_id ON auditoria_citas(cita_id);
+        CREATE INDEX IF NOT EXISTS idx_auditoria_created_at ON auditoria_citas(created_at);
       `);
       console.log('🌱 [DB] Tablas y datos semilla creados exitosamente en PostgreSQL.');
     }
@@ -299,10 +332,69 @@ async function testConnection() {
 
 testConnection();
 
+async function registrarAuditoria({ cita_id, accion, usuario = 'Administrador', detalles = null, ip_origen = null }) {
+  const timestamp = new Date();
+  if (isPostgresConnected) {
+    try {
+      const res = await pool.query(
+        `INSERT INTO auditoria_citas (cita_id, accion, usuario, detalles, ip_origen, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [
+          Number(cita_id),
+          accion,
+          usuario,
+          detalles ? JSON.stringify(detalles) : null,
+          ip_origen || null,
+          timestamp
+        ]
+      );
+      return res.rows[0];
+    } catch (err) {
+      console.error('⚠️ [Auditoría] Error al insertar en PostgreSQL:', err.message);
+    }
+  }
+
+  // Respaldo en mockStore
+  const newAudit = {
+    id: (mockStore.nextIds.auditoria_citas = (mockStore.nextIds.auditoria_citas || mockStore.auditoria_citas.length + 1) + 1),
+    cita_id: Number(cita_id),
+    accion,
+    usuario,
+    detalles: typeof detalles === 'object' && detalles !== null ? detalles : null,
+    ip_origen: ip_origen || null,
+    created_at: timestamp
+  };
+  mockStore.auditoria_citas.push(newAudit);
+  return newAudit;
+}
+
+async function obtenerAuditoriaPorCita(cita_id) {
+  if (isPostgresConnected) {
+    try {
+      const res = await pool.query(
+        `SELECT * FROM auditoria_citas WHERE cita_id = $1 ORDER BY created_at DESC`,
+        [Number(cita_id)]
+      );
+      return res.rows.map(row => ({
+        ...row,
+        detalles: typeof row.detalles === 'string' ? JSON.parse(row.detalles) : row.detalles
+      }));
+    } catch (err) {
+      console.error('⚠️ [Auditoría] Error al consultar en PostgreSQL:', err.message);
+    }
+  }
+
+  return mockStore.auditoria_citas
+    .filter(a => Number(a.cita_id) === Number(cita_id))
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
 module.exports = {
   pool,
   isPostgresConnected: () => isPostgresConnected,
   mockStore,
+  registrarAuditoria,
+  obtenerAuditoriaPorCita,
   query: async (text, params) => {
     if (isPostgresConnected) {
       return pool.query(text, params);

@@ -95,6 +95,7 @@ export const api = {
     return request(`/citas${qs ? `?${qs}` : ''}`);
   },
   getCitaById: (id) => request(`/citas/${id}`),
+  getCitaAuditoria: (id) => request(`/citas/${id}/auditoria`),
   createCita: (data) => request('/citas', { method: 'POST', body: JSON.stringify(data) }),
   updateCita: (id, data) => request(`/citas/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteCita: (id) => request(`/citas/${id}`, { method: 'DELETE' }),

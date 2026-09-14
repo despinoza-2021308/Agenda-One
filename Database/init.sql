@@ -109,3 +109,26 @@ BEGIN
     END IF;
 END $$;
 
+-- 8. Tabla de Auditoría de Citas (Trazabilidad y Control de Cambios)
+CREATE TABLE IF NOT EXISTS auditoria_citas (
+    id SERIAL PRIMARY KEY,
+    cita_id INT NOT NULL,
+    accion VARCHAR(50) NOT NULL, -- 'CREACION', 'MODIFICACION', 'REPROGRAMACION', 'CANCELACION', 'FIRMA_CONFORMIDAD', 'ELIMINACION'
+    usuario VARCHAR(100) NOT NULL DEFAULT 'Administrador',
+    detalles JSONB,
+    ip_origen VARCHAR(45),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_auditoria_cita_id ON auditoria_citas(cita_id);
+CREATE INDEX IF NOT EXISTS idx_auditoria_created_at ON auditoria_citas(created_at);
+
+ALTER TABLE auditoria_citas ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'auditoria_citas' AND policyname = 'Acceso total auditoria') THEN
+        CREATE POLICY "Acceso total auditoria" ON auditoria_citas FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
+
+
