@@ -37,7 +37,7 @@ import {
   downloadIcsFile 
 } from '../../utils/calendarExportUtils';
 
-const TIPOS_SERVICIO = [
+export const TIPOS_SERVICIO = [
   'Consultoría',
   'Capacitación',
   'Auditoría',
@@ -45,7 +45,17 @@ const TIPOS_SERVICIO = [
   'Requerimientos Legales',
   'Mediciones'
 ];
-const MODALIDADES = ['Presencial', 'Virtual', 'Híbrida'];
+export const MODALIDADES = ['Presencial', 'Virtual', 'Híbrida'];
+
+export const normalizeTipoServicio = (tipo) => {
+  if (!tipo) return 'Consultoría';
+  const t = String(tipo).trim();
+  if (t === 'Curso') return 'Capacitación';
+  if (t === 'Asesoría' || t === 'Asesoria') return 'Consultoría';
+  if (t === 'Reunión' || t === 'Reunion') return 'Normas';
+  if (t === 'Seguimiento') return 'Requerimientos Legales';
+  return TIPOS_SERVICIO.includes(t) ? t : 'Consultoría';
+};
 
 export const ESTADOS = [
   { id: 'Programada', label: 'Programada', emoji: '🗓️', colorClass: 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 hover:bg-blue-100/70', activeClass: 'bg-blue-600 text-white shadow-sm shadow-blue-500/30 border-blue-600' },
@@ -141,7 +151,7 @@ export default function AppointmentModal({
         hora_fin: appointment.hora_fin || '12:00',
         horas: appointment.horas ? String(appointment.horas) : '4',
         modalidad: appointment.modalidad || 'Presencial',
-        tipo_servicio: appointment.tipo_servicio || 'Consultoría',
+        tipo_servicio: normalizeTipoServicio(appointment.tipo_servicio),
         estado: appointment.estado || 'Programada',
         descripcion: appointment.observaciones || '',
         observaciones: appointment.observaciones || '',
