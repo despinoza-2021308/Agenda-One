@@ -71,7 +71,7 @@ describe('Pruebas de Integración de Endpoints y Robustez de API', () => {
         hora_inicio: '08:00',
         hora_fin: '12:00',
         modalidad: 'Presencial',
-        tipo_servicio: 'Curso'
+        tipo_servicio: 'Capacitación'
       })
     });
     assert.strictEqual(res.status, 401);
@@ -128,7 +128,7 @@ describe('Pruebas de Integración de Endpoints y Robustez de API', () => {
         hora_inicio: '08:00',
         hora_fin: '10:00',
         modalidad: 'Virtual',
-        tipo_servicio: 'Asesoría',
+        tipo_servicio: 'Consultoría',
         observaciones: 'Cita creada para probar trazabilidad.'
       })
     });

@@ -326,7 +326,7 @@ async function createCita(req, res, next) {
     }
 
     // Validación de tipo de servicio
-    const serv = (tipo_servicio || 'Curso').trim();
+    const serv = (tipo_servicio || 'Consultoría').trim();
     if (serv.length < 2 || serv.length > 80) {
       return res.status(400).json({ message: 'El tipo de servicio debe tener entre 2 y 80 caracteres.' });
     }

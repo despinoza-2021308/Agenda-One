@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS citas (
     hora_fin TIME NOT NULL,
     horas NUMERIC(4, 2) NOT NULL CONSTRAINT chk_horas_limite CHECK (horas > 0 AND horas <= 24),
     modalidad VARCHAR(20) NOT NULL CHECK (modalidad IN ('Presencial', 'Virtual', 'Híbrida')),
-    tipo_servicio VARCHAR(30) NOT NULL CHECK (tipo_servicio IN ('Asesoría', 'Curso', 'Auditoría', 'Reunión', 'Seguimiento')),
+    tipo_servicio VARCHAR(50) NOT NULL CHECK (tipo_servicio IN ('Consultoría', 'Capacitación', 'Auditoría', 'Normas', 'Requerimientos Legales', 'Mediciones', 'Consultoria', 'Capacitacion', 'Auditoria')),
     estado VARCHAR(25) NOT NULL DEFAULT 'Programada' CHECK (estado IN ('Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada')),
     observaciones TEXT,
     bitacora TEXT,
@@ -57,6 +57,20 @@ ALTER TABLE citas ADD COLUMN IF NOT EXISTS firma_cliente TEXT;
 ALTER TABLE citas ADD COLUMN IF NOT EXISTS firmante_nombre VARCHAR(120);
 ALTER TABLE citas ADD COLUMN IF NOT EXISTS firmante_puesto VARCHAR(100);
 ALTER TABLE citas ADD COLUMN IF NOT EXISTS firmado_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE citas ALTER COLUMN tipo_servicio TYPE VARCHAR(50);
+
+DO $$
+BEGIN
+    ALTER TABLE citas DROP CONSTRAINT IF EXISTS citas_tipo_servicio_check;
+    ALTER TABLE citas ADD CONSTRAINT citas_tipo_servicio_check 
+      CHECK (tipo_servicio IN (
+        'Consultoría', 'Capacitación', 'Auditoría', 'Normas', 'Requerimientos Legales', 'Mediciones',
+        'Consultoria', 'Capacitacion', 'Auditoria',
+        'Asesoría', 'Curso', 'Reunión', 'Seguimiento'
+      ));
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END $$;
 
 -- 4. Índices de Alto Rendimiento para Calendario y Filtros
 CREATE INDEX IF NOT EXISTS idx_citas_fecha ON citas(fecha);

@@ -37,7 +37,14 @@ import {
   downloadIcsFile 
 } from '../../utils/calendarExportUtils';
 
-const TIPOS_SERVICIO = ['Curso', 'Asesoría', 'Auditoría', 'Reunión', 'Seguimiento'];
+const TIPOS_SERVICIO = [
+  'Consultoría',
+  'Capacitación',
+  'Auditoría',
+  'Normas',
+  'Requerimientos Legales',
+  'Mediciones'
+];
 const MODALIDADES = ['Presencial', 'Virtual', 'Híbrida'];
 
 export const ESTADOS = [
@@ -72,7 +79,7 @@ export default function AppointmentModal({
     hora_fin: '12:00',
     horas: '4',
     modalidad: 'Presencial',
-    tipo_servicio: 'Curso',
+    tipo_servicio: 'Consultoría',
     estado: 'Programada',
     descripcion: '',
     observaciones: '',
@@ -134,7 +141,7 @@ export default function AppointmentModal({
         hora_fin: appointment.hora_fin || '12:00',
         horas: appointment.horas ? String(appointment.horas) : '4',
         modalidad: appointment.modalidad || 'Presencial',
-        tipo_servicio: appointment.tipo_servicio || 'Curso',
+        tipo_servicio: appointment.tipo_servicio || 'Consultoría',
         estado: appointment.estado || 'Programada',
         descripcion: appointment.observaciones || '',
         observaciones: appointment.observaciones || '',
@@ -157,7 +164,7 @@ export default function AppointmentModal({
         hora_fin: '12:00',
         horas: String(initialHoras),
         modalidad: 'Presencial',
-        tipo_servicio: 'Curso',
+        tipo_servicio: 'Consultoría',
         estado: 'Programada',
         descripcion: '',
         observaciones: '',
