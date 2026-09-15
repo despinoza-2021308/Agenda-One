@@ -1,5 +1,8 @@
-const { Pool, Client } = require('pg');
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
 require('dotenv').config();
+const { Pool, Client } = require('pg');
 
 const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
 
@@ -227,6 +230,18 @@ async function autoInitTables(client) {
       UPDATE citas SET tipo_servicio = 'Consultoría' WHERE tipo_servicio IN ('Asesoría', 'Asesoria');
       UPDATE citas SET tipo_servicio = 'Normas' WHERE tipo_servicio IN ('Reunión', 'Reunion');
       UPDATE citas SET tipo_servicio = 'Requerimientos Legales' WHERE tipo_servicio IN ('Seguimiento');
+
+      CREATE TABLE IF NOT EXISTS auditoria_citas (
+        id SERIAL PRIMARY KEY,
+        cita_id INT NOT NULL,
+        accion VARCHAR(50) NOT NULL,
+        usuario VARCHAR(100) NOT NULL DEFAULT 'Administrador',
+        detalles JSONB,
+        ip_origen VARCHAR(45),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_auditoria_cita_id ON auditoria_citas(cita_id);
+      CREATE INDEX IF NOT EXISTS idx_auditoria_created_at ON auditoria_citas(created_at);
     `);
 
     const capRes = await client.query('SELECT COUNT(*) FROM capacitadores');
@@ -325,6 +340,8 @@ async function autoInitTables(client) {
   }
 }
 
+let initPromise = null;
+
 async function testConnection() {
   await ensureDatabaseExists();
   try {
@@ -334,14 +351,23 @@ async function testConnection() {
     await autoInitTables(client);
     client.release();
     isPostgresConnected = true;
+    return true;
   } catch (err) {
     isPostgresConnected = false;
     console.warn('⚠️ [DB] PostgreSQL no disponible localmente (' + err.message + ').');
     console.warn('ℹ️ [DB] Activando motor de datos en memoria local con datos de seed para continuidad operativa.');
+    return false;
   }
 }
 
-testConnection();
+function ensureConnected() {
+  if (!initPromise) {
+    initPromise = testConnection();
+  }
+  return initPromise;
+}
+
+ensureConnected();
 
 async function registrarAuditoria({ cita_id, accion, usuario = 'Administrador', detalles = null, ip_origen = null }) {
   const timestamp = new Date();
@@ -402,6 +428,7 @@ async function obtenerAuditoriaPorCita(cita_id) {
 
 module.exports = {
   pool,
+  ensureConnected,
   isPostgresConnected: () => isPostgresConnected,
   mockStore,
   registrarAuditoria,

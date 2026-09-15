@@ -40,6 +40,15 @@ app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 // 7. Sanitización preventiva de entradas contra inyecciones XSS
 app.use(sanitizeInput);
 
+// 7.5. Garantizar conexión a PostgreSQL antes de procesar cualquier endpoint (evita race conditions en Vercel)
+const db = require('./config/db');
+app.use(async (req, res, next) => {
+  try {
+    await db.ensureConnected();
+  } catch (_) {}
+  next();
+});
+
 // 8. Rutas de API (soporta tanto prefijo /api como llamadas directas en Vercel Serverless)
 app.use('/api', apiRoutes);
 app.use('/', apiRoutes);

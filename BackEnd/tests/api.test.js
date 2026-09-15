@@ -77,11 +77,18 @@ describe('Pruebas de Integración de Endpoints y Robustez de API', () => {
     assert.strictEqual(res.status, 401);
   });
 
+  let targetCitaId = 1;
+
   it('Soporte de Payload 5MB: debe aceptar firmas digitales pesadas en Base64 sin error 413', async () => {
+    // Obtener una cita real de MO
+    const portalRes = await fetch(`${baseUrl}/api/portal/MO`);
+    const portalData = await portalRes.json();
+    targetCitaId = (portalData.citas_mes && portalData.citas_mes[0]?.id) || (portalData.citas_hoy && portalData.citas_hoy[0]?.id) || 85;
+
     // Generar una cadena Base64 simulada de más de 120 KB (que superaría el límite anterior de 50 KB)
     const largeBase64Data = 'data:image/png;base64,' + 'A'.repeat(120 * 1024);
 
-    const res = await fetch(`${baseUrl}/api/portal/MO/citas/1`, {
+    const res = await fetch(`${baseUrl}/api/portal/MO/citas/${targetCitaId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -99,8 +106,8 @@ describe('Pruebas de Integración de Endpoints y Robustez de API', () => {
   });
 
   it('Historial de Auditoría (Audit Trail): debe registrar y devolver trazabilidad en GET /api/citas/:id/auditoria', async () => {
-    // 1. Consultar historial de la cita 1
-    const resAuditoria = await fetch(`${baseUrl}/api/citas/1/auditoria`);
+    // 1. Consultar historial de la cita
+    const resAuditoria = await fetch(`${baseUrl}/api/citas/${targetCitaId}/auditoria`);
     assert.strictEqual(resAuditoria.status, 200);
     const historial = await resAuditoria.json();
 
