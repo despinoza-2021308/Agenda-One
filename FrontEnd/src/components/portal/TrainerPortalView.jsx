@@ -264,7 +264,7 @@ export default function TrainerPortalView({
   if (!trainerCode || !portalData) {
     return (
       <div className="flex-1 w-full max-w-md mx-auto flex items-center justify-center py-4 sm:py-10 px-3 sm:px-4 animate-in fade-in duration-300 overflow-x-hidden">
-        <div className="w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-5 sm:p-8 relative overflow-hidden">
+        <div className="w-full glass-panel rounded-3xl border border-white/80 dark:border-white/10 shadow-glass p-5 sm:p-8 relative overflow-hidden">
           
           {/* Acento estético superior */}
           <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500" />
@@ -429,8 +429,8 @@ export default function TrainerPortalView({
       {/* Banner PWA y Estado de Conexión Offline */}
       <PwaInstallBanner />
 
-      {/* Barra de Perfil Móvil */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-3.5 sm:p-5 shadow-xs">
+      {/* Cabecera del Portal: Identidad del Capacitador */}
+      <div className="glass-panel rounded-3xl border border-white/80 dark:border-white/10 p-3.5 sm:p-4 shadow-glass transition-all duration-200">
         <div className="flex items-center justify-between gap-2.5">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
             {/* Avatar con iniciales */}
@@ -503,7 +503,7 @@ export default function TrainerPortalView({
       </div>
 
       {/* Tarjeta de Resumen Mensual (KPIs & Honorarios en Quetzales) */}
-      <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-blue-950 text-white rounded-3xl p-4 sm:p-6 shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-br from-slate-900/90 via-indigo-950/85 to-blue-950/85 text-white rounded-3xl p-4 sm:p-6 shadow-xl border border-white/15 backdrop-blur-xl relative overflow-hidden">
         {/* Adorno visual de fondo */}
         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-48 h-48 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
 
@@ -576,7 +576,7 @@ export default function TrainerPortalView({
       </div>
 
       {/* Pestañas de Itinerario */}
-      <div className="flex items-center gap-1.5 p-1 bg-slate-200/80 dark:bg-slate-800/80 rounded-2xl backdrop-blur">
+      <div className="flex items-center gap-1.5 p-1 bg-slate-200/50 dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-white/5 backdrop-blur-md">
         <button
           onClick={() => setActiveSubTab('today')}
           className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
@@ -667,12 +667,12 @@ export default function TrainerPortalView({
             return (
               <div
                 key={cita.id}
-                className={`bg-white dark:bg-slate-900 rounded-3xl border transition-all p-4 sm:p-5 shadow-xs relative overflow-hidden ${
+                className={`glass-card glass-card-hover rounded-3xl border border-white/80 dark:border-white/10 transition-all p-4 sm:p-5 shadow-glass-sm hover:shadow-glass-hover relative overflow-hidden ${
                   isEnCurso 
-                    ? 'border-amber-400 dark:border-amber-500/80 ring-2 ring-amber-400/20 shadow-amber-500/10'
+                    ? 'border-amber-400 dark:border-amber-500/80 ring-2 ring-amber-400/30 shadow-amber-500/15'
                     : isImpartida
-                      ? 'border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/20 dark:bg-emerald-950/10'
-                      : 'border-slate-200 dark:border-slate-800'
+                      ? 'border-emerald-300/40 dark:border-emerald-900/60 bg-emerald-50/20 dark:bg-emerald-950/10'
+                      : ''
                 }`}
               >
                 {/* Banda de estado para En Curso */}

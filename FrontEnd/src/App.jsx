@@ -546,21 +546,28 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col selection:bg-blue-600 selection:text-white transition-colors duration-200">
+    <div className="min-h-screen bg-slate-50/90 dark:bg-[#060913] text-slate-900 dark:text-slate-100 flex flex-col selection:bg-blue-600 selection:text-white transition-colors duration-200 relative overflow-x-hidden">
       
-      {/* Toast flotante */}
+      {/* Fondo ambiental dinámico Liquid Glass */}
+      <div className="liquid-canvas" aria-hidden="true">
+        <div className="liquid-orb w-[480px] sm:w-[620px] h-[480px] sm:h-[620px] -top-28 -left-24 bg-gradient-to-br from-blue-500/20 via-indigo-500/15 to-cyan-400/15 dark:from-blue-600/25 dark:via-indigo-700/20 dark:to-cyan-500/15" />
+        <div className="liquid-orb-2 w-[520px] sm:w-[680px] h-[520px] sm:h-[680px] top-[28%] -right-28 bg-gradient-to-bl from-purple-500/15 via-blue-500/15 to-sky-400/15 dark:from-purple-700/20 dark:via-blue-600/15 dark:to-indigo-500/15" />
+        <div className="liquid-orb-3 w-[560px] sm:w-[720px] h-[560px] sm:h-[720px] bottom-[-8%] left-[18%] bg-gradient-to-tr from-emerald-500/12 via-teal-400/10 to-indigo-500/15 dark:from-cyan-700/15 dark:via-indigo-800/15 dark:to-emerald-600/10" />
+      </div>
+
+      {/* Toast flotante de cristal líquido */}
       {toast && (
         <div
-          className={`fixed bottom-5 right-5 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl border text-xs font-bold transition-all animate-in slide-in-from-bottom-5 duration-200 ${
+          className={`fixed bottom-5 right-5 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-glass-hover backdrop-blur-xl border text-xs font-bold transition-all animate-in slide-in-from-bottom-5 duration-200 ${
             toast.type === 'error'
-              ? 'bg-rose-50 dark:bg-rose-950/80 border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200'
-              : 'bg-slate-900 dark:bg-slate-800 border-slate-800 dark:border-slate-700 text-white shadow-slate-950/20'
+              ? 'bg-rose-50/90 dark:bg-rose-950/80 border-rose-200 dark:border-rose-900/80 text-rose-800 dark:text-rose-200'
+              : 'bg-white/85 dark:bg-slate-900/85 border-white/60 dark:border-slate-700/80 text-slate-900 dark:text-white shadow-2xl'
           }`}
         >
           {toast.type === 'error' ? (
-            <AlertCircle className="w-4 h-4 text-rose-500" />
+            <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
           ) : (
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
           )}
           <span>{toast.message}</span>
         </div>
@@ -584,7 +591,7 @@ export default function App() {
       )}
 
       {/* Contenido Dinámico por Pestaña */}
-      <main className={`flex-1 w-full flex flex-col ${
+      <main className={`flex-1 w-full flex flex-col relative z-10 ${
         activeTab === 'portal'
           ? 'p-2 sm:p-4 max-w-full overflow-x-hidden'
           : 'px-3 sm:px-6 lg:px-8 xl:px-10 py-4 sm:py-6'

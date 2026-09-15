@@ -296,7 +296,7 @@ export default function HonorariosView({
     <div className="space-y-6 animate-in fade-in duration-200">
       
       {/* Barra Superior de Control y Navegación */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-panel p-4 sm:p-5 rounded-3xl border border-white/80 dark:border-white/10 shadow-glass transition-all duration-200">
         <div>
           <div className="flex items-center gap-2.5">
             {onBackToCalendar && (
@@ -365,7 +365,7 @@ export default function HonorariosView({
       {/* Tarjetas de Métricas Globales (KPIs) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Total Honorarios (Mes) */}
-        <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-emerald-600/15 relative overflow-hidden">
+        <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl p-4 sm:p-5 text-white shadow-lg shadow-emerald-600/25 border border-white/30 relative overflow-hidden backdrop-blur-md">
           <div className="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-15 pointer-events-none">
             <Banknote className="w-28 h-28" />
           </div>
@@ -384,14 +384,14 @@ export default function HonorariosView({
         </div>
 
         {/* KPI 2: Honorarios Devengados (Impartidas) */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden transition-colors">
+        <div className="glass-card glass-card-hover rounded-3xl p-4 sm:p-5 border border-white/80 dark:border-white/10 shadow-glass-sm hover:shadow-glass-hover relative overflow-hidden transition-all duration-200">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">
             <span>Devengado (Impartidas)</span>
-            <span className="p-1.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-lg">
+            <span className="p-1.5 bg-emerald-50/80 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-xl border border-emerald-200/60 dark:border-emerald-800">
               <CheckCircle2 className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">
+          <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
             {formatQuetzales(globalKPIs.totalDevengados)}
           </div>
           <div className="mt-2.5">
@@ -409,14 +409,14 @@ export default function HonorariosView({
         </div>
 
         {/* KPI 3: Honorarios Proyectados (Programadas) */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden transition-colors">
+        <div className="glass-card glass-card-hover rounded-3xl p-4 sm:p-5 border border-white/80 dark:border-white/10 shadow-glass-sm hover:shadow-glass-hover relative overflow-hidden transition-all duration-200">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">
             <span>Por Devengar (Programadas)</span>
-            <span className="p-1.5 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-lg">
+            <span className="p-1.5 bg-blue-50/80 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-200/60 dark:border-blue-800">
               <TrendingUp className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">
+          <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
             {formatQuetzales(globalKPIs.totalProyectados)}
           </div>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1">
@@ -428,14 +428,14 @@ export default function HonorariosView({
         </div>
 
         {/* KPI 4: Total Horas Facturables */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden transition-colors">
+        <div className="glass-card glass-card-hover rounded-3xl p-4 sm:p-5 border border-white/80 dark:border-white/10 shadow-glass-sm hover:shadow-glass-hover relative overflow-hidden transition-all duration-200">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-semibold mb-1">
             <span>Total Horas Facturables</span>
-            <span className="p-1.5 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-lg">
+            <span className="p-1.5 bg-indigo-50/80 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-200/60 dark:border-indigo-800">
               <Clock className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1">
+          <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
             {globalKPIs.totalHoras.toFixed(2)} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">hrs</span>
           </div>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
@@ -499,10 +499,10 @@ export default function HonorariosView({
             return (
               <div 
                 key={trainer.id}
-                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs hover:shadow-md transition-all overflow-hidden"
+                className="glass-card glass-card-hover rounded-3xl border border-white/80 dark:border-white/10 shadow-glass-sm hover:shadow-glass-hover transition-all overflow-hidden"
               >
                 {/* Cabecera de la Tarjeta del Capacitador */}
-                <div className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-slate-900">
+                <div className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
                   
                   {/* Info del Capacitador */}
                   <div className="flex items-center gap-3.5">

@@ -7,8 +7,6 @@ import {
   Calendar as CalendarIcon, 
   Building2, 
   User, 
-  MapPin, 
-  Video, 
   FileText, 
   Trash2, 
   Check, 
@@ -20,8 +18,6 @@ import {
   ChevronDown,
   Plus,
   CheckCircle2,
-  Phone,
-  Mail,
   Car,
   MessageSquare,
   BadgeCheck,
@@ -510,15 +506,15 @@ export default function AppointmentModal({
 
   return createPortal(
     <div 
-      className="fixed inset-0 z-[9999] w-screen h-screen bg-slate-950/75 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-hidden"
+      className="fixed inset-0 z-[9999] w-screen h-screen bg-slate-950/65 dark:bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-hidden"
     >
       <div 
-        className="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150 relative"
+        className="glass-panel w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200 relative"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Cabecera fija del modal (shrink-0) */}
-        <div className="shrink-0 flex items-center justify-between px-6 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/70 backdrop-blur-xs">
+        <div className="shrink-0 flex items-center justify-between px-6 py-3.5 border-b border-slate-200/60 dark:border-white/10 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md">
           <div className="flex items-center gap-2.5 min-w-0">
             {/* Flechita para volver atrás */}
             <button
@@ -1328,7 +1324,7 @@ export default function AppointmentModal({
         </div>
 
         {/* Pie fijo con botones de acción (shrink-0) */}
-        <div className="shrink-0 px-6 py-3.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-800/80 backdrop-blur-xs flex items-center justify-between gap-3">
+        <div className="shrink-0 px-6 py-3.5 border-t border-slate-200/60 dark:border-white/10 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md flex items-center justify-between gap-3">
           {appointment?.id ? (
             <div className="flex items-center gap-2">
               <button
@@ -1417,10 +1413,10 @@ export default function AppointmentModal({
                   ? 'Capacitador inactivo'
                   : ''
               }
-              className={`inline-flex items-center gap-2 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all transform active:scale-95 ${
+              className={`inline-flex items-center gap-2 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all transform active:scale-95 cursor-pointer ${
                 conflictingCita || isTimeRangeInvalid || isTrainerInactive || (formData.descripcion || '').length > 500
                   ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600 cursor-not-allowed shadow-none'
-                  : 'bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/25'
+                  : 'liquid-btn-primary shadow-md'
               }`}
             >
               <Check className="w-4 h-4 stroke-[3]" />

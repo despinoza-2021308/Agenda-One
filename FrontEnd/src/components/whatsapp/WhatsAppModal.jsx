@@ -361,14 +361,14 @@ export default function WhatsAppModal({
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] w-screen h-screen overflow-y-auto bg-slate-900/60 dark:bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] w-screen h-screen overflow-y-auto bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
       <div 
-        className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh]"
+        className="glass-panel w-full max-w-2xl rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 overflow-hidden flex flex-col max-h-[92vh] relative"
         onClick={(e) => e.stopPropagation()}
       >
         
-        {/* Encabezado Verde WhatsApp */}
-        <div className="px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-700 text-white flex items-center justify-between shrink-0 shadow-sm">
+        {/* Encabezado Verde WhatsApp Liquid Glass */}
+        <div className="px-6 py-4 bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-700 text-white flex items-center justify-between shrink-0 shadow-sm relative">
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -430,8 +430,8 @@ export default function WhatsAppModal({
                     }}
                     className={`p-2 rounded-xl text-left border text-xs font-bold flex items-center gap-2 transition-all ${
                       isSelected
-                        ? 'ring-2 ring-emerald-500 border-transparent bg-emerald-50 dark:bg-emerald-950/60 text-emerald-950 dark:text-emerald-200 shadow-xs'
-                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300'
+                        ? 'ring-2 ring-emerald-500 border-transparent bg-emerald-500/15 dark:bg-emerald-500/25 text-emerald-950 dark:text-emerald-200 shadow-xs'
+                        : 'border-white/60 dark:border-white/10 bg-white/40 dark:bg-white/5 hover:border-emerald-300 dark:hover:border-emerald-700 text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     <span
@@ -448,7 +448,7 @@ export default function WhatsAppModal({
           </div>
 
           {/* Opciones de Modo y Fecha */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 glass-card p-3.5 rounded-2xl border border-white/60 dark:border-white/10">
             <div>
               <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                 Tipo de Mensaje:
@@ -461,7 +461,7 @@ export default function WhatsAppModal({
                     className={`py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${
                       mode === 'single'
                         ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs border border-emerald-300 dark:border-emerald-600'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60'
+                        : 'text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-white/10'
                     }`}
                   >
                     <span>📌</span>
@@ -474,7 +474,7 @@ export default function WhatsAppModal({
                   className={`py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${
                     mode === 'day' || (!targetCita && mode === 'single')
                       ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs border border-emerald-300 dark:border-emerald-600'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-white/10'
                   }`}
                 >
                   <span>📅</span>
@@ -486,7 +486,7 @@ export default function WhatsAppModal({
                   className={`py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${
                     mode === 'week'
                       ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 shadow-xs border border-emerald-300 dark:border-emerald-600'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-700/60'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-white/10'
                   }`}
                 >
                   <span>🗓️</span>
@@ -503,15 +503,15 @@ export default function WhatsAppModal({
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-1.5 glass-input rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
           </div>
 
           {/* Teléfono / WhatsApp del Capacitador */}
-          <div className="bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/60 p-3.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/20 dark:border-emerald-800/60 p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 backdrop-blur-xs">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+              <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
                 <Phone className="w-4 h-4" />
               </div>
               <div>
@@ -529,10 +529,10 @@ export default function WhatsAppModal({
                   placeholder="Ej: +502 5555-1234"
                   value={customPhone}
                   onChange={(e) => setCustomPhone(e.target.value)}
-                  className={`px-3 py-1.5 bg-white dark:bg-slate-800 border rounded-lg text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 w-36 sm:w-40 ${
+                  className={`px-3 py-1.5 glass-input rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 w-36 sm:w-40 ${
                     customPhone && customPhone.replace(/\D/g, '').length < 8
-                      ? 'border-rose-300 dark:border-rose-700 focus:ring-rose-500'
-                      : 'border-emerald-300 dark:border-emerald-700 focus:ring-emerald-500'
+                      ? 'border-rose-400 dark:border-rose-700 focus:ring-rose-500'
+                      : 'border-emerald-400/60 dark:border-emerald-700 focus:ring-emerald-500'
                   }`}
                 />
                 {onUpdateCapacitadorPhone && customPhone !== (currentTrainer?.telefono || '') && (
@@ -540,7 +540,7 @@ export default function WhatsAppModal({
                     type="button"
                     onClick={handleSavePhone}
                     disabled={savingPhone}
-                    className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-lg transition-colors shadow-2xs"
+                    className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-xl transition-colors shadow-2xs"
                     title="Guardar este teléfono en el perfil"
                   >
                     {savingPhone ? '...' : 'Guardar'}
@@ -554,9 +554,9 @@ export default function WhatsAppModal({
           </div>
 
           {/* Opción para incluir enlace al portal móvil */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800">
+          <div className="flex items-center justify-between p-3 rounded-2xl glass-card border border-white/60 dark:border-white/10">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <div className="w-7 h-7 rounded-xl bg-blue-500/10 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
                 <Sparkles className="w-3.5 h-3.5" />
               </div>
               <div>
@@ -591,7 +591,7 @@ export default function WhatsAppModal({
               </span>
             </div>
 
-            <div className="bg-[#EFEAE2] dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-inner">
+            <div className="bg-[#EFEAE2]/90 dark:bg-slate-950/90 p-4 rounded-2xl border border-slate-200/60 dark:border-white/10 shadow-inner">
               <div className="max-w-lg bg-[#E7FFDB] dark:bg-emerald-950/80 text-slate-900 dark:text-emerald-100 p-4 rounded-2xl rounded-tr-xs shadow-xs border border-emerald-200/50 dark:border-emerald-800/80 space-y-2 text-xs font-sans whitespace-pre-wrap leading-relaxed">
                 {generatedMessage}
                 <div className="flex items-center justify-end gap-1 text-[10px] text-slate-500 dark:text-slate-400 pt-1 border-t border-emerald-200/40 dark:border-emerald-800/50 font-mono">
@@ -605,11 +605,11 @@ export default function WhatsAppModal({
         </div>
 
         {/* Barra de Botones Inferior */}
-        <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex items-center justify-between gap-3 shrink-0">
+        <div className="px-6 py-4 border-t border-white/60 dark:border-white/10 bg-white/30 dark:bg-slate-900/40 backdrop-blur-md flex items-center justify-between gap-3 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-800 rounded-xl transition-colors"
+            className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/10 rounded-xl transition-colors"
           >
             Cerrar
           </button>
@@ -619,7 +619,7 @@ export default function WhatsAppModal({
             <button
               type="button"
               onClick={handleCopy}
-              className="inline-flex items-center gap-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold shadow-2xs transition-all active:scale-95"
+              className="inline-flex items-center gap-1.5 glass-card border border-white/80 dark:border-white/15 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold shadow-xs hover:bg-white/80 dark:hover:bg-white/10 transition-all active:scale-95"
             >
               {copied ? <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[3]" /> : <Copy className="w-4 h-4" />}
               <span>{copied ? '¡Copiado!' : 'Copiar Texto'}</span>

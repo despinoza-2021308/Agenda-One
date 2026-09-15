@@ -10,12 +10,10 @@ import {
   Video, 
   Plus, 
   Filter, 
-  CheckCircle2,
   Users,
   MessageSquare,
   X,
   ExternalLink,
-  ArrowRight,
   ArrowLeft
 } from 'lucide-react';
 
@@ -232,29 +230,29 @@ export default function CalendarView({
   return (
     <div className="space-y-4 flex-1 flex flex-col">
       {/* Barra de control superior: Filtros de capacitador y navegación */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 transition-colors">
+      <div className="glass-panel rounded-3xl p-4 sm:p-5 shadow-glass space-y-4 transition-all duration-200">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           
           {/* Navegación de mes / año */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+            <div className="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-2xl border border-slate-200/60 dark:border-white/5 backdrop-blur-md shadow-2xs">
               <button
                 onClick={handlePrev}
                 title="Mes anterior"
-                className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
+                className="p-1.5 rounded-xl hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={handleToday}
-                className="px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-all"
+                className="px-3 py-1 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-white dark:hover:bg-slate-700 transition-all cursor-pointer"
               >
                 Hoy
               </button>
               <button
                 onClick={handleNext}
                 title="Mes siguiente"
-                className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
+                className="p-1.5 rounded-xl hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -265,7 +263,7 @@ export default function CalendarView({
                 <button
                   type="button"
                   onClick={() => setCalendarMode('month')}
-                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors group flex items-center gap-1 shrink-0"
+                  className="p-1.5 rounded-xl bg-slate-100/80 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors group flex items-center gap-1 shrink-0 border border-slate-200/60 dark:border-white/5 cursor-pointer shadow-glass-sm"
                   title="Volver a la vista de mes"
                 >
                   <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-blue-600 dark:text-blue-400" />
@@ -274,7 +272,7 @@ export default function CalendarView({
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight capitalize">
                   {DAY_NAMES_FULL[currentDate.getDay()]}, {currentDate.getDate()} de {MONTH_NAMES[month]}
                 </h2>
-                <span className="text-[11px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50/80 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 px-2.5 py-0.5 rounded-full uppercase tracking-wider backdrop-blur-xs">
                   Turnos
                 </span>
               </div>
@@ -283,21 +281,21 @@ export default function CalendarView({
                 <button
                   type="button"
                   onClick={() => setCalendarMode('month')}
-                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors group flex items-center gap-1 shrink-0"
+                  className="p-1.5 rounded-xl bg-slate-100/80 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors group flex items-center gap-1 shrink-0 border border-slate-200/60 dark:border-white/5 cursor-pointer shadow-glass-sm"
                   title="Volver a la vista de mes"
                 >
                   <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-blue-600 dark:text-blue-400" />
                   <span className="text-xs font-bold hidden sm:inline">Mes</span>
                 </button>
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight capitalize">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight capitalize">
                   {MONTH_NAMES[month]} <span className="text-slate-400 dark:text-slate-500 font-normal">{year}</span>
                 </h2>
-                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100/80 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-0.5 rounded-full uppercase tracking-wider backdrop-blur-xs">
                   Lista
                 </span>
               </div>
             ) : (
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight capitalize">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight capitalize">
                 {MONTH_NAMES[month]} <span className="text-slate-400 dark:text-slate-500 font-normal">{year}</span>
               </h2>
             )}
@@ -305,25 +303,25 @@ export default function CalendarView({
 
           {/* Estadísticas rápidas y selector de vista */}
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/60 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              <span className="text-xs text-blue-800 dark:text-blue-300 font-medium">
+            <div className="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/60 px-3.5 py-1.5 rounded-2xl flex items-center gap-2 backdrop-blur-md shadow-glass-sm">
+              <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+              <span className="text-xs text-blue-900 dark:text-blue-200 font-medium">
                 Total Horas:{' '}
-                <strong className="text-blue-950 dark:text-blue-100 font-bold text-sm">{totalHorasFiltradas.toFixed(1)} h</strong>
+                <strong className="text-blue-950 dark:text-white font-extrabold text-sm">{totalHorasFiltradas.toFixed(1)} h</strong>
               </span>
               <span className="text-blue-300 dark:text-blue-700">|</span>
-              <span className="text-xs text-blue-700 dark:text-blue-400">
+              <span className="text-xs text-blue-700 dark:text-blue-300 font-semibold">
                 {filteredCitas.length} citas
               </span>
             </div>
 
             {/* Selector de modo: Mes / Día (Turnos) / Lista */}
-            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+            <div className="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-2xl border border-slate-200/60 dark:border-white/5 backdrop-blur-md shadow-2xs">
               <button
                 onClick={() => setCalendarMode('month')}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   calendarMode === 'month'
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-glass-sm'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -331,9 +329,9 @@ export default function CalendarView({
               </button>
               <button
                 onClick={() => setCalendarMode('day')}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                   calendarMode === 'day'
-                    ? 'bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-sm font-bold'
+                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-300 shadow-glass-sm'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -342,9 +340,9 @@ export default function CalendarView({
               </button>
               <button
                 onClick={() => setCalendarMode('list')}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   calendarMode === 'list'
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-glass-sm'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -357,7 +355,7 @@ export default function CalendarView({
               <button
                 type="button"
                 onClick={() => onOpenWhatsApp({ capacitadorId: selectedCapacitadorId !== 'ALL' ? selectedCapacitadorId : null })}
-                className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-xs shadow-emerald-600/20 transition-all transform active:scale-95"
+                className="inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-md shadow-emerald-600/25 transition-all transform active:scale-95 cursor-pointer"
                 title="Notificar agenda por WhatsApp"
               >
                 <MessageSquare className="w-4 h-4 fill-white/25" />
@@ -368,17 +366,17 @@ export default function CalendarView({
         </div>
 
         {/* Filtro rápido por Capacitador (Iniciales y Colores) */}
-        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1 shrink-0 mr-1">
+        <div className="pt-3 border-t border-slate-200/60 dark:border-white/5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1 shrink-0 mr-1">
             <Filter className="w-3.5 h-3.5" /> Filtrar:
           </span>
 
           <button
             onClick={() => setSelectedCapacitadorId('ALL')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all shrink-0 flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer shadow-glass-sm ${
               selectedCapacitadorId === 'ALL'
-                ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-sm font-semibold'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-md'
+                : 'glass-pill text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800'
             }`}
           >
             Todos ({citas.length})
@@ -392,41 +390,41 @@ export default function CalendarView({
               <button
                 key={cap.id}
                 onClick={() => setSelectedCapacitadorId(isSelected ? 'ALL' : String(cap.id))}
-                className={`px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all shrink-0 flex items-center gap-2 border ${
+                className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-2 border shadow-glass-sm cursor-pointer ${
                   isSelected
-                    ? 'ring-2 ring-offset-1 font-semibold text-slate-900 dark:text-white shadow-sm'
-                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
+                    ? 'ring-2 ring-offset-1 dark:ring-offset-slate-900 text-slate-900 dark:text-white shadow-md'
+                    : 'border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800'
                 }`}
                 style={{
                   borderColor: isSelected ? cap.color : undefined,
-                  backgroundColor: isSelected ? `${cap.color}15` : undefined
+                  backgroundColor: isSelected ? `${cap.color}18` : undefined
                 }}
               >
                 <span
-                  className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold text-white shadow-xs"
+                  className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-black text-white shadow-xs"
                   style={{ backgroundColor: cap.color }}
                 >
                   {cap.iniciales}
                 </span>
                 <span>{cap.nombre_completo.split(' ')[0]}</span>
-                <span className="text-[10px] opacity-70">({countForCap})</span>
+                <span className="text-[10px] opacity-75 font-mono">({countForCap})</span>
               </button>
             );
           })}
         </div>
 
         {/* Filtro rápido por Estado de la Cita */}
-        <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-thin">
+        <div className="pt-2.5 border-t border-slate-200/60 dark:border-white/5 flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-thin">
           <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
             <span>Estado:</span>
           </span>
 
           <button
             onClick={() => setSelectedStatus('ALL')}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all shrink-0 ${
+            className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-glass-sm ${
               selectedStatus === 'ALL'
                 ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-xs'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                : 'glass-pill text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'
             }`}
           >
             Todos
@@ -443,15 +441,15 @@ export default function CalendarView({
               <button
                 key={stKey}
                 onClick={() => setSelectedStatus(isSelected ? 'ALL' : stKey)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 border ${
+                className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 border cursor-pointer shadow-glass-sm ${
                   isSelected
-                    ? `${stCfg.badge} ring-2 ring-offset-1 font-bold shadow-xs`
-                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
+                    ? `${stCfg.badge} ring-2 ring-offset-1 dark:ring-offset-slate-900 shadow-md`
+                    : 'border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800'
                 }`}
               >
                 <span>{stCfg.emoji}</span>
                 <span>{stCfg.label}</span>
-                <span className="text-[10px] opacity-75 font-mono">({countForStatus})</span>
+                <span className="text-[10px] opacity-80 font-mono">({countForStatus})</span>
               </button>
             );
           })}
@@ -460,14 +458,14 @@ export default function CalendarView({
 
       {/* VISTA DE CUADRÍCULA MENSUAL */}
       {calendarMode === 'month' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex-1 flex flex-col transition-colors">
+        <div className="glass-panel rounded-3xl border border-white/80 dark:border-white/10 shadow-glass overflow-hidden flex-1 flex flex-col transition-all duration-200">
           {/* Cabecera de días de la semana */}
-          <div className="grid grid-cols-7 border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/60">
+          <div className="grid grid-cols-7 border-b border-slate-200/60 dark:border-white/10 bg-slate-100/50 dark:bg-slate-800/40 backdrop-blur-md">
             {DAYS_OF_WEEK.map((day, idx) => (
               <div 
                 key={day} 
-                className={`py-2.5 text-center text-xs font-bold tracking-wider uppercase ${
-                  idx >= 5 ? 'text-slate-400 dark:text-slate-500' : 'text-slate-600 dark:text-slate-300'
+                className={`py-2.5 text-center text-xs font-extrabold tracking-wider uppercase ${
+                  idx >= 5 ? 'text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-300'
                 }`}
               >
                 {day}
@@ -476,7 +474,7 @@ export default function CalendarView({
           </div>
 
           {/* Días del calendario con celdas equilibradas y tarjetas de alta legibilidad */}
-          <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-slate-100 dark:divide-slate-800/80 flex-1">
+          <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-slate-200/50 dark:divide-white/5 flex-1">
             {calendarDays.map((dayObj, index) => {
               const dayCitas = filteredCitas.filter(c => c.fecha === dayObj.dateString);
               const dayTotalHoras = dayCitas
@@ -488,10 +486,10 @@ export default function CalendarView({
                   key={index}
                   className={`min-h-[145px] sm:min-h-[170px] lg:min-h-[185px] xl:min-h-[210px] 2xl:min-h-[240px] p-1.5 sm:p-2 flex flex-col transition-colors group relative ${
                     !dayObj.isCurrentMonth
-                      ? 'bg-slate-50/40 dark:bg-slate-950/40 text-slate-400 dark:text-slate-600'
+                      ? 'bg-slate-100/25 dark:bg-slate-950/40 text-slate-400 dark:text-slate-600'
                       : dayObj.isToday
-                      ? 'bg-blue-50/30 dark:bg-blue-950/20'
-                      : 'hover:bg-slate-50/60 dark:hover:bg-slate-800/40'
+                      ? 'bg-blue-500/10 dark:bg-blue-600/15 ring-1 ring-inset ring-blue-500/30'
+                      : 'hover:bg-white/40 dark:hover:bg-slate-800/30'
                   }`}
                 >
                   {/* Cabecera del día: Número y total de horas */}
@@ -574,12 +572,12 @@ export default function CalendarView({
                           onClick={() => onSelectCita(cita)}
                           role="button"
                           title={fullTooltip}
-                          className={`w-full text-left p-2 sm:p-2.5 rounded-xl border shadow-2xs hover:shadow-md transition-all duration-150 space-y-1.5 cursor-pointer select-none group/card ${
+                          className={`w-full text-left p-2 sm:p-2.5 rounded-xl border transition-all duration-200 space-y-1.5 cursor-pointer select-none group/card backdrop-blur-md ${
                             isCancelada
-                              ? 'bg-slate-50/90 dark:bg-slate-800/50 border-dashed border-rose-200 dark:border-rose-900/60 opacity-70 hover:opacity-100 hover:border-rose-300'
+                              ? 'bg-rose-50/70 dark:bg-rose-950/40 border-dashed border-rose-200/90 dark:border-rose-900/60 opacity-70 hover:opacity-100 hover:border-rose-300'
                               : isImpartida
-                              ? 'bg-emerald-50/20 dark:bg-emerald-950/20 border-slate-200/85 dark:border-slate-700/80 hover:border-emerald-300'
-                              : 'bg-white dark:bg-slate-800/90 border-slate-200/85 dark:border-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600'
+                              ? 'glass-card glass-card-hover border-emerald-300/40 dark:border-emerald-500/30 hover:border-emerald-400 shadow-glass-sm'
+                              : 'glass-card glass-card-hover border-white/70 dark:border-white/10 hover:border-blue-300/60 shadow-glass-sm'
                           }`}
                           style={{
                             borderLeftWidth: '4px',
@@ -708,15 +706,15 @@ export default function CalendarView({
         <div className="space-y-4 animate-in fade-in duration-200">
           
           {/* Banner de Resumen del Día */}
-          <div className="bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-slate-50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900 border border-blue-100 dark:border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="glass-panel rounded-3xl border border-white/80 dark:border-white/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-glass backdrop-blur-md">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/25 shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold shadow-lg shadow-blue-500/30 shrink-0 border border-white/20">
                 <Users className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
                   <span>Agenda Diaria de Turnos en Paralelo</span>
-                  <span className="text-[10px] bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-blue-200 dark:border-blue-800">
+                  <span className="text-[10px] bg-blue-500/15 dark:bg-blue-400/15 text-blue-700 dark:text-blue-300 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-blue-300/40 dark:border-blue-500/20 backdrop-blur-xs">
                     {displayedCapacitadores.length} Capacitadores
                   </span>
                 </h3>
@@ -727,7 +725,7 @@ export default function CalendarView({
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 px-3 py-1.5 rounded-xl shadow-2xs flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white/70 dark:bg-slate-800/70 border border-white/80 dark:border-white/10 px-3 py-1.5 rounded-xl shadow-glass-sm flex items-center gap-1.5 backdrop-blur-xs">
                 💡 <span className="hidden md:inline">Haz clic en cualquier espacio libre para agendar a esa hora</span>
                 <span className="md:hidden">Toca un espacio libre para agendar</span>
               </span>
@@ -735,7 +733,7 @@ export default function CalendarView({
           </div>
 
           {/* Cuadrícula de Turnos Horarios */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto transition-colors">
+          <div className="glass-panel rounded-3xl border border-white/80 dark:border-white/10 shadow-glass overflow-hidden overflow-x-auto transition-all">
             <div className="min-w-[820px]">
               
               {/* Encabezado de Columnas por Capacitador */}
@@ -960,9 +958,9 @@ export default function CalendarView({
 
       {/* VISTA DE LISTA DETALLADA */}
       {calendarMode === 'list' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
-          <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <h3 className="font-bold text-slate-900 dark:text-white">
+        <div className="glass-panel rounded-3xl border border-white/80 dark:border-white/10 shadow-glass overflow-hidden transition-all duration-200">
+          <div className="p-4 sm:p-5 border-b border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md flex items-center justify-between">
+            <h3 className="font-extrabold text-slate-900 dark:text-white text-base">
               Listado de Citas Agendadas ({filteredCitas.length})
             </h3>
             <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -1111,14 +1109,14 @@ export default function CalendarView({
       {/* MODAL DE DETALLE COMPLETO DEL DÍA (Renderizado con Portal al body para cobertura 100% de pantalla sin recortes) */}
       {selectedDayDetails && typeof document !== 'undefined' && createPortal(
         <div 
-          className="fixed inset-0 z-[9999] w-screen h-screen bg-slate-950/75 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
+          className="fixed inset-0 z-[9999] w-screen h-screen bg-slate-950/60 dark:bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
         >
           <div 
-            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-2xl sm:max-w-[700px] max-h-[88vh] flex flex-col overflow-hidden my-auto"
+            className="glass-panel rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 w-full max-w-2xl sm:max-w-[700px] max-h-[88vh] flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Cabecera del Modal Concisa y Moderna con Flechita Volver Atrás */}
-            <div className="px-4 sm:px-5 py-3.5 bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+            <div className="px-4 sm:px-5 py-3.5 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <button
                   type="button"
@@ -1237,12 +1235,12 @@ export default function CalendarView({
                   return (
                     <div
                       key={cita.id}
-                      className={`p-3 sm:p-3.5 rounded-xl border transition-all duration-150 ${
+                      className={`p-3 sm:p-3.5 rounded-2xl border transition-all duration-200 backdrop-blur-md ${
                         isCancelada
-                          ? 'bg-rose-50/15 dark:bg-rose-950/15 border-dashed border-rose-200 dark:border-rose-900/60 opacity-80 hover:opacity-100'
+                          ? 'bg-rose-50/50 dark:bg-rose-950/30 border-dashed border-rose-200 dark:border-rose-900/60 opacity-80 hover:opacity-100'
                           : isImpartida
-                          ? 'bg-emerald-50/20 dark:bg-emerald-950/20 border-emerald-200/70 dark:border-emerald-800/70 hover:border-emerald-300 dark:hover:border-emerald-700 shadow-2xs'
-                          : 'bg-white dark:bg-slate-800/70 border-slate-200/90 dark:border-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600 shadow-2xs hover:shadow-xs'
+                          ? 'glass-card border-emerald-300/40 dark:border-emerald-700/50 shadow-glass-sm'
+                          : 'glass-card border-white/80 dark:border-white/10 shadow-glass-sm hover:shadow-glass-hover'
                       }`}
                       style={{
                         borderLeftWidth: '4px',
@@ -1349,7 +1347,7 @@ export default function CalendarView({
             </div>
 
             {/* Pie del Modal Conciso */}
-            <div className="px-5 py-2.5 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="px-5 py-2.5 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border-t border-slate-200/60 dark:border-white/10 flex items-center justify-between">
               <div className="text-xs text-slate-500 dark:text-slate-400">
                 Total: <span className="font-bold text-slate-800 dark:text-slate-200">{modalDayCitas.length}</span> {modalDayCitas.length === 1 ? 'cita' : 'citas'}
               </div>

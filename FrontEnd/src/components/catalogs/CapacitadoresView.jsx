@@ -162,13 +162,13 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
   return (
     <div className="space-y-6">
       {/* Barra superior de catálogo */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
+      <div className="glass-panel rounded-3xl p-5 border border-white/80 dark:border-white/10 shadow-glass flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200">
         <div className="flex items-center gap-3">
           {onBackToCalendar && (
             <button
               type="button"
               onClick={onBackToCalendar}
-              className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors shrink-0 group flex items-center gap-1.5"
+              className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white glass-pill hover:bg-white dark:hover:bg-slate-800 transition-colors shrink-0 group flex items-center gap-1.5 shadow-glass-sm cursor-pointer"
               title="Volver al calendario"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-blue-600 dark:text-blue-400" />
@@ -176,11 +176,11 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
             </button>
           )}
           <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
               <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               Catálogo de Capacitadores ({capacitadores.length})
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               Personal docente con iniciales y color asignado para distinción en la agenda
             </p>
           </div>
@@ -188,9 +188,9 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
 
         <button
           onClick={openNewModal}
-          className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all self-start sm:self-auto"
+          className="inline-flex items-center gap-1.5 liquid-btn-primary px-4 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all self-start sm:self-auto cursor-pointer active:scale-95"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>Nuevo Capacitador</span>
         </button>
       </div>
@@ -200,7 +200,7 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
         {capacitadores.map((cap) => (
           <div
             key={cap.id}
-            className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs hover:shadow-md transition-all flex items-center justify-between group"
+            className="glass-card glass-card-hover rounded-3xl p-5 border border-white/80 dark:border-white/10 shadow-glass-sm hover:shadow-glass-hover transition-all duration-200 flex items-center justify-between group"
           >
             <div className="flex items-center gap-3.5">
               <div
@@ -259,12 +259,12 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
 
       {/* Modal Crear / Editar */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 dark:bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div 
-            className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+            className="glass-panel w-full max-w-md rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md">
               <div className="flex items-center gap-2">
                 <button
                   type="button"

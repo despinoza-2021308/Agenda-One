@@ -339,19 +339,19 @@ export default function CommandPalette({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 md:p-20 flex items-start justify-center animate-in fade-in duration-150">
-      {/* Backdrop con efecto blur */}
+      {/* Backdrop con efecto blur Liquid Glass */}
       <div 
-        className="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
-      {/* Tarjeta Principal de la Paleta */}
+      {/* Tarjeta Principal de la Paleta Liquid Glass */}
       <div 
-        className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden transform transition-all animate-in zoom-in-95 duration-150"
+        className="relative w-full max-w-2xl glass-panel rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 overflow-hidden transform transition-all animate-in zoom-in-95 duration-150"
         onKeyDown={handleKeyDown}
       >
         {/* Cabecera con Input de Búsqueda */}
-        <div className="relative flex items-center border-b border-slate-200 dark:border-slate-800 px-4 py-3.5 bg-slate-50/50 dark:bg-slate-900/50">
+        <div className="relative flex items-center border-b border-white/60 dark:border-white/10 px-4 py-3.5 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
           <Search className="w-5 h-5 text-slate-400 shrink-0 ml-1 mr-3" />
           <input
             ref={inputRef}
@@ -370,13 +370,13 @@ export default function CommandPalette({
               <X className="w-4 h-4" />
             </button>
           )}
-          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-md shadow-xs">
+          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-white/80 dark:bg-white/10 border border-white/80 dark:border-white/15 px-2 py-0.5 rounded-lg shadow-xs backdrop-blur-xs">
             ESC
           </span>
         </div>
 
         {/* Barra de Filtros por Categoría */}
-        <div className="flex items-center gap-1.5 px-4 py-2 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-x-auto text-xs">
+        <div className="flex items-center gap-1.5 px-4 py-2 border-b border-white/40 dark:border-white/10 bg-white/20 dark:bg-white/5 backdrop-blur-md overflow-x-auto text-xs">
           {[
             { id: 'all', label: 'Todos', count: flatResults.length },
             { id: 'citas', label: 'Citas', count: filteredItems.citas.length, icon: Calendar },
@@ -390,10 +390,10 @@ export default function CommandPalette({
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-medium transition-colors shrink-0 ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl font-medium transition-all shrink-0 ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {Icon && <Icon className="w-3.5 h-3.5" />}
@@ -417,11 +417,11 @@ export default function CommandPalette({
         {/* Contenedor de Resultados */}
         <div 
           ref={listRef}
-          className="max-h-[60vh] overflow-y-auto p-2 divide-y divide-slate-100 dark:divide-slate-800/80 focus:outline-none"
+          className="max-h-[60vh] overflow-y-auto p-2 divide-y divide-white/40 dark:divide-white/5 focus:outline-none"
         >
           {flatResults.length === 0 ? (
             <div className="py-12 px-4 text-center">
-              <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-3">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-white/60 dark:bg-white/5 border border-white/80 dark:border-white/10 flex items-center justify-center text-slate-400 mb-3 shadow-xs">
                 <Search className="w-6 h-6" />
               </div>
               <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
@@ -435,7 +435,7 @@ export default function CommandPalette({
                   onClose();
                   onExecuteAction?.('new-appointment');
                 }}
-                className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-xs font-semibold transition-colors"
+                className="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all active:scale-95"
               >
                 <Plus className="w-4 h-4" />
                 Agendar Nueva Cita
@@ -458,8 +458,8 @@ export default function CommandPalette({
                     onMouseEnter={() => setSelectedIndex(index)}
                     className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${
                       isSelected 
-                        ? 'bg-blue-50/90 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200 ring-1 ring-blue-500/30 dark:ring-blue-500/50' 
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200'
+                        ? 'bg-blue-500/15 dark:bg-blue-500/25 text-blue-950 dark:text-blue-100 ring-1 ring-blue-500/30 dark:ring-blue-400/40 shadow-xs backdrop-blur-xs' 
+                        : 'hover:bg-white/60 dark:hover:bg-white/5 text-slate-700 dark:text-slate-200'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -512,7 +512,7 @@ export default function CommandPalette({
                     </div>
 
                     <div className="shrink-0 ml-3 flex items-center gap-2">
-                      <span className="text-[10px] font-medium text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded shadow-xs hidden sm:inline">
+                      <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-white/80 dark:bg-white/10 border border-white/80 dark:border-white/15 px-2 py-0.5 rounded-lg shadow-2xs hidden sm:inline backdrop-blur-xs">
                         Abrir Cita
                       </span>
                       <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-blue-600 dark:text-blue-400 translate-x-0.5' : 'text-slate-300 dark:text-slate-600'} transition-transform`} />
@@ -531,12 +531,12 @@ export default function CommandPalette({
                     onMouseEnter={() => setSelectedIndex(index)}
                     className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${
                       isSelected 
-                        ? 'bg-blue-50/90 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200 ring-1 ring-blue-500/30 dark:ring-blue-500/50' 
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200'
+                        ? 'bg-blue-500/15 dark:bg-blue-500/25 text-blue-950 dark:text-blue-100 ring-1 ring-blue-500/30 dark:ring-blue-400/40 shadow-xs backdrop-blur-xs' 
+                        : 'hover:bg-white/60 dark:hover:bg-white/5 text-slate-700 dark:text-slate-200'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200 dark:border-amber-800 shadow-xs">
+                      <div className="w-9 h-9 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/20 shadow-xs">
                         <Building2 className="w-4 h-4" />
                       </div>
                       <div className="min-w-0">
@@ -561,7 +561,7 @@ export default function CommandPalette({
                     </div>
 
                     <div className="shrink-0 ml-3 flex items-center gap-2">
-                      <span className="text-[10px] font-medium text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded shadow-xs hidden sm:inline">
+                      <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-white/80 dark:bg-white/10 border border-white/80 dark:border-white/15 px-2 py-0.5 rounded-lg shadow-2xs hidden sm:inline backdrop-blur-xs">
                         Ver Empresa
                       </span>
                       <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-blue-600 dark:text-blue-400 translate-x-0.5' : 'text-slate-300 dark:text-slate-600'} transition-transform`} />
@@ -580,8 +580,8 @@ export default function CommandPalette({
                     onMouseEnter={() => setSelectedIndex(index)}
                     className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${
                       isSelected 
-                        ? 'bg-blue-50/90 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200 ring-1 ring-blue-500/30 dark:ring-blue-500/50' 
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200'
+                        ? 'bg-blue-500/15 dark:bg-blue-500/25 text-blue-950 dark:text-blue-100 ring-1 ring-blue-500/30 dark:ring-blue-400/40 shadow-xs backdrop-blur-xs' 
+                        : 'hover:bg-white/60 dark:hover:bg-white/5 text-slate-700 dark:text-slate-200'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -596,7 +596,7 @@ export default function CommandPalette({
                           <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
                             {cp.nombre_completo}
                           </h4>
-                          <span className="text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.2 rounded border border-slate-200 dark:border-slate-700">
+                          <span className="text-[10px] font-mono font-bold bg-white/60 dark:bg-white/10 text-slate-700 dark:text-slate-300 px-1.5 py-0.2 rounded border border-white/80 dark:border-white/15">
                             [{cp.iniciales}]
                           </span>
                         </div>
@@ -618,7 +618,7 @@ export default function CommandPalette({
                     </div>
 
                     <div className="shrink-0 ml-3 flex items-center gap-2">
-                      <span className="text-[10px] font-medium text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded shadow-xs hidden sm:inline">
+                      <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-white/80 dark:bg-white/10 border border-white/80 dark:border-white/15 px-2 py-0.5 rounded-lg shadow-2xs hidden sm:inline backdrop-blur-xs">
                         Ver Perfil
                       </span>
                       <ArrowRight className={`w-4 h-4 ${isSelected ? 'text-blue-600 dark:text-blue-400 translate-x-0.5' : 'text-slate-300 dark:text-slate-600'} transition-transform`} />
@@ -638,8 +638,8 @@ export default function CommandPalette({
                     onMouseEnter={() => setSelectedIndex(index)}
                     className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${
                       isSelected 
-                        ? 'bg-blue-50/90 dark:bg-blue-950/40 text-blue-950 dark:text-blue-200 ring-1 ring-blue-500/30 dark:ring-blue-500/50' 
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200'
+                        ? 'bg-blue-500/15 dark:bg-blue-500/25 text-blue-950 dark:text-blue-100 ring-1 ring-blue-500/30 dark:ring-blue-400/40 shadow-xs backdrop-blur-xs' 
+                        : 'hover:bg-white/60 dark:hover:bg-white/5 text-slate-700 dark:text-slate-200'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -670,19 +670,19 @@ export default function CommandPalette({
         </div>
 
         {/* Pie de Página con Atajos de Teclado */}
-        <div className="border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 px-4 py-2.5 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+        <div className="border-t border-white/60 dark:border-white/10 bg-white/30 dark:bg-slate-900/40 backdrop-blur-md px-4 py-2.5 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[10px] text-slate-700 dark:text-slate-300 shadow-2xs">↑</kbd>
-              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[10px] text-slate-700 dark:text-slate-300 shadow-2xs">↓</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-white/80 dark:bg-white/10 border border-white/80 dark:border-white/15 font-mono text-[10px] text-slate-700 dark:text-slate-300 shadow-2xs">↑</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-white/80 dark:bg-white/10 border border-white/80 dark:border-white/15 font-mono text-[10px] text-slate-700 dark:text-slate-300 shadow-2xs">↓</kbd>
               <span>Navegar</span>
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[10px] text-slate-700 dark:text-slate-300 shadow-2xs">↵</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-white/80 dark:bg-white/10 border border-white/80 dark:border-white/15 font-mono text-[10px] text-slate-700 dark:text-slate-300 shadow-2xs">↵</kbd>
               <span>Seleccionar</span>
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[10px] text-slate-700 dark:text-slate-300 shadow-2xs">ESC</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-white/80 dark:bg-white/10 border border-white/80 dark:border-white/15 font-mono text-[10px] text-slate-700 dark:text-slate-300 shadow-2xs">ESC</kbd>
               <span>Cerrar</span>
             </span>
           </div>

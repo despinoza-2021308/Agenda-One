@@ -104,13 +104,13 @@ export default function MonthlyReportView({ initialDate = new Date(), onBackToCa
     <div className="space-y-6">
       
       {/* Barra de Filtros de Periodo y Acciones */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 no-print transition-colors">
+      <div className="glass-panel rounded-3xl p-4 sm:p-5 border border-white/80 dark:border-white/10 shadow-glass flex flex-col md:flex-row md:items-center justify-between gap-4 no-print transition-all duration-200">
         <div className="flex items-center gap-3 flex-wrap">
           {onBackToCalendar && (
             <button
               type="button"
               onClick={onBackToCalendar}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all shadow-2xs group cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl glass-pill hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all shadow-glass-sm group cursor-pointer"
               title="Volver al calendario"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-blue-600 dark:text-blue-400" />
@@ -122,30 +122,30 @@ export default function MonthlyReportView({ initialDate = new Date(), onBackToCa
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))}
-              className="px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3.5 py-2 glass-input rounded-xl text-sm font-bold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer shadow-glass-sm"
             >
               {MONTH_NAMES.map((name, idx) => (
-                <option key={idx + 1} value={idx + 1}>{name}</option>
+                <option key={idx + 1} value={idx + 1} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">{name}</option>
               ))}
             </select>
 
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(parseInt(e.target.value, 10))}
-              className="px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-800 dark:text-slate-200 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3.5 py-2 glass-input rounded-xl text-sm font-bold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer shadow-glass-sm"
             >
               {[2024, 2025, 2026, 2027, 2028].map((y) => (
-                <option key={y} value={y}>{y}</option>
+                <option key={y} value={y} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">{y}</option>
               ))}
             </select>
           </div>
 
-          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+          <div className="flex items-center bg-slate-200/50 dark:bg-slate-800/60 p-1 rounded-2xl border border-slate-200/60 dark:border-white/5 backdrop-blur-md shadow-2xs">
             <button
               onClick={() => setActiveSubTab('monthly')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeSubTab === 'monthly' 
-                  ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 shadow-sm' 
+                  ? 'bg-white/95 dark:bg-slate-900/90 text-blue-600 dark:text-blue-400 shadow-glass-sm' 
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -153,9 +153,9 @@ export default function MonthlyReportView({ initialDate = new Date(), onBackToCa
             </button>
             <button
               onClick={() => setActiveSubTab('history')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeSubTab === 'history' 
-                  ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 shadow-sm' 
+                  ? 'bg-white/95 dark:bg-slate-900/90 text-blue-600 dark:text-blue-400 shadow-glass-sm' 
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -168,14 +168,14 @@ export default function MonthlyReportView({ initialDate = new Date(), onBackToCa
         <div className="flex items-center gap-2">
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200/70 dark:border-white/10 glass-pill hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all shadow-glass-sm cursor-pointer"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>Exportar Excel</span>
           </button>
           <button
             onClick={handlePrint}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl liquid-btn-primary text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>Imprimir Reporte</span>
@@ -199,8 +199,8 @@ export default function MonthlyReportView({ initialDate = new Date(), onBackToCa
 
       {/* TABLA PRINCIPAL: REPORTE DE HORAS POR CAPACITADOR */}
       {activeSubTab === 'monthly' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
-          <div className="px-6 py-4.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+        <div className="glass-panel rounded-3xl border border-white/80 dark:border-white/10 shadow-glass overflow-hidden transition-all duration-200">
+          <div className="px-6 py-4.5 border-b border-slate-200/60 dark:border-white/10 flex items-center justify-between bg-white/40 dark:bg-slate-800/40 backdrop-blur-md">
             <div>
               <h3 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
                 <UserCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -353,8 +353,8 @@ export default function MonthlyReportView({ initialDate = new Date(), onBackToCa
 
       {/* PESTAÑA HISTÓRICO GENERAL */}
       {activeSubTab === 'history' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
-          <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+        <div className="glass-panel rounded-3xl border border-white/80 dark:border-white/10 shadow-glass overflow-hidden transition-all duration-200">
+          <div className="px-6 py-4 border-b border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md">
             <h3 className="font-bold text-slate-900 dark:text-white text-base">
               Histórico Acumulado por Capacitador
             </h3>

@@ -70,14 +70,14 @@ export default function MobileQrModal({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-150"
     >
       <div 
-        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-150 relative"
+        className="w-full max-w-md glass-panel rounded-3xl border border-white/80 dark:border-white/15 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-150 relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cabecera del Modal */}
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-800/40">
+        <div className="px-5 py-4 border-b border-white/60 dark:border-white/10 flex items-center justify-between bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
               <Smartphone className="w-4.5 h-4.5" />
@@ -93,7 +93,7 @@ export default function MobileQrModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl hover:bg-white/60 dark:hover:bg-white/10 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -110,7 +110,7 @@ export default function MobileQrModal({
             <select
               value={selectedTrainer}
               onChange={(e) => setSelectedTrainer(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 glass-input rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Portal General (Ingreso por código manual)</option>
               {capacitadores.map(c => (
@@ -123,7 +123,7 @@ export default function MobileQrModal({
 
           {/* Si estamos en desarrollo local, opción de red Wi-Fi */}
           {hostInfo.isLocal && (
-            <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-xs">
+            <div className="p-3.5 rounded-2xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/20 dark:border-amber-900/60 text-xs backdrop-blur-xs">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-bold">
                   <Wifi className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
@@ -146,7 +146,7 @@ export default function MobileQrModal({
           )}
 
           {/* Código QR Centrado */}
-          <div className="flex flex-col items-center justify-center p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col items-center justify-center p-4 glass-card rounded-2xl border border-white/60 dark:border-white/10">
             <div className="bg-white p-3 rounded-2xl shadow-md border border-slate-100">
               <img
                 src={qrImageUrl}
@@ -167,7 +167,7 @@ export default function MobileQrModal({
             <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               O accede con este enlace:
             </label>
-            <div className="flex items-center gap-1.5 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <div className="flex items-center gap-1.5 p-1.5 rounded-xl border border-white/60 dark:border-white/10 bg-white/40 dark:bg-slate-800/60 backdrop-blur-xs">
               <input
                 type="text"
                 readOnly
@@ -177,7 +177,7 @@ export default function MobileQrModal({
               <button
                 type="button"
                 onClick={handleCopy}
-                className="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors shrink-0 flex items-center gap-1 cursor-pointer"
+                className="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors shrink-0 flex items-center gap-1 cursor-pointer shadow-xs"
               >
                 {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? 'Copiado' : 'Copiar'}</span>

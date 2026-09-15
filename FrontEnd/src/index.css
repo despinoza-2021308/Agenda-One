@@ -86,17 +86,202 @@ body {
   background: #475569;
 }
 
-/* Glass card styling */
+/* Liquid Glass Design System & Core Styles */
+@keyframes liquidFloat {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -40px) scale(1.08);
+  }
+  66% {
+    transform: translate(-25px, 20px) scale(0.95);
+  }
+}
+
+@keyframes liquidFloatReverse {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(-35px, 30px) scale(1.06);
+  }
+  66% {
+    transform: translate(25px, -30px) scale(0.94);
+  }
+}
+
+@keyframes liquidPulseGlow {
+  0%, 100% {
+    opacity: 0.35;
+    filter: blur(80px);
+  }
+  50% {
+    opacity: 0.6;
+    filter: blur(95px);
+  }
+}
+
+/* Lienzo ambiental de fondo líquido */
+.liquid-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.liquid-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(85px);
+  will-change: transform, opacity;
+  animation: liquidFloat 22s ease-in-out infinite;
+}
+
+.liquid-orb-2 {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  will-change: transform, opacity;
+  animation: liquidFloatReverse 26s ease-in-out infinite;
+}
+
+.liquid-orb-3 {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  will-change: transform, opacity;
+  animation: liquidFloat 28s ease-in-out infinite reverse;
+}
+
+/* Glass Panels y Tarjetas */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05), inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .dark .glass-panel {
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(51, 65, 85, 0.8);
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 12px 36px -6px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Glass Card con mayor ligereza */
+.glass-card {
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(14px) saturate(170%);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .glass-card {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px) saturate(170%);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 6px 24px -4px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -4px rgba(37, 99, 235, 0.12), inset 0 1px 1px 0 rgba(255, 255, 255, 1);
+  border-color: rgba(191, 219, 254, 0.85);
+}
+
+.dark .glass-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px -6px rgba(0, 0, 0, 0.65), 0 0 25px -4px rgba(59, 130, 246, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+  border-color: rgba(96, 165, 250, 0.25);
+}
+
+/* Glass Navigation Bar */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.04);
+}
+
+.dark .glass-nav {
+  background: rgba(11, 17, 33, 0.82);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.5);
+}
+
+/* Inputs & Form Controls de Vidrio */
+.glass-input {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(203, 213, 225, 0.75);
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.dark .glass-input {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(51, 65, 85, 0.7);
+  color: #f8fafc;
+}
+
+.dark .glass-input:focus {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Botón Primario Liquid Sheen */
+.liquid-btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%);
+  background-size: 200% 200%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 6px 20px -2px rgba(37, 99, 235, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #ffffff;
+}
+
+.liquid-btn-primary:hover {
+  background-position: 100% 100%;
+  box-shadow: 0 10px 28px -2px rgba(79, 70, 229, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.liquid-btn-primary:active {
+  transform: translateY(0px) scale(0.97);
+}
+
+/* Glass Pill para filtros y tags */
+.glass-pill {
+  background: rgba(241, 245, 249, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.dark .glass-pill {
+  background: rgba(30, 41, 59, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Impresión limpia para Reporte AD-RE-11 */
@@ -104,8 +289,19 @@ body {
   .no-print {
     display: none !important;
   }
+  .liquid-canvas {
+    display: none !important;
+  }
   body {
-    background-color: #ffffff;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  .glass-panel, .glass-card, .glass-nav {
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
   }
   .print-only {
     display: block !important;

@@ -42,10 +42,10 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess, onShowToas
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-150"
+      className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-950/65 dark:bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
     >
       <div
-        className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-md p-6 space-y-5 animate-in zoom-in-95 duration-150 relative"
+        className="glass-panel rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 w-full max-w-md p-6 space-y-5 animate-in zoom-in-95 duration-200 relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Botón cerrar */}
@@ -53,18 +53,18 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess, onShowToas
           type="button"
           disabled={loading}
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+          className="absolute top-4 right-4 p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Encabezado */}
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/20 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 shadow-2xs">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/30 border border-white/25">
             <Shield className="w-6 h-6 stroke-[2.5]" />
           </div>
           <div className="min-w-0 pr-6">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">
+            <h3 className="text-lg font-extrabold text-slate-900 dark:text-white leading-snug">
               Acceso Administrativo
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
@@ -75,7 +75,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess, onShowToas
 
         {/* Mensaje de error si falla la autenticación */}
         {error && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 animate-in fade-in duration-150">
+          <div className="p-3 rounded-xl bg-rose-50/80 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 animate-in fade-in duration-150">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span className="font-semibold">{error}</span>
           </div>
@@ -99,12 +99,12 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess, onShowToas
                   setPin(e.target.value);
                   if (error) setError(null);
                 }}
-                className="w-full pl-10 pr-11 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white tracking-wider placeholder:tracking-normal placeholder:font-normal placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                className="w-full pl-10 pr-11 py-2.5 glass-input rounded-xl text-sm font-bold text-slate-900 dark:text-white tracking-wider placeholder:tracking-normal placeholder:font-normal placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none shadow-glass-sm transition-all"
               />
               <button
                 type="button"
                 onClick={() => setShowPin(!showPin)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg cursor-pointer"
                 title={showPin ? 'Ocultar PIN' : 'Mostrar PIN'}
               >
                 {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -113,19 +113,19 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess, onShowToas
           </div>
 
           {/* Acciones */}
-          <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200/60 dark:border-white/10">
             <button
               type="button"
               disabled={loading}
               onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+              className="px-4 py-2 rounded-xl glass-pill text-slate-600 dark:text-slate-400 text-xs font-bold hover:bg-white dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading || !pin.trim()}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/25 transition-all disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl liquid-btn-primary text-xs font-bold shadow-md transition-all disabled:opacity-50 cursor-pointer active:scale-95"
             >
               {loading ? (
                 <>
