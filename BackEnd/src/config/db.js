@@ -67,7 +67,10 @@ const mockStore = {
     { id: 2, nombre_completo: 'Oscar Quan', iniciales: 'OQ', color: '#7C3AED', telefono: '+502 5555-1002', tarifa_hora: 200.00, activo: true, created_at: new Date() },
     { id: 3, nombre_completo: 'Pedro Fuentes', iniciales: 'PF', color: '#059669', telefono: '+502 5555-1003', tarifa_hora: 175.00, activo: true, created_at: new Date() },
     { id: 4, nombre_completo: 'Zoila Galvez', iniciales: 'ZG', color: '#D97706', telefono: '+502 5555-1004', tarifa_hora: 150.00, activo: true, created_at: new Date() },
-    { id: 5, nombre_completo: 'Josue Bautista', iniciales: 'JB', color: '#DC2626', telefono: '+502 5555-1005', tarifa_hora: 150.00, activo: true, created_at: new Date() }
+    { id: 5, nombre_completo: 'Josue Bautista', iniciales: 'JB', color: '#DC2626', telefono: '+502 5555-1005', tarifa_hora: 150.00, activo: true, created_at: new Date() },
+    { id: 6, nombre_completo: 'Jaime Avalos', iniciales: 'JA', color: '#059669', telefono: '+502 5555-1006', tarifa_hora: 150.00, activo: true, created_at: new Date() },
+    { id: 7, nombre_completo: 'Luis Teo', iniciales: 'LT', color: '#D97706', telefono: '+502 5555-1007', tarifa_hora: 175.00, activo: true, created_at: new Date() },
+    { id: 8, nombre_completo: 'Byron Jerez', iniciales: 'BJ', color: '#DC2626', telefono: '+502 5555-1008', tarifa_hora: 175.00, activo: true, created_at: new Date() }
   ],
   clientes: [
     { id: 1, nombre_empresa: 'Industrias Alimentarias del Norte S.A.', contacto: 'Ing. Roberto Silva', telefono: '+502 5555-1122', correo: 'rsilva@alimnorte.gt', activo: true, created_at: new Date() },
@@ -252,7 +255,10 @@ async function autoInitTables(client) {
         ('Oscar Quan', 'OQ', '#7C3AED', 200.00),
         ('Pedro Fuentes', 'PF', '#059669', 175.00),
         ('Zoila Galvez', 'ZG', '#D97706', 150.00),
-        ('Josue Bautista', 'JB', '#DC2626', 150.00)
+        ('Josue Bautista', 'JB', '#DC2626', 150.00),
+        ('Jaime Avalos', 'JA', '#059669', 150.00),
+        ('Luis Teo', 'LT', '#D97706', 175.00),
+        ('Byron Jerez', 'BJ', '#DC2626', 175.00)
         ON CONFLICT (iniciales) DO UPDATE SET tarifa_hora = EXCLUDED.tarifa_hora;
 
         INSERT INTO clientes (nombre_empresa, contacto, telefono, correo) VALUES
