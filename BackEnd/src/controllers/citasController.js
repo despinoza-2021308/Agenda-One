@@ -420,7 +420,14 @@ async function createCita(req, res, next) {
           cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, 
           horas, modalidad, tipo_servicio, estado, observaciones
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING *
+        RETURNING 
+          id, cliente_id, cliente_nombre, capacitador_id,
+          TO_CHAR(fecha, 'YYYY-MM-DD') AS fecha,
+          TO_CHAR(hora_inicio, 'HH24:MI') AS hora_inicio,
+          TO_CHAR(hora_fin, 'HH24:MI') AS hora_fin,
+          horas::FLOAT AS horas, modalidad, tipo_servicio, estado, observaciones,
+          bitacora, firma_cliente, firmante_nombre, firmante_puesto, firmado_at,
+          created_at, updated_at
       `;
       const result = await db.pool.query(insertQuery, [
         cliente_id || null,
@@ -682,7 +689,14 @@ async function updateCita(req, res, next) {
             firmante_puesto = COALESCE($15, firmante_puesto),
             firmado_at = COALESCE($16, firmado_at)
         WHERE id = $17
-        RETURNING *
+        RETURNING 
+          id, cliente_id, cliente_nombre, capacitador_id,
+          TO_CHAR(fecha, 'YYYY-MM-DD') AS fecha,
+          TO_CHAR(hora_inicio, 'HH24:MI') AS hora_inicio,
+          TO_CHAR(hora_fin, 'HH24:MI') AS hora_fin,
+          horas::FLOAT AS horas, modalidad, tipo_servicio, estado, observaciones,
+          bitacora, firma_cliente, firmante_nombre, firmante_puesto, firmado_at,
+          created_at, updated_at
       `;
 
       const result = await db.pool.query(updateQuery, [

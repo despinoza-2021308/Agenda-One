@@ -41,10 +41,12 @@ async function request(endpoint, options = {}) {
   // Inyectar automáticamente credencial de administrador si existe sesión activa
   if (token) {
     headers['x-admin-key'] = token;
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
   const config = {
     headers,
+    cache: 'no-store', // Garantiza que los navegadores nunca sirvan respuestas cacheadas de la API
     ...options
   };
 

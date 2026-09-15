@@ -163,7 +163,7 @@ export default function CalendarView({
   const modalDayCitas = useMemo(() => {
     if (!selectedDayDetails?.dateString) return [];
     return filteredCitas
-      .filter(c => c.fecha === selectedDayDetails.dateString)
+      .filter(c => String(c.fecha || '').split('T')[0] === selectedDayDetails.dateString)
       .sort((a, b) => (a.hora_inicio || '').localeCompare(b.hora_inicio || ''));
   }, [filteredCitas, selectedDayDetails]);
 
@@ -476,7 +476,7 @@ export default function CalendarView({
           {/* Días del calendario con celdas equilibradas y tarjetas de alta legibilidad */}
           <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-slate-200/50 dark:divide-white/5 flex-1">
             {calendarDays.map((dayObj, index) => {
-              const dayCitas = filteredCitas.filter(c => c.fecha === dayObj.dateString);
+              const dayCitas = filteredCitas.filter(c => String(c.fecha || '').split('T')[0] === dayObj.dateString);
               const dayTotalHoras = dayCitas
                 .filter(c => c.estado !== 'Cancelada')
                 .reduce((acc, c) => acc + (parseFloat(c.horas) || 0), 0);

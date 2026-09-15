@@ -4,8 +4,8 @@
  * Versión 5: Network-First para navegación y HTML para garantizar actualizaciones instantáneas.
  */
 
-const CACHE_STATIC_NAME = 'agenda-one-static-v5';
-const CACHE_PORTAL_NAME = 'agenda-one-portal-api-v2';
+const CACHE_STATIC_NAME = 'agenda-one-static-v7';
+const CACHE_PORTAL_NAME = 'agenda-one-portal-api-v3';
 
 const STATIC_ASSETS = [
   '/',
@@ -58,6 +58,12 @@ self.addEventListener('fetch', (event) => {
 
   // Solo gestionar peticiones GET
   if (request.method !== 'GET') {
+    return;
+  }
+
+  // IMPORTANTE: NO interceptar las llamadas a la API general (citas, clientes, capacitadores, reportes)
+  // Deben viajar siempre directo a la red sin pasar por la caché para reflejar cambios en tiempo real
+  if (url.pathname.startsWith('/api/') && !url.pathname.includes('/api/portal/')) {
     return;
   }
 

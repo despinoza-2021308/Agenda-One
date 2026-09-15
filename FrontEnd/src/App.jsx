@@ -323,7 +323,18 @@ export default function App() {
         await api.createCita(formData);
         showToast(`Cita registrada con éxito (${formData.horas} hrs).`);
       }
-      await loadCitas();
+
+      // Si la cita creada/editada pertenece a otro mes, mover el calendario automáticamente a ese mes
+      if (formData.fecha) {
+        const [fYear, fMonth] = String(formData.fecha).split('-').map(Number);
+        if (fYear && fMonth && (currentDate.getFullYear() !== fYear || (currentDate.getMonth() + 1) !== fMonth)) {
+          setCurrentDate(new Date(fYear, fMonth - 1, 1));
+        } else {
+          await loadCitas();
+        }
+      } else {
+        await loadCitas();
+      }
       await loadClientes();
 
       // Si se editó o creó desde las Citas del Día, volver a abrir las citas del día con la información actualizada

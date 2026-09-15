@@ -24,6 +24,12 @@ export default function MonthlyReportView({ initialDate = new Date(), onBackToCa
   const [activeSubTab, setActiveSubTab] = useState('monthly'); // 'monthly' | 'history'
   const [loading, setLoading] = useState(false);
 
+  // Sincronizar año y mes si cambia initialDate
+  useEffect(() => {
+    setSelectedYear(initialDate.getFullYear());
+    setSelectedMonth(initialDate.getMonth() + 1);
+  }, [initialDate]);
+
   const fetchReport = async () => {
     setLoading(true);
     try {
