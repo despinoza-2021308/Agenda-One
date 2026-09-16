@@ -12,6 +12,7 @@ import AdminLoginModal from './components/auth/AdminLoginModal';
 import TrainerPortalView from './components/portal/TrainerPortalView';
 import MobileQrModal from './components/common/MobileQrModal';
 import { api, authStorage } from './services/api';
+import { loadMonthUpdates, recordMonthUpdate } from './utils/monthAuditUtils';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function App() {
@@ -56,6 +57,9 @@ export default function App() {
     if (isDirectPortalAccess || isMobileDevice) return 'portal';
     return 'calendar';
   }); // 'calendar' | 'reports' | 'fees' | 'portal' | 'trainers' | 'clients'
+
+  // Mapa de fechas de última actualización por mes para el Cajetín Oficial AD-RE-11
+  const [monthUpdatesMap, setMonthUpdatesMap] = useState(() => loadMonthUpdates());
 
   const [urlPortalCode, setUrlPortalCode] = useState(initialPortalParam);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
@@ -324,6 +328,20 @@ export default function App() {
         showToast(`Cita registrada con éxito (${formData.horas} hrs).`);
       }
 
+      // Registrar actualización en el cajetín oficial para el mes correspondiente
+      if (formData.fecha) {
+        const mKey = String(formData.fecha).slice(0, 7);
+        recordMonthUpdate(mKey);
+        // Si se cambió de mes al editar, actualizar también el mes anterior
+        if (selectedAppointment && selectedAppointment.fecha) {
+          const prevMKey = String(selectedAppointment.fecha).slice(0, 7);
+          if (prevMKey !== mKey) {
+            recordMonthUpdate(prevMKey);
+          }
+        }
+        setMonthUpdatesMap(loadMonthUpdates());
+      }
+
       // Si la cita creada/editada pertenece a otro mes, mover el calendario automáticamente a ese mes
       if (formData.fecha) {
         const [fYear, fMonth] = String(formData.fecha).split('-').map(Number);
@@ -360,8 +378,16 @@ export default function App() {
     }
 
     try {
+      const deletedCita = citas.find(c => c.id === id);
       await api.deleteCita(id);
       showToast('Cita eliminada de la agenda.');
+
+      // Registrar actualización en el cajetín oficial para el mes correspondiente al eliminar
+      if (deletedCita && deletedCita.fecha) {
+        recordMonthUpdate(String(deletedCita.fecha).slice(0, 7));
+        setMonthUpdatesMap(loadMonthUpdates());
+      }
+
       await loadCitas();
 
       // Si se eliminó desde las Citas del Día, regresar a la vista del día actualizado
@@ -618,6 +644,7 @@ export default function App() {
             onOpenWhatsApp={handleOpenWhatsApp}
             selectedDayDetails={selectedDayDetails}
             onSelectDayDetails={setSelectedDayDetails}
+            monthUpdatesMap={monthUpdatesMap}
           />
         )}
 

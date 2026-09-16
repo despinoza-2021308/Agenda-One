@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import DocumentHeader from './DocumentHeader';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -46,7 +47,8 @@ export default function CalendarView({
   currentDate,
   setCurrentDate,
   selectedDayDetails: propSelectedDayDetails,
-  onSelectDayDetails: propOnSelectDayDetails
+  onSelectDayDetails: propOnSelectDayDetails,
+  monthUpdatesMap = {}
 }) {
   const [selectedCapacitadorId, setSelectedCapacitadorId] = useState('ALL');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
@@ -229,6 +231,13 @@ export default function CalendarView({
 
   return (
     <div className="space-y-3 flex-1 flex flex-col">
+      {/* Cajetín Oficial de Control de Documentos (AD-RE-11) */}
+      <DocumentHeader 
+        currentDate={currentDate} 
+        citas={citas} 
+        monthUpdatesMap={monthUpdatesMap} 
+      />
+
       {/* Barra de control superior: Filtros de capacitador y navegación */}
       <div className="glass-panel rounded-3xl p-3 sm:p-4 shadow-glass space-y-2.5 transition-all duration-200">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
