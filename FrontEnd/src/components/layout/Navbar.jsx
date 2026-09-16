@@ -34,7 +34,7 @@ export default function Navbar({
             <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white dark:bg-slate-800 p-0.5 flex items-center justify-center shadow-md sm:shadow-lg border border-slate-200/80 dark:border-white/15 shrink-0 overflow-hidden">
                 <img 
-                  src="/Logo One.png" 
+                  src="/logo-one.png" 
                   alt="ONE Consulting" 
                   className="w-full h-full object-contain" 
                 />

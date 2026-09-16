@@ -19,7 +19,7 @@ export default function DocumentHeader({
            ======================================================== */}
         <div className="col-span-4 sm:col-span-3 lg:col-span-2.5 flex items-center justify-center p-2 sm:p-2.5 bg-white dark:bg-slate-900 print:bg-white">
           <img 
-            src="/Logo One.png" 
+            src="/logo-one.png" 
             alt="ONE Consulting" 
             className="max-h-12 sm:max-h-14 md:max-h-16 w-auto object-contain transition-transform hover:scale-102"
             title="ONE Consulting - ¡Su aliado en generar valor!"

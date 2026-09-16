@@ -4,15 +4,16 @@
  * Versión 5: Network-First para navegación y HTML para garantizar actualizaciones instantáneas.
  */
 
-const CACHE_STATIC_NAME = 'agenda-one-static-v7';
-const CACHE_PORTAL_NAME = 'agenda-one-portal-api-v3';
+const CACHE_STATIC_NAME = 'agenda-one-static-v8';
+const CACHE_PORTAL_NAME = 'agenda-one-portal-api-v4';
 
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/favicon.svg',
-  '/icons.svg'
+  '/icons.svg',
+  '/logo-one.png'
 ];
 
 // 1. Instalación del Service Worker
