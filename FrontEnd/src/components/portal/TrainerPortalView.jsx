@@ -323,7 +323,7 @@ export default function TrainerPortalView({
           <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 text-center">
-                Ingresa tus Iniciales Oficiales
+                Ingresa tu Código de Capacitador
               </label>
               <div className="relative">
                 <input
@@ -331,14 +331,11 @@ export default function TrainerPortalView({
                   maxLength={5}
                   value={inputCode}
                   onChange={(e) => setInputCode(e.target.value.toUpperCase())}
-                  placeholder="Ej: MO"
+                  placeholder="CÓDIGO"
                   autoFocus
-                  className="w-full text-center text-3xl font-black tracking-widest uppercase py-3 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-hidden focus:border-blue-600 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                  className="w-full text-center text-3xl font-black tracking-widest uppercase py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-hidden focus:border-blue-600 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
                 />
               </div>
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 text-center mt-1.5">
-                Código asignado por la administración (2 a 5 letras).
-              </p>
             </div>
 
             <button
@@ -357,35 +354,10 @@ export default function TrainerPortalView({
             </button>
           </form>
 
-          {/* Chips de selección rápida si se conocen los capacitadores */}
-          {availableTrainers && availableTrainers.length > 0 && (
-            <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
-              <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 text-center mb-3 uppercase tracking-wider">
-                Selección de un toque para pruebas rápidas
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                {availableTrainers.map(t => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => handleLogin(t.iniciales)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/60 hover:border-blue-300 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer shadow-2xs"
-                  >
-                    <span 
-                      className="w-2.5 h-2.5 rounded-full" 
-                      style={{ backgroundColor: t.color || '#3B82F6' }} 
-                    />
-                    <span>[{t.iniciales}] {t.nombre_completo.split(' ')[0]}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div className="mt-6 text-center">
             <p className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center justify-center gap-1">
               <Sparkles className="w-3 h-3 text-amber-500" />
-              <span>Tus iniciales quedan memorizadas en este teléfono</span>
+              <span>Tu código queda memorizado en este dispositivo</span>
             </p>
           </div>
         </div>
