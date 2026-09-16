@@ -42,9 +42,18 @@ export default function App() {
     return null;
   })();
 
-  // Si se abre desde enlace directo QR (?portal), mostrar el Portal Móvil; de lo contrario, Calendario por defecto para todos los dispositivos
+  // Detección de dispositivos móviles (teléfonos Android, iOS/iPhone/iPad, móviles)
+  const isMobileDevice = (() => {
+    if (typeof window === 'undefined') return false;
+    const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
+    const isMobileUA = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/i.test(ua);
+    const isTouchPhone = window.innerWidth < 768 && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    return isMobileUA || isTouchPhone;
+  })();
+
+  // Si se abre desde teléfono celular (Android / iOS) o QR (?portal), mostrar exclusivamente el Portal Móvil
   const [activeTab, setActiveTab] = useState(() => {
-    if (isDirectPortalAccess) return 'portal';
+    if (isDirectPortalAccess || isMobileDevice) return 'portal';
     return 'calendar';
   }); // 'calendar' | 'reports' | 'fees' | 'portal' | 'trainers' | 'clients'
 
@@ -575,8 +584,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Navbar Superior y Dock Móvil (Oculto solo si es acceso directo por QR exclusivo para capacitador) */}
-      {!isDirectPortalAccess && (
+      {/* Navbar Superior y Dock Móvil (Oculto en teléfonos Android/iOS en modo Portal para que el capacitador acceda exclusivamente a su itinerario) */}
+      {!(activeTab === 'portal' && (isDirectPortalAccess || isMobileDevice) && !isAdmin) && (
         <Navbar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -594,7 +603,7 @@ export default function App() {
 
       {/* Contenido Dinámico por Pestaña */}
       <main className={`flex-1 w-full max-w-[1920px] mx-auto flex flex-col relative z-10 ${
-        activeTab === 'portal' && isDirectPortalAccess
+        activeTab === 'portal' && (isDirectPortalAccess || isMobileDevice) && !isAdmin
           ? 'p-2 sm:p-4 max-w-full overflow-x-hidden'
           : 'px-2.5 sm:px-4 md:px-5 lg:px-6 xl:px-8 py-2.5 sm:py-4 pb-24 md:pb-6'
       }`}>
@@ -637,7 +646,7 @@ export default function App() {
           <TrainerPortalView
             initialTrainerCode={urlPortalCode}
             availableTrainers={capacitadores}
-            onBackToAdmin={(isDirectPortalAccess || isMobileInitial) ? null : () => setActiveTab('calendar')}
+            onBackToAdmin={(isDirectPortalAccess || isMobileDevice) && !isAdmin ? null : () => setActiveTab('calendar')}
             theme={theme}
             onToggleTheme={toggleTheme}
             onNotifyAdmin={() => {
