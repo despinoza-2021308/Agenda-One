@@ -1,13 +1,27 @@
 const db = require('../config/db');
 const { validarTelefono } = require('../utils/timeUtils');
+const { generateSecurePin, isWeakPin } = require('../utils/tokenUtils');
+const { checkAdminCredential } = require('../middlewares/auth');
 
-// Obtener todos los capacitadores
+// Obtener todos los capacitadores (PIN y tarifa_hora solo visibles para Administrador)
 async function getCapacitadores(req, res, next) {
   try {
+    const isAdmin = !!checkAdminCredential(req);
+
     if (db.isPostgresConnected()) {
       const result = await db.pool.query(
-        'SELECT id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, activo, created_at FROM capacitadores ORDER BY nombre_completo ASC'
+        'SELECT id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, pin, activo, created_at FROM capacitadores ORDER BY nombre_completo ASC'
       );
+      
+      if (!isAdmin) {
+        return res.json(result.rows.map(c => ({
+          id: c.id,
+          nombre_completo: c.nombre_completo,
+          iniciales: c.iniciales,
+          color: c.color,
+          activo: c.activo
+        })));
+      }
       return res.json(result.rows);
     }
 
@@ -15,6 +29,17 @@ async function getCapacitadores(req, res, next) {
     const data = [...db.mockStore.capacitadores]
       .map(c => ({ ...c, tarifa_hora: Number(c.tarifa_hora || 150.00) }))
       .sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo));
+
+    if (!isAdmin) {
+      return res.json(data.map(c => ({
+        id: c.id,
+        nombre_completo: c.nombre_completo,
+        iniciales: c.iniciales,
+        color: c.color,
+        activo: c.activo
+      })));
+    }
+
     return res.json(data);
   } catch (error) {
     next(error);
@@ -25,20 +50,42 @@ async function getCapacitadores(req, res, next) {
 async function getCapacitadorById(req, res, next) {
   try {
     const { id } = req.params;
+    const isAdmin = !!checkAdminCredential(req);
+
     if (db.isPostgresConnected()) {
       const result = await db.pool.query(
-        'SELECT id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, activo, created_at FROM capacitadores WHERE id = $1',
+        'SELECT id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, pin, activo, created_at FROM capacitadores WHERE id = $1',
         [id]
       );
       if (result.rows.length === 0) {
         return res.status(404).json({ message: 'Capacitador no encontrado' });
       }
-      return res.json(result.rows[0]);
+      const cap = result.rows[0];
+      if (!isAdmin) {
+        return res.json({
+          id: cap.id,
+          nombre_completo: cap.nombre_completo,
+          iniciales: cap.iniciales,
+          color: cap.color,
+          activo: cap.activo
+        });
+      }
+      return res.json(cap);
     }
 
     const item = db.mockStore.capacitadores.find(c => c.id === parseInt(id, 10));
     if (!item) return res.status(404).json({ message: 'Capacitador no encontrado' });
-    return res.json({ ...item, tarifa_hora: Number(item.tarifa_hora || 150.00) });
+    const cap = { ...item, tarifa_hora: Number(item.tarifa_hora || 150.00) };
+    if (!isAdmin) {
+      return res.json({
+        id: cap.id,
+        nombre_completo: cap.nombre_completo,
+        iniciales: cap.iniciales,
+        color: cap.color,
+        activo: cap.activo
+      });
+    }
+    return res.json(cap);
   } catch (error) {
     next(error);
   }
@@ -47,7 +94,7 @@ async function getCapacitadorById(req, res, next) {
 // Crear nuevo capacitador
 async function createCapacitador(req, res, next) {
   try {
-    const { nombre_completo, iniciales, color, telefono, tarifa_hora } = req.body;
+    const { nombre_completo, iniciales, color, telefono, tarifa_hora, pin } = req.body;
 
     if (!nombre_completo || !iniciales) {
       return res.status(400).json({ message: 'El nombre completo y las iniciales son requeridos.' });
@@ -81,6 +128,20 @@ async function createCapacitador(req, res, next) {
       }
     }
 
+    // Validar o generar PIN seguro de 4 dígitos
+    let cleanPin = null;
+    if (pin !== undefined && pin !== null && String(pin).trim() !== '') {
+      cleanPin = String(pin).trim();
+      if (!/^\d{4}$/.test(cleanPin)) {
+        return res.status(400).json({ message: 'El PIN debe contener exactamente 4 dígitos numéricos (ej: 8492).' });
+      }
+      if (isWeakPin(cleanPin)) {
+        return res.status(400).json({ message: 'El PIN ingresado es débil o predecible (números consecutivos o repetidos). Elija un PIN seguro.' });
+      }
+    } else {
+      cleanPin = generateSecurePin();
+    }
+
     if (db.isPostgresConnected()) {
       const checkResult = await db.pool.query('SELECT id FROM capacitadores WHERE iniciales = $1', [cleanInitials]);
       if (checkResult.rows.length > 0) {
@@ -88,8 +149,8 @@ async function createCapacitador(req, res, next) {
       }
 
       const result = await db.pool.query(
-        'INSERT INTO capacitadores (nombre_completo, iniciales, color, telefono, tarifa_hora) VALUES ($1, $2, $3, $4, $5) RETURNING id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, activo, created_at',
-        [cleanNombre, cleanInitials, cleanColor, cleanTel, cleanTarifa]
+        'INSERT INTO capacitadores (nombre_completo, iniciales, color, telefono, tarifa_hora, pin) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, pin, activo, created_at',
+        [cleanNombre, cleanInitials, cleanColor, cleanTel, cleanTarifa, cleanPin]
       );
       return res.status(201).json(result.rows[0]);
     }
@@ -107,6 +168,7 @@ async function createCapacitador(req, res, next) {
       color: cleanColor,
       telefono: cleanTel || '',
       tarifa_hora: cleanTarifa,
+      pin: cleanPin,
       activo: true,
       created_at: new Date()
     };
@@ -121,7 +183,7 @@ async function createCapacitador(req, res, next) {
 async function updateCapacitador(req, res, next) {
   try {
     const { id } = req.params;
-    const { nombre_completo, iniciales, color, telefono, tarifa_hora, activo } = req.body;
+    const { nombre_completo, iniciales, color, telefono, tarifa_hora, activo, pin } = req.body;
 
     const cleanNombre = nombre_completo !== undefined ? nombre_completo.trim() : undefined;
     if (cleanNombre !== undefined && (cleanNombre.length < 3 || cleanNombre.length > 100)) {
@@ -151,6 +213,17 @@ async function updateCapacitador(req, res, next) {
       }
     }
 
+    let cleanPin = undefined;
+    if (pin !== undefined && pin !== null && String(pin).trim() !== '') {
+      cleanPin = String(pin).trim();
+      if (!/^\d{4}$/.test(cleanPin)) {
+        return res.status(400).json({ message: 'El PIN debe contener exactamente 4 dígitos numéricos (ej: 8492).' });
+      }
+      if (isWeakPin(cleanPin)) {
+        return res.status(400).json({ message: 'El PIN ingresado es débil o predecible (números consecutivos o repetidos). Elija un PIN seguro.' });
+      }
+    }
+
     if (db.isPostgresConnected()) {
       if (cleanInitials) {
         const checkResult = await db.pool.query(
@@ -169,9 +242,10 @@ async function updateCapacitador(req, res, next) {
              color = COALESCE($3, color),
              telefono = COALESCE($4, telefono),
              tarifa_hora = COALESCE($5, tarifa_hora),
-             activo = COALESCE($6, activo)
-         WHERE id = $7 RETURNING id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, activo, created_at`,
-        [cleanNombre, cleanInitials, cleanColor, cleanTel, cleanTarifa, activo, id]
+             activo = COALESCE($6, activo),
+             pin = COALESCE($7, pin)
+         WHERE id = $8 RETURNING id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, pin, activo, created_at`,
+        [cleanNombre, cleanInitials, cleanColor, cleanTel, cleanTarifa, activo, cleanPin, id]
       );
 
       if (result.rows.length === 0) {
@@ -196,6 +270,7 @@ async function updateCapacitador(req, res, next) {
     if (telefono !== undefined) cap.telefono = telefono;
     if (cleanTarifa !== undefined) cap.tarifa_hora = cleanTarifa;
     if (activo !== undefined) cap.activo = activo;
+    if (cleanPin !== undefined) cap.pin = cleanPin;
 
     return res.json({ ...cap, tarifa_hora: Number(cap.tarifa_hora || 150.00) });
   } catch (error) {
@@ -242,3 +317,4 @@ module.exports = {
   updateCapacitador,
   deleteCapacitador
 };
+

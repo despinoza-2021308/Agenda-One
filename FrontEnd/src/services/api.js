@@ -1,5 +1,7 @@
 const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const TOKEN_STORAGE_KEY = 'agenda_admin_token';
+const TRAINER_TOKEN_KEY = 'agenda_trainer_token';
+const TRAINER_CODE_KEY = 'agenda_trainer_codigo';
 
 export const authStorage = {
   // El token de administrador NUNCA se persiste en localStorage.
@@ -29,19 +31,50 @@ export const authStorage = {
   }
 };
 
+export const trainerAuthStorage = {
+  // El token del capacitador se persiste en localStorage con expiración de 30 días para conveniencia móvil PWA
+  getToken: () => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(TRAINER_TOKEN_KEY);
+    }
+    return null;
+  },
+  setToken: (token, codigo) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(TRAINER_TOKEN_KEY, token);
+      if (codigo) localStorage.setItem(TRAINER_CODE_KEY, String(codigo).toUpperCase());
+    }
+  },
+  getCodigo: () => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(TRAINER_CODE_KEY);
+    }
+    return null;
+  },
+  clearToken: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(TRAINER_TOKEN_KEY);
+      localStorage.removeItem(TRAINER_CODE_KEY);
+    }
+  }
+};
+
 async function request(endpoint, options = {}) {
   const url = `${BASE_URL}${endpoint}`;
-  const token = authStorage.getToken();
+  const adminToken = authStorage.getToken();
+  const trainerToken = trainerAuthStorage.getToken();
 
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers
   };
 
-  // Inyectar automáticamente credencial de administrador si existe sesión activa
-  if (token) {
-    headers['x-admin-key'] = token;
-    headers['Authorization'] = `Bearer ${token}`;
+  // Inyectar automáticamente credencial de administrador o token firmado de capacitador
+  if (adminToken) {
+    headers['x-admin-key'] = adminToken;
+    headers['Authorization'] = `Bearer ${adminToken}`;
+  } else if (trainerToken) {
+    headers['Authorization'] = `Bearer ${trainerToken}`;
   }
 
   const config = {
@@ -109,6 +142,12 @@ export const api = {
   getHistorico: () => request('/reportes/historico'),
 
   // Portal Móvil del Capacitador
+  loginTrainer: (codigo, pin) => {
+    return request('/portal/login', {
+      method: 'POST',
+      body: JSON.stringify({ codigo, pin })
+    });
+  },
   getTrainerPortal: (codigo, params = {}) => {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {

@@ -1,5 +1,22 @@
 import React, { useState } from 'react';
-import { Users, Plus, Edit2, Trash2, Check, X, AlertCircle, Palette, Phone, Banknote, ArrowLeft } from 'lucide-react';
+import { 
+  Users, 
+  Plus, 
+  Edit2, 
+  Trash2, 
+  Check, 
+  X, 
+  AlertCircle, 
+  Palette, 
+  Phone, 
+  Banknote, 
+  ArrowLeft,
+  KeyRound,
+  Eye,
+  EyeOff,
+  Copy,
+  Sparkles
+} from 'lucide-react';
 import ConfirmModal from '../common/ConfirmModal';
 
 const COLOR_PALETTES = [
@@ -14,6 +31,19 @@ const COLOR_PALETTES = [
   '#475569', // Pizarra
 ];
 
+// Generador de PIN seguro de alta entropía (no secuencial)
+function generateRandomSecurePin() {
+  const weakPins = new Set(['1234', '4321', '0000', '1111', '2222', '3333', '4444', '5555', '6666', '7777', '8888', '9999', '1122', '1212', '2026', '2025']);
+  for (let i = 0; i < 50; i++) {
+    const num = Math.floor(1000 + Math.random() * 9000);
+    const str = String(num);
+    if (!weakPins.has(str) && !/(.)\1{2}/.test(str)) {
+      return str;
+    }
+  }
+  return '8492';
+}
+
 export default function CapacitadoresView({ capacitadores = [], citas = [], onSaveCapacitador, onDeleteCapacitador, onBackToCalendar }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCap, setEditingCap] = useState(null);
@@ -22,16 +52,39 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
     iniciales: '',
     color: '#2563EB',
     telefono: '',
-    tarifa_hora: 150.00
+    tarifa_hora: 150.00,
+    pin: ''
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Estados para visualización y copia rápida de PINs en tarjetas
+  const [revealedPins, setRevealedPins] = useState({});
+  const [copiedPinId, setCopiedPinId] = useState(null);
+
+  const toggleRevealPin = (id) => {
+    setRevealedPins(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const copyPin = (id, pinVal) => {
+    if (!pinVal) return;
+    navigator.clipboard.writeText(String(pinVal));
+    setCopiedPinId(id);
+    setTimeout(() => setCopiedPinId(null), 2000);
+  };
+
   const openNewModal = () => {
     setEditingCap(null);
-    setFormData({ nombre_completo: '', iniciales: '', color: '#2563EB', telefono: '', tarifa_hora: 150.00 });
+    setFormData({
+      nombre_completo: '',
+      iniciales: '',
+      color: '#2563EB',
+      telefono: '',
+      tarifa_hora: 150.00,
+      pin: generateRandomSecurePin()
+    });
     setError(null);
     setIsModalOpen(true);
   };
@@ -43,7 +96,8 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
       iniciales: cap.iniciales,
       color: cap.color || '#2563EB',
       telefono: cap.telefono || '',
-      tarifa_hora: cap.tarifa_hora !== undefined ? cap.tarifa_hora : 150.00
+      tarifa_hora: cap.tarifa_hora !== undefined ? cap.tarifa_hora : 150.00,
+      pin: cap.pin || ''
     });
     setError(null);
     setIsModalOpen(true);
@@ -121,6 +175,17 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
       return;
     }
 
+    // Validar PIN de 4 dígitos
+    let cleanPin = formData.pin ? String(formData.pin).trim() : '';
+    if (cleanPin) {
+      if (!/^\d{4}$/.test(cleanPin)) {
+        setError('El PIN debe contener exactamente 4 dígitos numéricos (ej: 8492).');
+        return;
+      }
+    } else if (!editingCap) {
+      cleanPin = generateRandomSecurePin();
+    }
+
     setLoading(true);
     try {
       await onSaveCapacitador({
@@ -129,7 +194,8 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
         iniciales: cleanInitials,
         color: cleanColor,
         telefono: formData.telefono ? formData.telefono.trim() : '',
-        tarifa_hora: cleanTarifa
+        tarifa_hora: cleanTarifa,
+        pin: cleanPin
       }, editingCap?.id);
       setIsModalOpen(false);
     } catch (err) {
@@ -181,7 +247,7 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
               Catálogo de Capacitadores ({capacitadores.length})
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              Personal docente con iniciales y color asignado para distinción en la agenda
+              Personal docente con iniciales, color y PIN privado para acceso al portal móvil
             </p>
           </div>
         </div>
@@ -218,6 +284,28 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                   <span className="text-[11px] font-mono font-bold text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
                     Código: {cap.iniciales}
                   </span>
+                  {cap.pin && (
+                    <span className="text-[11px] font-mono font-bold bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
+                      <KeyRound className="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <span>PIN: {revealedPins[cap.id] ? cap.pin : '••••'}</span>
+                      <button
+                        type="button"
+                        onClick={() => toggleRevealPin(cap.id)}
+                        className="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-100 p-0.5 cursor-pointer"
+                        title={revealedPins[cap.id] ? "Ocultar PIN" : "Ver PIN"}
+                      >
+                        {revealedPins[cap.id] ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => copyPin(cap.id, cap.pin)}
+                        className="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-100 p-0.5 cursor-pointer"
+                        title="Copiar PIN"
+                      >
+                        {copiedPinId === cap.id ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                      </button>
+                    </span>
+                  )}
                   <span
                     className="w-2.5 h-2.5 rounded-full inline-block"
                     style={{ backgroundColor: cap.color }}
@@ -324,6 +412,38 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                 />
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                   Código de 2 a 4 letras que aparecerá en los bloques de la agenda.
+                </p>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                    PIN de Seguridad (4 dígitos) <span className="text-rose-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, pin: generateRandomSecurePin() })}
+                    className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                    title="Generar combinación de PIN segura y no secuencial"
+                  >
+                    <Sparkles className="w-3 h-3 text-amber-500" />
+                    <span>Generar PIN Seguro</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    maxLength={4}
+                    inputMode="numeric"
+                    placeholder="Ej: 8492"
+                    value={formData.pin}
+                    onChange={(e) => setFormData({ ...formData, pin: e.target.value.replace(/\D/g, '').slice(0, 4) })}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold tracking-widest text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                  PIN privado que el capacitador usará para acceder a su portal móvil. Se prohíben claves obvias como 1234.
                 </p>
               </div>
 

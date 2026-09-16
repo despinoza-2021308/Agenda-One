@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const portalController = require('../controllers/portalController');
+const { authLimiter } = require('../middlewares/auth');
+
+// Inicio de sesión del capacitador con Código y PIN privado (protegido contra fuerza bruta)
+router.post('/login', authLimiter, portalController.loginTrainer);
 
 // Obtener datos del portal del capacitador (citas, estadísticas y honorarios)
 router.get('/:codigo', portalController.getTrainerPortalData);
@@ -10,3 +14,4 @@ router.patch('/:codigo/citas/:id', portalController.updateTrainerCita);
 router.post('/:codigo/citas/:id', portalController.updateTrainerCita);
 
 module.exports = router;
+

@@ -63,14 +63,14 @@ async function ensureDatabaseExists() {
 // Almacén en memoria de respaldo para desarrollo inmediato sin bloqueos
 const mockStore = {
   capacitadores: [
-    { id: 1, nombre_completo: 'Mariana Orellana', iniciales: 'MO', color: '#2563EB', telefono: '+502 5555-1001', tarifa_hora: 175.00, activo: true, created_at: new Date() },
-    { id: 2, nombre_completo: 'Oscar Quan', iniciales: 'OQ', color: '#7C3AED', telefono: '+502 5555-1002', tarifa_hora: 200.00, activo: true, created_at: new Date() },
-    { id: 3, nombre_completo: 'Pedro Fuentes', iniciales: 'PF', color: '#059669', telefono: '+502 5555-1003', tarifa_hora: 175.00, activo: true, created_at: new Date() },
-    { id: 4, nombre_completo: 'Zoila Galvez', iniciales: 'ZG', color: '#D97706', telefono: '+502 5555-1004', tarifa_hora: 150.00, activo: true, created_at: new Date() },
-    { id: 5, nombre_completo: 'Josue Bautista', iniciales: 'JB', color: '#DC2626', telefono: '+502 5555-1005', tarifa_hora: 150.00, activo: true, created_at: new Date() },
-    { id: 6, nombre_completo: 'Jaime Avalos', iniciales: 'JA', color: '#059669', telefono: '+502 5555-1006', tarifa_hora: 150.00, activo: true, created_at: new Date() },
-    { id: 7, nombre_completo: 'Luis Teo', iniciales: 'LT', color: '#D97706', telefono: '+502 5555-1007', tarifa_hora: 175.00, activo: true, created_at: new Date() },
-    { id: 8, nombre_completo: 'Byron Jerez', iniciales: 'BJ', color: '#DC2626', telefono: '+502 5555-1008', tarifa_hora: 175.00, activo: true, created_at: new Date() }
+    { id: 1, nombre_completo: 'Mariana Orellana', iniciales: 'MO', color: '#2563EB', telefono: '+502 5555-1001', pin: '8492', tarifa_hora: 175.00, activo: true, created_at: new Date() },
+    { id: 2, nombre_completo: 'Oscar Quan', iniciales: 'OQ', color: '#7C3AED', telefono: '+502 5555-1002', pin: '3715', tarifa_hora: 200.00, activo: true, created_at: new Date() },
+    { id: 3, nombre_completo: 'Pedro Fuentes', iniciales: 'PF', color: '#059669', telefono: '+502 5555-1003', pin: '9524', tarifa_hora: 175.00, activo: true, created_at: new Date() },
+    { id: 4, nombre_completo: 'Zoila Galvez', iniciales: 'ZG', color: '#D97706', telefono: '+502 5555-1004', pin: '4861', tarifa_hora: 150.00, activo: true, created_at: new Date() },
+    { id: 5, nombre_completo: 'Josue Bautista', iniciales: 'JB', color: '#DC2626', telefono: '+502 5555-1005', pin: '7239', tarifa_hora: 150.00, activo: true, created_at: new Date() },
+    { id: 6, nombre_completo: 'Jaime Avalos', iniciales: 'JA', color: '#059669', telefono: '+502 5555-1006', pin: '6158', tarifa_hora: 150.00, activo: true, created_at: new Date() },
+    { id: 7, nombre_completo: 'Luis Teo', iniciales: 'LT', color: '#D97706', telefono: '+502 5555-1007', pin: '2947', tarifa_hora: 175.00, activo: true, created_at: new Date() },
+    { id: 8, nombre_completo: 'Byron Jerez', iniciales: 'BJ', color: '#DC2626', telefono: '+502 5555-1008', pin: '5382', tarifa_hora: 175.00, activo: true, created_at: new Date() }
   ],
   clientes: [
     { id: 1, nombre_empresa: 'Industrias Alimentarias del Norte S.A.', contacto: 'Ing. Roberto Silva', telefono: '+502 5555-1122', correo: 'rsilva@alimnorte.gt', activo: true, created_at: new Date() },
@@ -189,9 +189,20 @@ async function autoInitTables(client) {
 
       ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS telefono VARCHAR(30);
       ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS tarifa_hora NUMERIC(10, 2) NOT NULL DEFAULT 150.00;
+      ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS pin VARCHAR(10);
 
       UPDATE capacitadores SET tarifa_hora = 200.00 WHERE iniciales = 'OQ' AND tarifa_hora = 150.00;
       UPDATE capacitadores SET tarifa_hora = 175.00 WHERE iniciales IN ('MO', 'PF') AND tarifa_hora = 150.00;
+
+      -- PINs seguros de alta entropía (no secuenciales) por capacitador
+      UPDATE capacitadores SET pin = '8492' WHERE iniciales = 'MO' AND (pin IS NULL OR pin IN ('1001', ''));
+      UPDATE capacitadores SET pin = '3715' WHERE iniciales = 'OQ' AND (pin IS NULL OR pin IN ('1002', ''));
+      UPDATE capacitadores SET pin = '9524' WHERE iniciales = 'PF' AND (pin IS NULL OR pin IN ('1003', ''));
+      UPDATE capacitadores SET pin = '4861' WHERE iniciales = 'ZG' AND (pin IS NULL OR pin IN ('1004', ''));
+      UPDATE capacitadores SET pin = '7239' WHERE iniciales = 'JB' AND (pin IS NULL OR pin IN ('1005', ''));
+      UPDATE capacitadores SET pin = '6158' WHERE iniciales = 'JA' AND (pin IS NULL OR pin IN ('1006', ''));
+      UPDATE capacitadores SET pin = '2947' WHERE iniciales = 'LT' AND (pin IS NULL OR pin IN ('1007', ''));
+      UPDATE capacitadores SET pin = '5382' WHERE iniciales = 'BJ' AND (pin IS NULL OR pin IN ('1008', ''));
 
       CREATE TABLE IF NOT EXISTS clientes (
         id SERIAL PRIMARY KEY,
@@ -250,16 +261,16 @@ async function autoInitTables(client) {
     const capRes = await client.query('SELECT COUNT(*) FROM capacitadores');
     if (parseInt(capRes.rows[0].count, 10) === 0) {
       await client.query(`
-        INSERT INTO capacitadores (nombre_completo, iniciales, color, tarifa_hora) VALUES
-        ('Mariana Orellana', 'MO', '#2563EB', 175.00),
-        ('Oscar Quan', 'OQ', '#7C3AED', 200.00),
-        ('Pedro Fuentes', 'PF', '#059669', 175.00),
-        ('Zoila Galvez', 'ZG', '#D97706', 150.00),
-        ('Josue Bautista', 'JB', '#DC2626', 150.00),
-        ('Jaime Avalos', 'JA', '#059669', 150.00),
-        ('Luis Teo', 'LT', '#D97706', 175.00),
-        ('Byron Jerez', 'BJ', '#DC2626', 175.00)
-        ON CONFLICT (iniciales) DO UPDATE SET tarifa_hora = EXCLUDED.tarifa_hora;
+        INSERT INTO capacitadores (nombre_completo, iniciales, color, tarifa_hora, pin) VALUES
+        ('Mariana Orellana', 'MO', '#2563EB', 175.00, '8492'),
+        ('Oscar Quan', 'OQ', '#7C3AED', 200.00, '3715'),
+        ('Pedro Fuentes', 'PF', '#059669', 175.00, '9524'),
+        ('Zoila Galvez', 'ZG', '#D97706', 150.00, '4861'),
+        ('Josue Bautista', 'JB', '#DC2626', 150.00, '7239'),
+        ('Jaime Avalos', 'JA', '#059669', 150.00, '6158'),
+        ('Luis Teo', 'LT', '#D97706', 175.00, '2947'),
+        ('Byron Jerez', 'BJ', '#DC2626', 175.00, '5382')
+        ON CONFLICT (iniciales) DO UPDATE SET tarifa_hora = EXCLUDED.tarifa_hora, pin = EXCLUDED.pin;
 
         INSERT INTO clientes (nombre_empresa, contacto, telefono, correo) VALUES
         ('Industrias Alimentarias del Norte S.A.', 'Ing. Roberto Silva', '+502 5555-1122', 'rsilva@alimnorte.gt'),
