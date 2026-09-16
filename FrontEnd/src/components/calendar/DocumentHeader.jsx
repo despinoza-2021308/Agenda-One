@@ -1,4 +1,5 @@
 import React from 'react';
+import { Clock, FileText, ShieldCheck } from 'lucide-react';
 import { getMonthCode, getMonthKey, getMonthLastUpdateDate } from '../../utils/monthAuditUtils';
 
 export default function DocumentHeader({ 
@@ -11,93 +12,102 @@ export default function DocumentHeader({
   const lastUpdateDate = getMonthLastUpdateDate(monthKey, citas, monthUpdatesMap);
 
   return (
-    <div className="w-full bg-white dark:bg-slate-900 border-2 border-slate-900 dark:border-slate-600 rounded-xl overflow-hidden shadow-xs mb-3 transition-all select-none print:shadow-none print:border-2 print:border-black print:mb-4">
-      <div className="grid grid-cols-12 divide-x-2 divide-slate-900 dark:divide-slate-600 print:divide-black">
+    <header className="w-full glass-panel rounded-2xl sm:rounded-3xl p-3 sm:p-4 transition-all duration-200 shadow-glass border border-white/80 dark:border-white/10 select-none print:bg-white print:border print:border-black print:rounded-none print:shadow-none print:p-2 mb-3">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
         
         {/* ========================================================
-            COLUMNA 1 (IZQUIERDA): LOGO CORPORATIVO ONE CONSULTING
+            SECCIÓN 1 (IZQUIERDA): IDENTIDAD INSTITUCIONAL ONE
            ======================================================== */}
-        <div className="col-span-4 sm:col-span-3 lg:col-span-2.5 flex items-center justify-center p-2 sm:p-2.5 bg-white dark:bg-slate-900 print:bg-white">
-          <img 
-            src="/logo-one.png" 
-            alt="ONE Consulting" 
-            className="max-h-12 sm:max-h-14 md:max-h-16 w-auto object-contain transition-transform hover:scale-102"
-            title="ONE Consulting - ¡Su aliado en generar valor!"
-          />
+        <div className="flex items-center justify-between w-full md:w-auto gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="bg-white p-1.5 rounded-2xl shadow-xs border border-slate-200/80 dark:border-white/15 shrink-0 flex items-center justify-center transition-transform hover:scale-102">
+              <img 
+                src="/logo-one.png" 
+                alt="ONE Consulting" 
+                className="h-9 sm:h-11 w-auto object-contain"
+                title="ONE Consulting - ¡Su aliado en generar valor!"
+              />
+            </div>
+            <div>
+              <span className="font-extrabold text-xs sm:text-sm tracking-tight text-slate-900 dark:text-white block">
+                ONE Consulting
+              </span>
+              <span className="text-[10px] text-red-600 dark:text-red-400 font-bold italic tracking-wide hidden sm:block">
+                ¡Su aliado en generar valor!
+              </span>
+            </div>
+          </div>
+
+          {/* En móviles, mostrar Código y Versión compactos a la derecha de la fila superior */}
+          <div className="flex items-center gap-1.5 md:hidden">
+            <span className="text-[10px] font-mono font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/80 px-2 py-0.5 rounded-lg">
+              AD-RE-11
+            </span>
+            <span className="text-[10px] font-mono font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80 px-1.5 py-0.5 rounded-lg">
+              v4
+            </span>
+          </div>
         </div>
 
         {/* ========================================================
-            COLUMNA 2 (CENTRAL): TÍTULO, ÚLTIMA ACTUALIZACIÓN Y MES
+            SECCIÓN 2 (CENTRAL): TÍTULO DE AGENDA Y AUDITORÍA
            ======================================================== */}
-        <div className="col-span-8 sm:col-span-6 lg:col-span-7 flex flex-col divide-y-2 divide-slate-900 dark:divide-slate-600 print:divide-black">
-          
-          {/* Fila 1: TÍTULO INSTITUCIONAL */}
-          <div className="py-1 px-2 sm:px-3 flex items-center justify-center bg-white dark:bg-slate-900 print:bg-white min-h-[30px] sm:min-h-[34px]">
-            <h1 className="font-black text-sm sm:text-base md:text-lg tracking-widest text-slate-900 dark:text-white uppercase font-sans print:text-black">
-              AGENDA
-            </h1>
-          </div>
+        <div className="flex flex-col items-center justify-center text-center gap-1.5 flex-1 min-w-0">
+          <h1 className="font-black text-base sm:text-lg md:text-xl tracking-widest uppercase bg-gradient-to-r from-slate-950 via-blue-900 to-indigo-950 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent print:text-black font-sans">
+            AGENDA
+          </h1>
 
-          {/* Fila 2: ÚLTIMA ACTUALIZACIÓN POR MES */}
-          <div className="grid grid-cols-12 divide-x-2 divide-slate-900 dark:divide-slate-600 print:divide-black text-xs sm:text-sm">
-            <div className="col-span-6 sm:col-span-5 px-2 sm:px-3 py-1 font-medium text-slate-700 dark:text-slate-300 flex items-center print:text-black">
-              <span className="truncate">Ultima Actualización</span>
-            </div>
-            <div className="col-span-6 sm:col-span-7 px-2 sm:px-3 py-1 font-black text-slate-950 dark:text-white text-center flex items-center justify-center font-mono tracking-wide print:text-black bg-slate-50/50 dark:bg-slate-800/30 print:bg-transparent">
-              {lastUpdateDate || '16/09/2026'}
-            </div>
-          </div>
-
-          {/* Fila 3: MES (CON RECUADRO AMARILLO INSTITUCIONAL) */}
-          <div className="grid grid-cols-12 divide-x-2 divide-slate-900 dark:divide-slate-600 print:divide-black text-xs sm:text-sm">
-            <div className="col-span-6 sm:col-span-5 px-2 sm:px-3 py-1 font-bold text-slate-800 dark:text-slate-200 flex items-center print:text-black uppercase">
-              <span>MES</span>
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {/* Tag MES con fondo amarillo corporativo refinado */}
             <div 
-              className="col-span-6 sm:col-span-7 px-2 sm:px-3 py-1 font-black text-slate-950 text-center flex items-center justify-center font-mono tracking-wider lowercase shadow-inner print:text-black"
+              className="inline-flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-950 px-2.5 sm:px-3 py-1 rounded-xl font-bold shadow-xs border border-yellow-500/40 text-xs transition-all"
               style={{
-                backgroundColor: '#FFFF00',
+                backgroundColor: '#FACC15',
                 color: '#000000',
                 WebkitPrintColorAdjust: 'exact',
                 printColorAdjust: 'exact'
               }}
               title={`Mes activo de la agenda: ${monthCode}`}
             >
-              {monthCode}
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-900/80">MES</span>
+              <span className="font-mono font-black tracking-wide lowercase">{monthCode}</span>
+            </div>
+
+            {/* Tag Última Actualización */}
+            <div className="inline-flex items-center gap-1.5 bg-slate-100/90 dark:bg-slate-800/90 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 px-2.5 sm:px-3 py-1 rounded-xl text-xs font-semibold border border-slate-200/80 dark:border-white/10 shadow-2xs transition-all print:border print:border-black">
+              <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0 print:hidden" />
+              <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                Última Actualización:
+              </span>
+              <span className="font-mono font-black text-slate-900 dark:text-white print:text-black">
+                {lastUpdateDate || '16/09/2026'}
+              </span>
             </div>
           </div>
         </div>
 
         {/* ========================================================
-            COLUMNA 3 (DERECHA): CÓDIGO DEL MODELO Y VERSIÓN
+            SECCIÓN 3 (DERECHA): CÓDIGO Y VERSIÓN OFICIAL (ESCRITORIO)
            ======================================================== */}
-        <div className="col-span-12 sm:col-span-3 lg:col-span-2.5 flex flex-col divide-y-2 divide-slate-900 dark:divide-slate-600 print:divide-black text-xs sm:text-sm border-t-2 sm:border-t-0 border-slate-900 dark:border-slate-600">
-          
-          {/* Fila 1: Código oficial */}
-          <div className="grid grid-cols-2 divide-x-2 divide-slate-900 dark:divide-slate-600 print:divide-black flex-1 min-h-[30px] sm:min-h-[34px]">
-            <div className="px-2 py-1 font-semibold text-slate-700 dark:text-slate-300 flex items-center print:text-black">
-              <span>Codigo:</span>
-            </div>
-            <div className="px-2 py-1 font-black text-slate-950 dark:text-white flex items-center justify-center font-mono tracking-wide print:text-black bg-slate-50/50 dark:bg-slate-800/30 print:bg-transparent">
-              AD-RE-11
+        <div className="hidden md:flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 bg-blue-50/80 dark:bg-blue-950/50 border border-blue-200/80 dark:border-blue-800/80 px-3 py-1.5 rounded-2xl text-xs shadow-2xs">
+            <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+            <div className="flex flex-col text-left">
+              <span className="text-[9px] font-bold text-blue-600/80 dark:text-blue-400/80 uppercase tracking-wider">Código</span>
+              <span className="font-black font-mono text-blue-950 dark:text-blue-200 text-xs sm:text-sm tracking-wide">AD-RE-11</span>
             </div>
           </div>
 
-          {/* Fila 2: Versión del formato */}
-          <div className="grid grid-cols-2 divide-x-2 divide-slate-900 dark:divide-slate-600 print:divide-black flex-1">
-            <div className="px-2 py-1 font-semibold text-slate-700 dark:text-slate-300 flex items-center print:text-black">
-              <span>Versión</span>
-            </div>
-            <div className="px-2 py-1 font-black text-slate-950 dark:text-white flex items-center justify-center font-mono print:text-black bg-slate-50/50 dark:bg-slate-800/30 print:bg-transparent">
-              4
+          <div className="flex items-center gap-2 bg-indigo-50/80 dark:bg-indigo-950/50 border border-indigo-200/80 dark:border-indigo-800/80 px-3 py-1.5 rounded-2xl text-xs shadow-2xs">
+            <ShieldCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+            <div className="flex flex-col text-left">
+              <span className="text-[9px] font-bold text-indigo-600/80 dark:text-indigo-400/80 uppercase tracking-wider">Versión</span>
+              <span className="font-black font-mono text-indigo-950 dark:text-indigo-200 text-xs sm:text-sm">4</span>
             </div>
           </div>
-
-          {/* Fila 3: Cierre de cuadrícula */}
-          <div className="flex-1 bg-white dark:bg-slate-900 print:bg-white min-h-[20px] hidden sm:block" />
         </div>
 
       </div>
-    </div>
+    </header>
   );
 }

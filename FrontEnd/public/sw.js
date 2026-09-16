@@ -4,7 +4,7 @@
  * Versión 5: Network-First para navegación y HTML para garantizar actualizaciones instantáneas.
  */
 
-const CACHE_STATIC_NAME = 'agenda-one-static-v8';
+const CACHE_STATIC_NAME = 'agenda-one-static-v9';
 const CACHE_PORTAL_NAME = 'agenda-one-portal-api-v4';
 
 const STATIC_ASSETS = [
