@@ -338,7 +338,7 @@ export default function CommandPalette({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 md:p-20 flex items-start justify-center animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 overflow-y-auto p-2.5 sm:p-6 md:p-20 flex items-start justify-center animate-in fade-in duration-150">
       {/* Backdrop con efecto blur Liquid Glass */}
       <div 
         className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md transition-opacity"

@@ -361,14 +361,14 @@ export default function WhatsAppModal({
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] w-screen h-screen overflow-y-auto bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] w-full h-full min-h-[100dvh] overflow-y-auto bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 animate-in fade-in duration-200">
       <div 
-        className="glass-panel w-full max-w-2xl rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 overflow-hidden flex flex-col max-h-[92vh] relative"
+        className="glass-panel w-full max-w-2xl rounded-2xl sm:rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 overflow-hidden flex flex-col max-h-[92dvh] relative"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Encabezado Verde WhatsApp Liquid Glass */}
-        <div className="px-6 py-4 bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-700 text-white flex items-center justify-between shrink-0 shadow-sm relative">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-700 text-white flex items-center justify-between shrink-0 shadow-sm relative">
           <div className="flex items-center gap-3">
             <button
               type="button"

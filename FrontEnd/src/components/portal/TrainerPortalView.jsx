@@ -412,7 +412,7 @@ export default function TrainerPortalView({
       : citas_mes.filter(c => c.estado === 'Impartida');
 
   return (
-    <div className="flex-1 w-full max-w-xl mx-auto py-2 sm:py-6 px-2.5 sm:px-4 flex flex-col gap-3.5 animate-in fade-in duration-200 overflow-x-hidden">
+    <div className="flex-1 w-full max-w-xl lg:max-w-4xl xl:max-w-5xl mx-auto py-2 sm:py-6 px-2.5 sm:px-4 flex flex-col gap-3.5 animate-in fade-in duration-200 overflow-x-hidden">
       
       {/* Toast Flotante Interno */}
       {toast && (

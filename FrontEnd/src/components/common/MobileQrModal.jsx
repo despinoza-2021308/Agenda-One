@@ -70,7 +70,7 @@ export default function MobileQrModal({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 w-full h-full min-h-[100dvh] flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-150"
     >
       <div 
         className="w-full max-w-md glass-panel rounded-3xl border border-white/80 dark:border-white/15 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-150 relative"

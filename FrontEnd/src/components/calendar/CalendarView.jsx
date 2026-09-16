@@ -366,7 +366,7 @@ export default function CalendarView({
         </div>
 
         {/* Filtro rápido por Capacitador (Iniciales y Colores) */}
-        <div className="pt-3 border-t border-slate-200/60 dark:border-white/5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+        <div className="pt-3 border-t border-slate-200/60 dark:border-white/5 flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-thin touch-pan-x pr-4">
           <span className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1 shrink-0 mr-1">
             <Filter className="w-3.5 h-3.5" /> Filtrar:
           </span>
@@ -414,7 +414,7 @@ export default function CalendarView({
         </div>
 
         {/* Filtro rápido por Estado de la Cita */}
-        <div className="pt-2.5 border-t border-slate-200/60 dark:border-white/5 flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-thin">
+        <div className="pt-2.5 border-t border-slate-200/60 dark:border-white/5 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin touch-pan-x pr-4">
           <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
             <span>Estado:</span>
           </span>
@@ -484,7 +484,7 @@ export default function CalendarView({
               return (
                 <div
                   key={index}
-                  className={`min-h-[145px] sm:min-h-[170px] lg:min-h-[185px] xl:min-h-[210px] 2xl:min-h-[240px] p-1.5 sm:p-2 flex flex-col transition-colors group relative ${
+                  className={`min-h-[64px] sm:min-h-[120px] md:min-h-[150px] lg:min-h-[175px] xl:min-h-[200px] 2xl:min-h-[230px] p-1 sm:p-2 flex flex-col transition-colors group relative ${
                     !dayObj.isCurrentMonth
                       ? 'bg-slate-100/25 dark:bg-slate-950/40 text-slate-400 dark:text-slate-600'
                       : dayObj.isToday
@@ -503,14 +503,14 @@ export default function CalendarView({
                         });
                       }
                     }}
-                    className={`flex items-center justify-between mb-1.5 pb-1 border-b border-slate-100 dark:border-slate-800 ${
+                    className={`flex items-center justify-between mb-1 sm:mb-1.5 pb-0.5 sm:pb-1 border-b border-slate-100 dark:border-slate-800 ${
                       dayCitas.length > 0 ? 'cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-800/70 rounded px-1 -mx-1 transition-colors' : ''
                     }`}
                     title={dayCitas.length > 0 ? `Ver todas las citas del día (${dayCitas.length})` : undefined}
                   >
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1 sm:gap-1.5">
                       <span
-                        className={`inline-flex items-center justify-center text-xs sm:text-sm font-bold rounded-md w-6 h-6 ${
+                        className={`inline-flex items-center justify-center text-xs sm:text-sm font-bold rounded-md w-5 h-5 sm:w-6 sm:h-6 ${
                           dayObj.isToday
                             ? 'bg-blue-600 text-white font-black shadow-xs'
                             : !dayObj.isCurrentMonth
@@ -520,8 +520,13 @@ export default function CalendarView({
                       >
                         {dayObj.dayNumber}
                       </span>
+                      {dayCitas.length > 0 && (
+                        <span className="sm:hidden text-[9px] font-bold text-blue-600 dark:text-blue-400 bg-blue-100/80 dark:bg-blue-950/60 px-1 rounded">
+                          {dayCitas.length}
+                        </span>
+                      )}
                       {dayCitas.length > 2 && (
-                        <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-100/80 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 px-1 rounded shadow-2xs">
+                        <span className="hidden sm:inline text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-100/80 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 px-1 rounded shadow-2xs">
                           {dayCitas.length}
                         </span>
                       )}
@@ -529,7 +534,7 @@ export default function CalendarView({
 
                     <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                       {dayTotalHoras > 0 && (
-                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 px-1.5 py-0.5 rounded shadow-2xs font-mono">
+                        <span className="text-[9px] sm:text-[11px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 px-1 sm:px-1.5 py-0.5 rounded shadow-2xs font-mono">
                           {dayTotalHoras}h
                         </span>
                       )}
@@ -541,7 +546,7 @@ export default function CalendarView({
                             onOpenWhatsApp({ date: dayObj.dateString, capacitadorId: selectedCapacitadorId !== 'ALL' ? selectedCapacitadorId : null });
                           }}
                           title={`Enviar agenda del ${dayObj.dateString} por WhatsApp`}
-                          className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded transition-opacity"
+                          className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded transition-opacity hidden sm:inline-block"
                         >
                           <MessageSquare className="w-3.5 h-3.5 fill-emerald-600/20" />
                         </button>
@@ -549,15 +554,49 @@ export default function CalendarView({
                       <button
                         onClick={() => onAddCitaDate(dayObj.dateString)}
                         title={`Agendar cita el ${dayObj.dateString}`}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-blue-50 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 rounded transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-blue-50 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 rounded transition-opacity hidden sm:inline-block"
                       >
                         <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Lista de citas en el día (Muestra hasta 2 citas y botón estilizado si hay más) */}
-                  <div className="flex-1 space-y-1.5 overflow-y-auto max-h-[260px] pr-0.5 scrollbar-thin">
+                  {/* Vista compacta para móviles (< sm): puntos e iniciales */}
+                  <div 
+                    onClick={() => {
+                      if (dayCitas.length > 0) {
+                        setSelectedDayDetails({
+                          dateString: dayObj.dateString,
+                          dayNumber: dayObj.dayNumber,
+                          date: dayObj.date
+                        });
+                      } else {
+                        onAddCitaDate(dayObj.dateString);
+                      }
+                    }}
+                    className={`sm:hidden flex-1 flex flex-col justify-start pt-0.5 cursor-pointer`}
+                  >
+                    {dayCitas.length > 0 ? (
+                      <div className="flex flex-wrap gap-1 items-center content-start p-0.5">
+                        {dayCitas.slice(0, 3).map((c, i) => (
+                          <span
+                            key={c.id || i}
+                            className="w-2 h-2 rounded-full shadow-2xs shrink-0"
+                            style={{ backgroundColor: c.capacitador_color || '#3B82F6' }}
+                            title={`${c.capacitador_iniciales || ''}: ${c.cliente_nombre || ''}`}
+                          />
+                        ))}
+                        {dayCitas.length > 3 && (
+                          <span className="text-[8px] font-black text-slate-500 dark:text-slate-400 leading-none">+{dayCitas.length - 3}</span>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex-1" />
+                    )}
+                  </div>
+
+                  {/* Lista de citas en el día para tablets y pantallas grandes (Muestra hasta 2 citas y botón estilizado si hay más) */}
+                  <div className="hidden sm:flex flex-1 flex-col space-y-1.5 overflow-y-auto max-h-[260px] pr-0.5 scrollbar-thin">
                     {dayCitas.slice(0, 2).map((cita) => {
                       const color = cita.capacitador_color || '#3B82F6';
                       const estadoKey = cita.estado || 'Programada';

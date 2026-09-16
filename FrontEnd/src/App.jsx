@@ -42,18 +42,9 @@ export default function App() {
     return null;
   })();
 
-  // Detección de dispositivo móvil (pantalla estrecha o User Agent de teléfono)
-  const isMobileInitial = (() => {
-    if (typeof window === 'undefined') return false;
-    const isNarrow = window.innerWidth < 768;
-    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
-    return isNarrow || isMobileUA;
-  })();
-
-  // Si se abre desde QR (?portal) o teléfono celular, mostrar el Portal Móvil exclusivamente
+  // Si se abre desde enlace directo QR (?portal), mostrar el Portal Móvil; de lo contrario, Calendario por defecto para todos los dispositivos
   const [activeTab, setActiveTab] = useState(() => {
     if (isDirectPortalAccess) return 'portal';
-    if (isMobileInitial) return 'portal';
     return 'calendar';
   }); // 'calendar' | 'reports' | 'fees' | 'portal' | 'trainers' | 'clients'
 
@@ -584,8 +575,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Navbar Superior (Oculta en modo Portal Móvil para que el capacitador vea exclusivamente su itinerario sin desbordamientos) */}
-      {activeTab !== 'portal' && (
+      {/* Navbar Superior y Dock Móvil (Oculto solo si es acceso directo por QR exclusivo para capacitador) */}
+      {!isDirectPortalAccess && (
         <Navbar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -602,10 +593,10 @@ export default function App() {
       )}
 
       {/* Contenido Dinámico por Pestaña */}
-      <main className={`flex-1 w-full flex flex-col relative z-10 ${
-        activeTab === 'portal'
+      <main className={`flex-1 w-full max-w-[1920px] mx-auto flex flex-col relative z-10 ${
+        activeTab === 'portal' && isDirectPortalAccess
           ? 'p-2 sm:p-4 max-w-full overflow-x-hidden'
-          : 'px-3 sm:px-6 lg:px-8 xl:px-10 py-4 sm:py-6'
+          : 'px-2.5 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-3 sm:py-6 pb-24 md:pb-6'
       }`}>
         {activeTab === 'calendar' && (
           <CalendarView

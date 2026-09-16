@@ -42,7 +42,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccess, onShowToas
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-950/65 dark:bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-[70] w-full h-full min-h-[100dvh] flex items-center justify-center p-3 sm:p-4 bg-slate-950/65 dark:bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
     >
       <div
         className="glass-panel rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 w-full max-w-md p-6 space-y-5 animate-in zoom-in-95 duration-200 relative"

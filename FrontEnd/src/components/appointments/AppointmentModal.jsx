@@ -506,15 +506,15 @@ export default function AppointmentModal({
 
   return createPortal(
     <div 
-      className="fixed inset-0 z-[9999] w-screen h-screen bg-slate-950/65 dark:bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-hidden"
+      className="fixed inset-0 z-[9999] w-full h-full min-h-[100dvh] bg-slate-950/65 dark:bg-black/75 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-5 overflow-hidden"
     >
       <div 
-        className="glass-panel w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200 relative"
+        className="glass-panel w-full max-w-2xl max-h-[92dvh] rounded-2xl sm:rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200 relative"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Cabecera fija del modal (shrink-0) */}
-        <div className="shrink-0 flex items-center justify-between px-6 py-3.5 border-b border-slate-200/60 dark:border-white/10 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md">
+        <div className="shrink-0 flex items-center justify-between px-3.5 sm:px-6 py-3 sm:py-3.5 border-b border-slate-200/60 dark:border-white/10 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md">
           <div className="flex items-center gap-2.5 min-w-0">
             {/* Flechita para volver atrás */}
             <button
@@ -1324,14 +1324,14 @@ export default function AppointmentModal({
         </div>
 
         {/* Pie fijo con botones de acción (shrink-0) */}
-        <div className="shrink-0 px-6 py-3.5 border-t border-slate-200/60 dark:border-white/10 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md flex items-center justify-between gap-3">
+        <div className="shrink-0 px-3.5 sm:px-6 py-2.5 sm:py-3.5 border-t border-slate-200/60 dark:border-white/10 bg-white/75 dark:bg-slate-800/75 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
           {appointment?.id ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <button
                 type="button"
                 onClick={handleDelete}
                 disabled={loading}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 <span className="hidden sm:inline">Eliminar Cita</span>

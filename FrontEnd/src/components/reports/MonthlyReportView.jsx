@@ -206,9 +206,9 @@ export default function MonthlyReportView({ initialDate = new Date(), onBackToCa
       {/* TABLA PRINCIPAL: REPORTE DE HORAS POR CAPACITADOR */}
       {activeSubTab === 'monthly' && (
         <div className="glass-panel rounded-3xl border border-white/80 dark:border-white/10 shadow-glass overflow-hidden transition-all duration-200">
-          <div className="px-6 py-4.5 border-b border-slate-200/60 dark:border-white/10 flex items-center justify-between bg-white/40 dark:bg-slate-800/40 backdrop-blur-md">
+          <div className="px-4 sm:px-6 py-3.5 sm:py-4.5 border-b border-slate-200/60 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md">
             <div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base flex items-center gap-2">
                 <UserCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 Reporte de Horas por Capacitador ({MONTH_NAMES[selectedMonth - 1]} {selectedYear})
               </h3>
@@ -217,26 +217,26 @@ export default function MonthlyReportView({ initialDate = new Date(), onBackToCa
               </p>
             </div>
 
-            <div className="flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-300 hidden sm:flex flex-wrap justify-end">
-              <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-800">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 flex-wrap sm:justify-end">
+              <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-800 text-[11px]">
                 ✅ {kpis.citasImpartidas || 0} impartidas
               </span>
-              <span className="flex items-center gap-1 text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-lg border border-blue-200 dark:border-blue-800">
+              <span className="flex items-center gap-1 text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-lg border border-blue-200 dark:border-blue-800 text-[11px]">
                 🗓️ {kpis.citasProgramadas || 0} programadas
               </span>
               {kpis.citasCanceladas > 0 && (
-                <span className="flex items-center gap-1 text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-lg border border-rose-200 dark:border-rose-900 line-through">
+                <span className="flex items-center gap-1 text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-lg border border-rose-200 dark:border-rose-900 line-through text-[11px]">
                   ❌ {kpis.citasCanceladas} canceladas
                 </span>
               )}
-              <span className="bg-slate-900 dark:bg-slate-800 text-white px-2.5 py-1 rounded-lg font-black border border-transparent dark:border-slate-700" title="Total de horas efectivas (excluye canceladas)">
+              <span className="bg-slate-900 dark:bg-slate-800 text-white px-2.5 py-1 rounded-lg font-black border border-transparent dark:border-slate-700 text-xs" title="Total de horas efectivas (excluye canceladas)">
                 Total: {kpis.totalHorasMes}h
               </span>
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto scrollbar-thin touch-pan-x">
+            <table className="w-full text-left text-sm min-w-[700px]">
               <thead className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   <th className="py-4 px-6">Capacitador</th>

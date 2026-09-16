@@ -32,7 +32,7 @@ export default function ConfirmModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-[10000] w-full h-full min-h-[100dvh] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-150"
     >
       <div
         className="glass-panel rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 w-full max-w-md p-6 space-y-5 animate-in zoom-in-95 duration-150 relative"
