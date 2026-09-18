@@ -49,7 +49,12 @@ export const EVENTOS_ESPECIALES = {
   '2026-03-24': { label: '¡CUMPLE ING. JAIME AVALOS!', emoji: '🎂', color: 'sky', shortLabel: 'Cumple Jaime' },
   '2026-03-27': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
   '2026-03-30': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
-  '2026-03-31': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' }
+  '2026-03-31': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
+  '2026-04-01': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
+  '2026-04-02': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
+  '2026-04-03': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
+  '2026-04-04': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
+  '2026-04-05': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' }
 };
 
 export default function CalendarView({ 
