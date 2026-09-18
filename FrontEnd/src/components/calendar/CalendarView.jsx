@@ -45,7 +45,11 @@ export const ASUETOS_OFICIALES = {
 };
 
 export const EVENTOS_ESPECIALES = {
-  '2026-02-14': { label: '¡DÍA DEL CARIÑO!', emoji: '💖' }
+  '2026-02-14': { label: '¡DÍA DEL CARIÑO!', emoji: '💖', color: 'pink', shortLabel: 'Cariño' },
+  '2026-03-24': { label: '¡CUMPLE ING. JAIME AVALOS!', emoji: '🎂', color: 'sky', shortLabel: 'Cumple Jaime' },
+  '2026-03-27': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
+  '2026-03-30': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
+  '2026-03-31': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' }
 };
 
 export default function CalendarView({ 
@@ -511,7 +515,11 @@ export default function CalendarView({
                       : ASUETOS_OFICIALES[dayObj.dateString]
                       ? 'bg-amber-100/60 dark:bg-amber-950/30 border border-amber-300/40 dark:border-amber-800/40'
                       : EVENTOS_ESPECIALES[dayObj.dateString]
-                      ? 'bg-pink-100/60 dark:bg-pink-950/30 border border-pink-300/40 dark:border-pink-800/40'
+                      ? (EVENTOS_ESPECIALES[dayObj.dateString].color === 'sky'
+                          ? 'bg-sky-100/60 dark:bg-sky-950/30 border border-sky-300/40 dark:border-sky-800/40'
+                          : EVENTOS_ESPECIALES[dayObj.dateString].color === 'amber'
+                          ? 'bg-amber-100/60 dark:bg-amber-950/30 border border-amber-300/40 dark:border-amber-800/40'
+                          : 'bg-pink-100/60 dark:bg-pink-950/30 border border-pink-300/40 dark:border-pink-800/40')
                       : 'hover:bg-white/40 dark:hover:bg-slate-800/30'
                   }`}
                 >
@@ -605,8 +613,14 @@ export default function CalendarView({
                       </span>
                     )}
                     {EVENTOS_ESPECIALES[dayObj.dateString] && (
-                      <span className="mb-1 text-[8px] font-black uppercase tracking-wider text-pink-900 dark:text-pink-200 bg-pink-200/90 dark:bg-pink-900/60 rounded px-1 py-0.5 text-center block shadow-2xs">
-                        💖 Cariño
+                      <span className={`mb-1 text-[8px] font-black uppercase tracking-wider rounded px-1 py-0.5 text-center block shadow-2xs ${
+                        EVENTOS_ESPECIALES[dayObj.dateString].color === 'sky'
+                          ? 'text-sky-900 dark:text-sky-200 bg-sky-200/90 dark:bg-sky-900/60'
+                          : EVENTOS_ESPECIALES[dayObj.dateString].color === 'amber'
+                          ? 'text-amber-900 dark:text-amber-200 bg-amber-200/90 dark:bg-amber-900/60'
+                          : 'text-pink-900 dark:text-pink-200 bg-pink-200/90 dark:bg-pink-900/60'
+                      }`}>
+                        {EVENTOS_ESPECIALES[dayObj.dateString].emoji} {EVENTOS_ESPECIALES[dayObj.dateString].shortLabel || EVENTOS_ESPECIALES[dayObj.dateString].label}
                       </span>
                     )}
                     {dayCitas.length > 0 ? (
@@ -638,9 +652,21 @@ export default function CalendarView({
                       </div>
                     )}
                     {EVENTOS_ESPECIALES[dayObj.dateString] && (
-                      <div className="w-full text-center py-2 px-1 rounded-lg bg-pink-200/80 dark:bg-pink-900/40 border border-pink-400/80 dark:border-pink-600/60 shadow-2xs select-none">
-                        <span className="text-[11px] font-black tracking-wide uppercase text-pink-950 dark:text-pink-100 block">
-                          💖 {EVENTOS_ESPECIALES[dayObj.dateString].label}
+                      <div className={`w-full text-center py-2 px-1 rounded-lg shadow-2xs select-none ${
+                        EVENTOS_ESPECIALES[dayObj.dateString].color === 'sky'
+                          ? 'bg-sky-200/80 dark:bg-sky-900/40 border border-sky-400/80 dark:border-sky-600/60'
+                          : EVENTOS_ESPECIALES[dayObj.dateString].color === 'amber'
+                          ? 'bg-amber-200/80 dark:bg-amber-900/40 border border-amber-400/80 dark:border-amber-600/60'
+                          : 'bg-pink-200/80 dark:bg-pink-900/40 border border-pink-400/80 dark:border-pink-600/60'
+                      }`}>
+                        <span className={`text-[11px] font-black tracking-wide uppercase block ${
+                          EVENTOS_ESPECIALES[dayObj.dateString].color === 'sky'
+                            ? 'text-sky-950 dark:text-sky-100'
+                            : EVENTOS_ESPECIALES[dayObj.dateString].color === 'amber'
+                            ? 'text-amber-950 dark:text-amber-100'
+                            : 'text-pink-950 dark:text-pink-100'
+                        }`}>
+                          {EVENTOS_ESPECIALES[dayObj.dateString].emoji} {EVENTOS_ESPECIALES[dayObj.dateString].label}
                         </span>
                       </div>
                     )}
@@ -1202,6 +1228,20 @@ export default function CalendarView({
                     <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
                       {modalDayTotalHoras}h total
                     </span>
+                    {EVENTOS_ESPECIALES[selectedDayDetails.dateString] && (
+                      <>
+                        <span>•</span>
+                        <span className={`font-bold px-1.5 py-0.5 rounded text-[11px] ${
+                          EVENTOS_ESPECIALES[selectedDayDetails.dateString].color === 'sky'
+                            ? 'bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-200'
+                            : EVENTOS_ESPECIALES[selectedDayDetails.dateString].color === 'amber'
+                            ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200'
+                            : 'bg-pink-100 dark:bg-pink-900/50 text-pink-800 dark:text-pink-200'
+                        }`}>
+                          {EVENTOS_ESPECIALES[selectedDayDetails.dateString].emoji} {EVENTOS_ESPECIALES[selectedDayDetails.dateString].label}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

@@ -80,17 +80,20 @@ describe('Pruebas de Integración de Endpoints y Robustez de API', () => {
   let targetCitaId = 1;
 
   it('Soporte de Payload 5MB: debe aceptar firmas digitales pesadas en Base64 sin error 413', async () => {
-    // Obtener una cita real de MO
-    const portalRes = await fetch(`${baseUrl}/api/portal/MO`);
+    // Obtener una cita real de MO con autenticación
+    const portalRes = await fetch(`${baseUrl}/api/portal/MO?pin=8492`);
     const portalData = await portalRes.json();
-    targetCitaId = (portalData.citas_mes && portalData.citas_mes[0]?.id) || (portalData.citas_hoy && portalData.citas_hoy[0]?.id) || 85;
+    targetCitaId = (portalData.citas_mes && portalData.citas_mes[0]?.id) || (portalData.citas_hoy && portalData.citas_hoy[0]?.id) || 1;
 
     // Generar una cadena Base64 simulada de más de 120 KB (que superaría el límite anterior de 50 KB)
     const largeBase64Data = 'data:image/png;base64,' + 'A'.repeat(120 * 1024);
 
     const res = await fetch(`${baseUrl}/api/portal/MO/citas/${targetCitaId}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-trainer-pin': '8492'
+      },
       body: JSON.stringify({
         bitacora: 'Capacitación completada con éxito en planta.',
         firma_cliente: largeBase64Data,

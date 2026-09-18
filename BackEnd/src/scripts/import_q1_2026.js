@@ -904,11 +904,10 @@ const CITAS = [
     observaciones: "ACEROS G CURSO PRESENCIAL 7 A 16"
   },
   // ==========================================
-  // MARZO 2026
+  // MARZO 2026 (OFICIAL AD-RE-11 - 45 CITAS)
   // ==========================================
-  // Lunes 02/03/2026
   {
-    cliente: 'Labymed S.A.',
+    cliente: "LABYMED",
     capacitador: 'OQ',
     fecha: '2026-03-02',
     hora_inicio: '08:00',
@@ -917,10 +916,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Labymed 8 a 12 hrs.'
+    observaciones: "LABYMED ASESORIA PRESENCIAL 8 A 12"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-02',
     hora_inicio: '19:00',
@@ -929,48 +928,46 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP INTECAP INT 9001 VIRTUAL 19 A 21"
   },
-  // Martes 03/03/2026
   {
-    cliente: 'Forza Delivery S.A.',
+    cliente: "FORZA",
     capacitador: 'OQ',
     fecha: '2026-03-03',
-    hora_inicio: '08:00',
-    hora_fin: '12:00',
+    hora_inicio: '09:00',
+    hora_fin: '13:00',
     horas: 4.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Forza 8 a 12 hrs.'
+    observaciones: "FORZA ASESORIA PRESENCIAL 9 A 13"
   },
   {
-    cliente: 'Fábrica La Popular S.A.',
+    cliente: "LA POPULAR",
     capacitador: 'OQ',
     fecha: '2026-03-03',
     hora_inicio: '14:00',
     hora_fin: '17:00',
-    horas: 3.00,
+    horas: 4.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso virtual La Popular 14 a 17 hrs.'
+    observaciones: "LA POPULAR CURSO VIRTUAL 14 A 17"
   },
-  // Miércoles 04/03/2026
   {
-    cliente: 'Industrias Licoreras de Guatemala',
+    cliente: "LICORERA",
     capacitador: 'OQ',
     fecha: '2026-03-04',
-    hora_inicio: '10:00',
+    hora_inicio: '13:00',
     hora_fin: '17:00',
-    horas: 7.00,
+    horas: 4.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Licorera 10 a 17 hrs.'
+    observaciones: "LICORERA ASESORIA PRESENCIAL 13 A 17"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-04',
     hora_inicio: '19:00',
@@ -979,49 +976,46 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP INTECAP INT 9001 VIRTUAL 19 A 21"
   },
-  // Jueves 05/03/2026
   {
-    cliente: 'Colombina S.A.',
+    cliente: "COLOMBINA",
     capacitador: 'OQ',
     fecha: '2026-03-05',
     hora_inicio: '07:00',
     hora_fin: '16:00',
-    horas: 9.00,
-    modalidad: 'Presencial',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Cursos presencial Colombina 7 a 16 hrs.'
-  },
-  // Viernes 06/03/2026
-  {
-    cliente: 'Colombina S.A.',
-    capacitador: 'OQ',
-    fecha: '2026-03-06',
-    hora_inicio: '07:00',
-    hora_fin: '15:00',
     horas: 8.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Cursos presencial Colombina 7 a 15 hrs.'
+    observaciones: "COLOMBINA CURSOS PRESENCIAL 7 A 16"
   },
-  // Lunes 09/03/2026
   {
-    cliente: 'Forza Delivery S.A.',
+    cliente: "COLOMBINA",
+    capacitador: 'OQ',
+    fecha: '2026-03-06',
+    hora_inicio: '07:00',
+    hora_fin: '16:00',
+    horas: 8.00,
+    modalidad: 'Presencial',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "COLOMBINA CURSOS PRESENCIAL 7 A 16"
+  },
+  {
+    cliente: "FORZA",
     capacitador: 'OQ',
     fecha: '2026-03-09',
-    hora_inicio: '08:00',
-    hora_fin: '12:00',
+    hora_inicio: '09:00',
+    hora_fin: '13:00',
     horas: 4.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría virtual Forza 8 a 12 hrs.'
+    observaciones: "FORZA ASESORIA VIRTUAL 9 A 13"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-09',
     hora_inicio: '19:00',
@@ -1030,11 +1024,10 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP INTECAP INT 9001 VIRTUAL 19 A 21"
   },
-  // Martes 10/03/2026
   {
-    cliente: 'Labymed S.A.',
+    cliente: "LABYMED",
     capacitador: 'OQ',
     fecha: '2026-03-10',
     hora_inicio: '08:00',
@@ -1043,35 +1036,34 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Labymed 8 a 12 hrs.'
+    observaciones: "LABYMED ASESORIA PRESENCIAL 8 A 12"
   },
   {
-    cliente: 'Fábrica La Popular S.A.',
+    cliente: "LA POPULAR",
     capacitador: 'OQ',
     fecha: '2026-03-10',
     hora_inicio: '14:00',
     hora_fin: '17:00',
-    horas: 3.00,
-    modalidad: 'Presencial',
-    tipo_servicio: 'Consultoría',
-    estado: 'Impartida',
-    observaciones: 'Asesoría presencial La Popular 14 a 17 hrs.'
-  },
-  {
-    cliente: 'INTECAP',
-    capacitador: 'OQ',
-    fecha: '2026-03-10',
-    hora_inicio: '19:00',
-    hora_fin: '21:00',
-    horas: 2.00,
+    horas: 4.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "LA POPULAR CURSO VIRTUAL 14 A 17"
   },
-  // Miércoles 11/03/2026
   {
-    cliente: 'Daco Heavy S.A.',
+    cliente: "INTECAP",
+    capacitador: 'OQ',
+    fecha: '2026-03-10',
+    hora_inicio: '18:00',
+    hora_fin: '21:00',
+    horas: 3.00,
+    modalidad: 'Virtual',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "DIP 2 INTECAP INT 9001 VIRTUAL 18 A 21"
+  },
+  {
+    cliente: "DACOHEAVY",
     capacitador: 'OQ',
     fecha: '2026-03-11',
     hora_inicio: '07:00',
@@ -1080,10 +1072,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Daco Heavy 7 a 11 hrs.'
+    observaciones: "DACOHEAVY ASESORIA PRESENCIAL 7 A 11"
   },
   {
-    cliente: 'Industrias Licoreras de Guatemala',
+    cliente: "LICORERA",
     capacitador: 'OQ',
     fecha: '2026-03-11',
     hora_inicio: '13:00',
@@ -1092,10 +1084,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Licorera 13 a 17 hrs.'
+    observaciones: "LICORERA ASESORIA PRESENCIAL 13 A 17"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-11',
     hora_inicio: '19:00',
@@ -1104,73 +1096,70 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP INTECAP INT 9001 VIRTUAL 19 A 21"
   },
-  // Jueves 12/03/2026
   {
-    cliente: 'Fábrica La Popular S.A.',
+    cliente: "LA POPULAR",
     capacitador: 'OQ',
     fecha: '2026-03-12',
     hora_inicio: '14:00',
     hora_fin: '17:00',
+    horas: 4.00,
+    modalidad: 'Virtual',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "LA POPULAR CURSO VIRTUAL 14 A 17"
+  },
+  {
+    cliente: "INTECAP",
+    capacitador: 'OQ',
+    fecha: '2026-03-12',
+    hora_inicio: '18:00',
+    hora_fin: '21:00',
     horas: 3.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso virtual La Popular 14 a 17 hrs.'
+    observaciones: "DIP 2 INTECAP INT 9001 VIRTUAL 18 A 21"
   },
   {
-    cliente: 'INTECAP',
-    capacitador: 'OQ',
-    fecha: '2026-03-12',
-    hora_inicio: '19:00',
-    hora_fin: '21:00',
-    horas: 2.00,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
-  },
-  // Viernes 13/03/2026
-  {
-    cliente: 'Colombina S.A.',
+    cliente: "COLOMBINA",
     capacitador: 'OQ',
     fecha: '2026-03-13',
     hora_inicio: '07:00',
     hora_fin: '16:00',
-    horas: 9.00,
+    horas: 8.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Cursos presencial Colombina 7 a 16 hrs.'
+    observaciones: "COLOMBINA CURSOS PRESENCIAL 7 A 16"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-13',
-    hora_inicio: '19:00',
+    hora_inicio: '18:00',
     hora_fin: '21:00',
-    horas: 2.00,
+    horas: 3.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP 2 INTECAP INT 9001 VIRTUAL 18 A 21"
   },
-  // Lunes 16/03/2026
   {
-    cliente: 'Industrias Licoreras de Guatemala',
+    cliente: "LICORERA",
     capacitador: 'OQ',
     fecha: '2026-03-16',
     hora_inicio: '14:00',
     hora_fin: '17:00',
-    horas: 3.00,
+    horas: 4.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Licorera 14 a 17 hrs.'
+    observaciones: "LICORERA ASESORIA PRESENCIAL 14 A 17"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-16',
     hora_inicio: '19:00',
@@ -1179,11 +1168,10 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP INTECAP INT 9001 VIRTUAL 19 A 21"
   },
-  // Martes 17/03/2026
   {
-    cliente: 'Labymed S.A.',
+    cliente: "LABYMED",
     capacitador: 'OQ',
     fecha: '2026-03-17',
     hora_inicio: '08:00',
@@ -1192,23 +1180,22 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Labymed 8 a 12 hrs.'
+    observaciones: "LABYMED ASESORIA PRESENCIAL 8 A 12"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-17',
-    hora_inicio: '19:00',
+    hora_inicio: '18:00',
     hora_fin: '21:00',
-    horas: 2.00,
+    horas: 3.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP 2 INTECAP INT 9001 VIRTUAL 18 A 21"
   },
-  // Miércoles 18/03/2026
   {
-    cliente: 'Daco Heavy S.A.',
+    cliente: "DACOHEAVY",
     capacitador: 'OQ',
     fecha: '2026-03-18',
     hora_inicio: '07:00',
@@ -1217,10 +1204,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Daco Heavy 7 a 11 hrs.'
+    observaciones: "DACOHEAVY ASESORIA PRESENCIAL 7 A 11"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-18',
     hora_inicio: '19:00',
@@ -1229,11 +1216,10 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP INTECAP INT 9001 VIRTUAL 19 A 21"
   },
-  // Jueves 19/03/2026
   {
-    cliente: 'Forza Delivery S.A.',
+    cliente: "FORZA",
     capacitador: 'OQ',
     fecha: '2026-03-19',
     hora_inicio: '08:00',
@@ -1242,48 +1228,46 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Forza 8 a 12 hrs.'
+    observaciones: "FORZA ASESORIA PRESENCIAL 8 A 12"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-19',
-    hora_inicio: '19:00',
+    hora_inicio: '18:00',
     hora_fin: '21:00',
-    horas: 2.00,
+    horas: 3.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP 2 INTECAP INT 9001 VIRTUAL 18 A 21"
   },
-  // Viernes 20/03/2026
   {
-    cliente: 'Corporación Financiera del Valle',
+    cliente: "UNIVERSIDAD DEL VALLE",
     capacitador: 'OQ',
     fecha: '2026-03-20',
     hora_inicio: '08:00',
     hora_fin: '10:00',
-    horas: 2.00,
+    horas: 3.00,
     modalidad: 'Presencial',
-    tipo_servicio: 'Consultoría',
+    tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Del Valle presencial 8 a 10 hrs.'
+    observaciones: "DEL VALLE PRESENCIAL 8 A 10"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-20',
-    hora_inicio: '19:00',
+    hora_inicio: '18:00',
     hora_fin: '21:00',
-    horas: 2.00,
+    horas: 3.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP 2 INTECAP INT 9001 VIRTUAL 18 A 21"
   },
-  // Lunes 23/03/2026
   {
-    cliente: 'Labymed S.A.',
+    cliente: "LABYMED",
     capacitador: 'OQ',
     fecha: '2026-03-23',
     hora_inicio: '08:00',
@@ -1292,10 +1276,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Labymed 8 a 12 hrs.'
+    observaciones: "LABYMED ASESORIA PRESENCIAL 8 A 12"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-23',
     hora_inicio: '19:00',
@@ -1304,23 +1288,22 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP INTECAP INT 9001 VIRTUAL 19 A 21"
   },
-  // Martes 24/03/2026
   {
-    cliente: 'Calacó S.A.',
+    cliente: "ENLACE",
     capacitador: 'OQ',
     fecha: '2026-03-24',
-    hora_inicio: '08:00',
-    hora_fin: '09:00',
-    horas: 1.00,
+    hora_inicio: '13:00',
+    hora_fin: '17:00',
+    horas: 4.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Normas',
     estado: 'Impartida',
-    observaciones: 'Calacó reunión virtual 8 a 9 hrs.'
+    observaciones: "ENLACE REUNIÓN VIRTUAL 13 A 17"
   },
   {
-    cliente: 'Fábrica La Popular S.A.',
+    cliente: "LA POPULAR",
     capacitador: 'LT',
     fecha: '2026-03-24',
     hora_inicio: '14:00',
@@ -1329,23 +1312,22 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'La Popular curso virtual 14 a 17 hrs [Luis Teo].'
+    observaciones: "LA POPULAR CURSO VIRTUAL 14 A 17"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-24',
-    hora_inicio: '19:00',
+    hora_inicio: '18:00',
     hora_fin: '21:00',
-    horas: 2.00,
+    horas: 3.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP 2 INTECAP INT 9001 VIRTUAL 18 A 21"
   },
-  // Miércoles 25/03/2026
   {
-    cliente: 'Daco Heavy S.A.',
+    cliente: "DACOHEAVY",
     capacitador: 'OQ',
     fecha: '2026-03-25',
     hora_inicio: '07:00',
@@ -1354,10 +1336,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Daco Heavy 7 a 11 hrs.'
+    observaciones: "DACOHEAVY ASESORIA PRESENCIAL 7 A 11"
   },
   {
-    cliente: 'Industrias Licoreras de Guatemala',
+    cliente: "LICORERA",
     capacitador: 'OQ',
     fecha: '2026-03-25',
     hora_inicio: '13:00',
@@ -1366,10 +1348,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Licorera 13 a 17 hrs.'
+    observaciones: "LICORERA ASESORIA PRESENCIAL 13 A 17"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-25',
     hora_inicio: '19:00',
@@ -1378,23 +1360,22 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP INTECAP INT 9001 VIRTUAL 19 A 21"
   },
-  // Jueves 26/03/2026
   {
-    cliente: 'Forza Delivery S.A.',
+    cliente: "FORZA",
     capacitador: 'OQ',
     fecha: '2026-03-26',
-    hora_inicio: '08:00',
-    hora_fin: '12:00',
+    hora_inicio: '09:00',
+    hora_fin: '13:00',
     horas: 4.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Forza 8 a 12 hrs.'
+    observaciones: "FORZA ASESORIA PRESENCIAL 9 A 13"
   },
   {
-    cliente: 'Fábrica La Popular S.A.',
+    cliente: "LA POPULAR",
     capacitador: 'LT',
     fecha: '2026-03-26',
     hora_inicio: '14:00',
@@ -1403,70 +1384,67 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'La Popular curso virtual 14 a 17 hrs [Luis Teo].'
+    observaciones: "LA POPULAR CURSO VIRTUAL 14 A 17"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-26',
-    hora_inicio: '19:00',
+    hora_inicio: '18:00',
     hora_fin: '21:00',
-    horas: 2.00,
+    horas: 3.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP 2 INTECAP INT 9001 VIRTUAL 18 A 21"
   },
-  // Viernes 27/03/2026
   {
-    cliente: 'Colombina S.A.',
+    cliente: "COLOMBINA",
     capacitador: 'OQ',
     fecha: '2026-03-27',
     hora_inicio: '07:00',
-    hora_fin: '15:00',
+    hora_fin: '16:00',
     horas: 8.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Cursos presencial Colombina 7 a 15 hrs.'
+    observaciones: "COLOMBINA CURSOS PRESENCIAL 7 A 16"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-27',
-    hora_inicio: '19:00',
+    hora_inicio: '18:00',
     hora_fin: '21:00',
-    horas: 2.00,
+    horas: 3.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP 2 INTECAP INT 9001 VIRTUAL 18 A 21"
   },
-  // Lunes 30/03/2026
   {
-    cliente: 'Agricenter S.A.',
+    cliente: "AGROCARNES",
     capacitador: 'OQ',
     fecha: '2026-03-30',
     hora_inicio: '08:00',
     hora_fin: '17:00',
-    horas: 9.00,
+    horas: 8.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Agricenter cursos presencial 8 a 17 hrs.'
+    observaciones: "AGROCARNES CURSOS PRESENCIAL 8 A 17"
   },
-  // Martes 31/03/2026
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-03-31',
-    hora_inicio: '19:00',
+    hora_inicio: '18:00',
     hora_fin: '21:00',
-    horas: 2.00,
+    horas: 3.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP 2 INTECAP INT 9001 VIRTUAL 18 A 21"
   }
 ];
 
