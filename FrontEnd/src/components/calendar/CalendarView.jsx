@@ -41,7 +41,8 @@ export const STATUS_CONFIG = {
 export const ASUETOS_OFICIALES = {
   '2026-01-01': 'ASUETO AÑO NUEVO',
   '2026-01-02': 'ASUETO AÑO NUEVO',
-  '2026-01-05': 'ASUETO AÑO NUEVO'
+  '2026-01-05': 'ASUETO AÑO NUEVO',
+  '2026-05-01': 'DÍA DEL TRABAJO'
 };
 
 export const EVENTOS_ESPECIALES = {
@@ -54,7 +55,8 @@ export const EVENTOS_ESPECIALES = {
   '2026-04-02': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
   '2026-04-03': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
   '2026-04-04': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
-  '2026-04-05': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' }
+  '2026-04-05': { label: 'SEMANA SANTA', emoji: '🌿', color: 'amber', shortLabel: 'Semana Santa' },
+  '2026-05-10': { label: '¡DÍA DE LA MADRE FELICIDADES!', emoji: '💐', color: 'pink', shortLabel: 'Día de la Madre' }
 };
 
 export default function CalendarView({ 
