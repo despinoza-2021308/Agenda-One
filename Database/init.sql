@@ -19,14 +19,23 @@ CREATE TABLE IF NOT EXISTS capacitadores (
 -- 2. Tabla de Clientes
 CREATE TABLE IF NOT EXISTS clientes (
     id SERIAL PRIMARY KEY,
-    nombre_empresa VARCHAR(150) NOT NULL UNIQUE CONSTRAINT chk_nombre_empresa CHECK (trim(nombre_empresa) <> ''),
-    contacto VARCHAR(100),
-    telefono VARCHAR(30),
-    correo VARCHAR(100),
+    nombre_empresa VARCHAR(200) NOT NULL UNIQUE CONSTRAINT chk_nombre_empresa CHECK (trim(nombre_empresa) <> ''),
+    contacto TEXT,
+    telefono VARCHAR(150),
+    correo VARCHAR(255),
+    direccion TEXT,
+    facturacion TEXT,
     activo BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS direccion TEXT;
+ALTER TABLE clientes ADD COLUMN IF NOT EXISTS facturacion TEXT;
+ALTER TABLE clientes ALTER COLUMN nombre_empresa TYPE VARCHAR(200);
+ALTER TABLE clientes ALTER COLUMN contacto TYPE TEXT;
+ALTER TABLE clientes ALTER COLUMN telefono TYPE VARCHAR(150);
+ALTER TABLE clientes ALTER COLUMN correo TYPE VARCHAR(255);
 
 -- 3. Tabla de Citas (Control de Horas AD-RE-11)
 CREATE TABLE IF NOT EXISTS citas (

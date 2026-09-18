@@ -106,21 +106,23 @@ function validarFecha(fechaStr) {
 }
 
 /**
- * Valida formato de correo electrónico
+ * Valida formato de correo electrónico (soporta correos únicos o múltiples separados por coma o punto y coma)
  */
 function validarEmail(email) {
   if (!email) return true; // Opcional
+  const parts = String(email).split(/[,;]/).map(e => e.trim()).filter(Boolean);
+  if (parts.length === 0) return true;
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(email.trim());
+  return parts.every(e => regex.test(e));
 }
 
 /**
- * Valida formato de teléfono (al menos 8 dígitos numéricos)
+ * Valida formato de teléfono (al menos 7 dígitos numéricos, soporta extensiones y números múltiples)
  */
 function validarTelefono(tel) {
   if (!tel) return true; // Opcional
   const cleanDigits = String(tel).replace(/\D/g, '');
-  return cleanDigits.length >= 8 && cleanDigits.length <= 16;
+  return cleanDigits.length >= 7;
 }
 
 module.exports = {

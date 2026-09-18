@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, Plus, Search, Phone, Mail, User, Edit2, Trash2, Check, X, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Building2, Plus, Search, Phone, Mail, User, MapPin, Edit2, Trash2, Check, X, AlertCircle, ArrowLeft } from 'lucide-react';
 import ConfirmModal from '../common/ConfirmModal';
 
 export default function ClientesView({ clientes = [], citas = [], onSaveCliente, onDeleteCliente, onBackToCalendar }) {
@@ -10,21 +10,25 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
     nombre_empresa: '',
     contacto: '',
     telefono: '',
-    correo: ''
+    correo: '',
+    direccion: ''
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const term = searchTerm.toLowerCase();
   const filteredClientes = clientes.filter(c =>
-    c.nombre_empresa.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (c.contacto && c.contacto.toLowerCase().includes(searchTerm.toLowerCase()))
+    c.nombre_empresa.toLowerCase().includes(term) ||
+    (c.contacto && c.contacto.toLowerCase().includes(term)) ||
+    (c.direccion && c.direccion.toLowerCase().includes(term)) ||
+    (c.telefono && c.telefono.toLowerCase().includes(term))
   );
 
   const openNewModal = () => {
     setEditingCliente(null);
-    setFormData({ nombre_empresa: '', contacto: '', telefono: '', correo: '' });
+    setFormData({ nombre_empresa: '', contacto: '', telefono: '', correo: '', direccion: '' });
     setError(null);
     setIsModalOpen(true);
   };
@@ -35,7 +39,8 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
       nombre_empresa: cliente.nombre_empresa,
       contacto: cliente.contacto || '',
       telefono: cliente.telefono || '',
-      correo: cliente.correo || ''
+      correo: cliente.correo || '',
+      direccion: cliente.direccion || ''
     });
     setError(null);
     setIsModalOpen(true);
@@ -51,8 +56,8 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
       return;
     }
 
-    if (cleanNombre.length < 2 || cleanNombre.length > 120) {
-      setError('El nombre de la empresa debe tener entre 2 y 120 caracteres.');
+    if (cleanNombre.length < 2 || cleanNombre.length > 200) {
+      setError('El nombre de la empresa debe tener entre 2 y 200 caracteres.');
       return;
     }
 
@@ -66,11 +71,12 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
       return;
     }
 
-    // Validar correo si fue ingresado
+    // Validar correo si fue ingresado (soporta correos múltiples separados por coma o punto y coma)
     if (formData.correo && formData.correo.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.correo.trim())) {
-        setError('El correo electrónico no tiene un formato válido (ej: contacto@empresa.com).');
+      const emails = formData.correo.split(/[,;]/).map(e => e.trim()).filter(Boolean);
+      if (!emails.every(e => emailRegex.test(e))) {
+        setError('Uno o más correos electrónicos no tienen un formato válido (ej: contacto@empresa.com).');
         return;
       }
     }
@@ -78,8 +84,8 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
     // Validar teléfono si fue ingresado
     if (formData.telefono && formData.telefono.trim()) {
       const digits = formData.telefono.replace(/\D/g, '');
-      if (digits.length < 8) {
-        setError('El número de teléfono debe tener al menos 8 dígitos numéricos.');
+      if (digits.length < 7) {
+        setError('El número de teléfono debe tener al menos 7 dígitos numéricos.');
         return;
       }
     }
@@ -91,7 +97,8 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
         nombre_empresa: cleanNombre,
         contacto: formData.contacto.trim(),
         telefono: formData.telefono.trim(),
-        correo: formData.correo.trim()
+        correo: formData.correo.trim(),
+        direccion: (formData.direccion || '').trim()
       }, editingCliente?.id);
       setIsModalOpen(false);
     } catch (err) {
@@ -227,8 +234,14 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
                   )}
                   {cliente.correo && (
                     <div className="flex items-center gap-2">
-                      <Mail className="w-3.5 h-3.5 text-slate-400" />
+                      <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">{cliente.correo}</span>
+                    </div>
+                  )}
+                  {cliente.direccion && (
+                    <div className="flex items-start gap-2 pt-0.5">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                      <span className="line-clamp-2 text-[11px] text-slate-500 dark:text-slate-400 leading-snug">{cliente.direccion}</span>
                     </div>
                   )}
                 </div>
@@ -337,13 +350,26 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
                     Correo Electrónico
                   </label>
                   <input
-                    type="email"
+                    type="text"
                     placeholder="contacto@empresa.com"
                     value={formData.correo}
                     onChange={(e) => setFormData({ ...formData, correo: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                  Dirección Física / Ubicación
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: Km. 14.5 Carretera Roosevelt..."
+                  value={formData.direccion}
+                  onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
+                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
 
               <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">

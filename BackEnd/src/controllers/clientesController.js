@@ -6,7 +6,7 @@ async function getClientes(req, res, next) {
   try {
     if (db.isPostgresConnected()) {
       const result = await db.pool.query(
-        'SELECT id, nombre_empresa, contacto, telefono, correo, activo, created_at FROM clientes ORDER BY nombre_empresa ASC'
+        'SELECT id, nombre_empresa, contacto, telefono, correo, direccion, facturacion, activo, created_at FROM clientes ORDER BY nombre_empresa ASC'
       );
       return res.json(result.rows);
     }
@@ -41,20 +41,20 @@ async function getClienteById(req, res, next) {
 // Crear cliente
 async function createCliente(req, res, next) {
   try {
-    const { nombre_empresa, contacto, telefono, correo } = req.body;
+    const { nombre_empresa, contacto, telefono, correo, direccion, facturacion } = req.body;
 
     if (!nombre_empresa || !nombre_empresa.trim()) {
       return res.status(400).json({ message: 'El nombre de la empresa es requerido.' });
     }
 
     const cleanNombre = nombre_empresa.trim();
-    if (cleanNombre.length < 2 || cleanNombre.length > 120) {
-      return res.status(400).json({ message: 'El nombre de la empresa debe tener entre 2 y 120 caracteres.' });
+    if (cleanNombre.length < 2 || cleanNombre.length > 200) {
+      return res.status(400).json({ message: 'El nombre de la empresa debe tener entre 2 y 200 caracteres.' });
     }
 
     const cleanContacto = contacto ? contacto.trim() : null;
-    if (cleanContacto && cleanContacto.length > 100) {
-      return res.status(400).json({ message: 'El nombre de contacto no puede exceder los 100 caracteres.' });
+    if (cleanContacto && cleanContacto.length > 300) {
+      return res.status(400).json({ message: 'El nombre de contacto no puede exceder los 300 caracteres.' });
     }
 
     const cleanCorreo = correo ? correo.trim() : null;
@@ -64,8 +64,11 @@ async function createCliente(req, res, next) {
 
     const cleanTelefono = telefono ? telefono.trim() : null;
     if (cleanTelefono && !validarTelefono(cleanTelefono)) {
-      return res.status(400).json({ message: 'El teléfono debe contener al menos 8 dígitos numéricos válidos.' });
+      return res.status(400).json({ message: 'El teléfono debe contener al menos 7 dígitos numéricos válidos.' });
     }
+
+    const cleanDireccion = direccion ? direccion.trim() : null;
+    const cleanFacturacion = facturacion ? facturacion.trim() : null;
 
     if (db.isPostgresConnected()) {
       const exists = await db.pool.query('SELECT id FROM clientes WHERE LOWER(nombre_empresa) = LOWER($1)', [cleanNombre]);
@@ -74,8 +77,8 @@ async function createCliente(req, res, next) {
       }
 
       const result = await db.pool.query(
-        'INSERT INTO clientes (nombre_empresa, contacto, telefono, correo) VALUES ($1, $2, $3, $4) RETURNING *',
-        [cleanNombre, cleanContacto, cleanTelefono, cleanCorreo]
+        'INSERT INTO clientes (nombre_empresa, contacto, telefono, correo, direccion, facturacion) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        [cleanNombre, cleanContacto, cleanTelefono, cleanCorreo, cleanDireccion, cleanFacturacion]
       );
       return res.status(201).json(result.rows[0]);
     }
@@ -92,6 +95,8 @@ async function createCliente(req, res, next) {
       contacto: cleanContacto || '',
       telefono: cleanTelefono || '',
       correo: cleanCorreo || '',
+      direccion: cleanDireccion || '',
+      facturacion: cleanFacturacion || '',
       activo: true,
       created_at: new Date()
     };
@@ -106,16 +111,16 @@ async function createCliente(req, res, next) {
 async function updateCliente(req, res, next) {
   try {
     const { id } = req.params;
-    const { nombre_empresa, contacto, telefono, correo, activo } = req.body;
+    const { nombre_empresa, contacto, telefono, correo, direccion, facturacion, activo } = req.body;
 
     const cleanNombre = nombre_empresa ? nombre_empresa.trim() : undefined;
-    if (cleanNombre !== undefined && (cleanNombre.length < 2 || cleanNombre.length > 120)) {
-      return res.status(400).json({ message: 'El nombre de la empresa debe tener entre 2 y 120 caracteres.' });
+    if (cleanNombre !== undefined && (cleanNombre.length < 2 || cleanNombre.length > 200)) {
+      return res.status(400).json({ message: 'El nombre de la empresa debe tener entre 2 y 200 caracteres.' });
     }
 
     const cleanContacto = contacto !== undefined ? (contacto ? contacto.trim() : null) : undefined;
-    if (cleanContacto && cleanContacto.length > 100) {
-      return res.status(400).json({ message: 'El nombre de contacto no puede exceder los 100 caracteres.' });
+    if (cleanContacto && cleanContacto.length > 300) {
+      return res.status(400).json({ message: 'El nombre de contacto no puede exceder los 300 caracteres.' });
     }
 
     const cleanCorreo = correo !== undefined ? (correo ? correo.trim() : null) : undefined;
@@ -125,8 +130,11 @@ async function updateCliente(req, res, next) {
 
     const cleanTelefono = telefono !== undefined ? (telefono ? telefono.trim() : null) : undefined;
     if (cleanTelefono && !validarTelefono(cleanTelefono)) {
-      return res.status(400).json({ message: 'El teléfono debe contener al menos 8 dígitos numéricos válidos.' });
+      return res.status(400).json({ message: 'El teléfono debe contener al menos 7 dígitos numéricos válidos.' });
     }
+
+    const cleanDireccion = direccion !== undefined ? (direccion ? direccion.trim() : null) : undefined;
+    const cleanFacturacion = facturacion !== undefined ? (facturacion ? facturacion.trim() : null) : undefined;
 
     if (db.isPostgresConnected()) {
       if (cleanNombre) {
@@ -145,9 +153,11 @@ async function updateCliente(req, res, next) {
              contacto = COALESCE($2, contacto),
              telefono = COALESCE($3, telefono),
              correo = COALESCE($4, correo),
-             activo = COALESCE($5, activo)
-         WHERE id = $6 RETURNING *`,
-        [cleanNombre, cleanContacto, cleanTelefono, cleanCorreo, activo, id]
+             direccion = COALESCE($5, direccion),
+             facturacion = COALESCE($6, facturacion),
+             activo = COALESCE($7, activo)
+         WHERE id = $8 RETURNING *`,
+        [cleanNombre, cleanContacto, cleanTelefono, cleanCorreo, cleanDireccion, cleanFacturacion, activo, id]
       );
 
       if (result.rows.length === 0) {
@@ -161,9 +171,11 @@ async function updateCliente(req, res, next) {
     if (!cliente) return res.status(404).json({ message: 'Cliente no encontrado' });
 
     if (nombre_empresa) cliente.nombre_empresa = nombre_empresa.trim();
-    if (contacto !== undefined) cliente.contacto = contacto.trim();
-    if (telefono !== undefined) cliente.telefono = telefono.trim();
-    if (correo !== undefined) cliente.correo = correo.trim();
+    if (contacto !== undefined) cliente.contacto = cleanContacto || '';
+    if (telefono !== undefined) cliente.telefono = cleanTelefono || '';
+    if (correo !== undefined) cliente.correo = cleanCorreo || '';
+    if (direccion !== undefined) cliente.direccion = cleanDireccion || '';
+    if (facturacion !== undefined) cliente.facturacion = cleanFacturacion || '';
     if (activo !== undefined) cliente.activo = activo;
 
     return res.json(cliente);
