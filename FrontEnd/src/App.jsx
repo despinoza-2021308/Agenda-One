@@ -62,6 +62,7 @@ export default function App() {
   const [monthUpdatesMap, setMonthUpdatesMap] = useState(() => loadMonthUpdates());
 
   const [urlPortalCode, setUrlPortalCode] = useState(initialPortalParam);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   // Fecha actual de la agenda con persistencia en sessionStorage (por defecto Abril 2026 - mes activo)
   const [currentDate, setCurrentDate] = useState(() => {
     try {
