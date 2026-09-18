@@ -32,14 +32,31 @@ export default class ErrorBoundary extends React.Component {
               <p className="text-sm text-slate-300 mt-1">
                 La aplicación encontró un detalle inesperado al procesar los datos. Puedes recargar la página para continuar.
               </p>
+              {this.state.error?.message && (
+                <div className="mt-3 p-3 bg-slate-900/80 border border-slate-700 rounded-xl text-left">
+                  <p className="text-[11px] font-mono text-rose-400 break-words">
+                    {this.state.error.message}
+                  </p>
+                </div>
+              )}
             </div>
-            <button
-              onClick={this.handleReload}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition-colors cursor-pointer"
-            >
-              <RefreshCw className="w-4 h-4" />
-              <span>Recargar Página</span>
-            </button>
+            <div className="flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => this.setState({ hasError: false, error: null })}
+                className="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs shadow-md transition-colors cursor-pointer"
+              >
+                Reintentar
+              </button>
+              <button
+                type="button"
+                onClick={this.handleReload}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-colors cursor-pointer"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Recargar Página</span>
+              </button>
+            </div>
           </div>
         </div>
       );

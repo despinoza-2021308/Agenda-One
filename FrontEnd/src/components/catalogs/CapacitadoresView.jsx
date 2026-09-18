@@ -106,17 +106,18 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
 
   const handleNameChange = (name) => {
     setFormData(prev => {
-      let initials = prev.iniciales;
-      // Sugerir iniciales automáticamente si está creando y no las ha escrito
-      if (!editingCap && (!initials || initials.length <= 2)) {
-        const parts = name.trim().split(/\s+/);
+      let newIniciales = prev.iniciales || '';
+      // Sugerir iniciales automáticamente si está creando y no las ha escrito manualmente
+      if (!editingCap && (!newIniciales || newIniciales.length <= 2)) {
+        const cleanName = (name || '').trim();
+        const parts = cleanName.split(/\s+/).filter(Boolean);
         if (parts.length >= 2 && parts[0] && parts[1]) {
-          initials = (parts[0][0] + parts[1][0]).toUpperCase();
+          newIniciales = (parts[0][0] + parts[1][0]).toUpperCase();
         } else if (parts.length === 1 && parts[0].length >= 2) {
-          initials = parts[0].substring(0, 2).toUpperCase();
+          newIniciales = parts[0].substring(0, 2).toUpperCase();
         }
       }
-      return { ...prev, nombre_completo: name, iniciales };
+      return { ...prev, nombre_completo: name, iniciales: newIniciales };
     });
   };
 
