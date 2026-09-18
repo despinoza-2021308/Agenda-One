@@ -134,6 +134,10 @@ export const api = {
   createCita: (data) => request('/citas', { method: 'POST', body: JSON.stringify(data) }),
   updateCita: (id, data) => request(`/citas/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteCita: (id) => request(`/citas/${id}`, { method: 'DELETE' }),
+  importarLoteCitas: (payload) => request('/citas/importar-lote', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
 
   // Reportes y Analítica
   getResumenMensual: (year, month) => {

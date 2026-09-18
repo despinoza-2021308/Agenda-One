@@ -11,6 +11,7 @@ import CommandPalette from './components/search/CommandPalette';
 import AdminLoginModal from './components/auth/AdminLoginModal';
 import TrainerPortalView from './components/portal/TrainerPortalView';
 import MobileQrModal from './components/common/MobileQrModal';
+import ExcelImportView from './components/import/ExcelImportView';
 import { api, authStorage } from './services/api';
 import { loadMonthUpdates, recordMonthUpdate } from './utils/monthAuditUtils';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
@@ -582,6 +583,9 @@ export default function App() {
       case 'nav-clients':
         setActiveTab('clients');
         break;
+      case 'nav-import':
+        setActiveTab('import');
+        break;
       case 'open-whatsapp':
         handleOpenWhatsApp();
         break;
@@ -677,6 +681,31 @@ export default function App() {
             onOpenAdminLogin={() => setIsAdminLoginModalOpen(true)}
             onShowToast={showToast}
             onBackToCalendar={() => setActiveTab('calendar')}
+          />
+        )}
+
+        {activeTab === 'import' && (
+          <ExcelImportView
+            capacitadores={capacitadores}
+            clientes={clientes}
+            isAdmin={isAdmin}
+            onOpenAdminLogin={() => setIsAdminLoginModalOpen(true)}
+            onBackToCalendar={() => setActiveTab('calendar')}
+            onImportSuccess={async (payload) => {
+              const result = await api.importarLoteCitas(payload);
+              if (payload.mes) {
+                recordMonthUpdate(payload.mes);
+                setMonthUpdatesMap(loadMonthUpdates());
+                const [y, m] = payload.mes.split('-').map(Number);
+                if (y && m) {
+                  handleSetCurrentDate(new Date(y, m - 1, 1));
+                }
+              }
+              await loadCitas();
+              await loadClientes();
+              return result;
+            }}
+            onShowToast={showToast}
           />
         )}
 

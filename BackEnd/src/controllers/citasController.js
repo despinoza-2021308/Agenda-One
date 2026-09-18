@@ -890,11 +890,239 @@ async function getCitaAuditoria(req, res, next) {
   }
 }
 
+// Importación masiva por lote desde Excel o migración
+async function importarLoteCitas(req, res, next) {
+  try {
+    const { citas, mes, replaceExistingMonth = true, createMissingClients = true } = req.body;
+
+    if (!Array.isArray(citas) || citas.length === 0) {
+      return res.status(400).json({
+        message: 'No se recibieron citas válidas para importar.'
+      });
+    }
+
+    // Identificar los meses afectados (ej. "2026-06")
+    const targetMonths = new Set();
+    if (mes && /^\d{4}-\d{2}$/.test(mes)) {
+      targetMonths.add(mes);
+    }
+    citas.forEach(c => {
+      if (c.fecha && String(c.fecha).length >= 7) {
+        targetMonths.add(String(c.fecha).slice(0, 7));
+      }
+    });
+
+    // 1. Si replaceExistingMonth es true, limpiar las citas existentes de los meses objetivo
+    if (replaceExistingMonth && targetMonths.size > 0) {
+      const monthList = Array.from(targetMonths);
+      if (db.isPostgresConnected()) {
+        try {
+          for (const m of monthList) {
+            await db.pool.query(
+              `DELETE FROM citas WHERE TO_CHAR(fecha, 'YYYY-MM') = $1`,
+              [m]
+            );
+          }
+        } catch (delErr) {
+          console.warn('⚠️ [Import] Error al limpiar citas existentes en PostgreSQL:', delErr.message);
+        }
+      }
+      // Limpiar en mockStore
+      db.mockStore.citas = db.mockStore.citas.filter(c => !targetMonths.has(String(c.fecha).slice(0, 7)));
+    }
+
+    // 2. Resolver catálogo de clientes (buscar existentes o crear faltantes)
+    let existingClients = [];
+    if (db.isPostgresConnected()) {
+      try {
+        const clientsRes = await db.pool.query('SELECT id, nombre_empresa, alias, correlativo FROM clientes');
+        existingClients = clientsRes.rows;
+      } catch (_) {
+        existingClients = db.mockStore.clientes;
+      }
+    } else {
+      existingClients = db.mockStore.clientes;
+    }
+
+    // Mapa auxiliar normalizado para búsqueda rápida de clientes
+    const findClientMatch = (name) => {
+      if (!name) return null;
+      const cleanName = String(name).trim().toUpperCase();
+      return existingClients.find(ec => {
+        const emp = (ec.nombre_empresa || '').toUpperCase();
+        const ali = (ec.alias || '').toUpperCase();
+        return emp === cleanName || ali === cleanName || cleanName.includes(emp) || emp.includes(cleanName);
+      });
+    };
+
+    const clientMapCache = new Map();
+    let nextCliSeq = existingClients.length + 1;
+
+    // 3. Procesar e insertar citas
+    let insertedCount = 0;
+    let totalHorasImportadas = 0;
+    const insertedCitasList = [];
+
+    for (const item of citas) {
+      const horasNum = parseFloat(item.horas || 0);
+      if (isNaN(horasNum) || horasNum <= 0) continue; // Excluir 0 horas
+
+      const rawCliName = (item.cliente_nombre || '').trim() || 'Cliente General';
+      let resolvedClientId = item.cliente_id ? parseInt(item.cliente_id, 10) : null;
+      let resolvedClientName = rawCliName;
+
+      if (!resolvedClientId) {
+        if (clientMapCache.has(rawCliName.toUpperCase())) {
+          const cached = clientMapCache.get(rawCliName.toUpperCase());
+          resolvedClientId = cached.id;
+          resolvedClientName = cached.nombre_empresa;
+        } else {
+          const matched = findClientMatch(rawCliName);
+          if (matched) {
+            resolvedClientId = matched.id;
+            resolvedClientName = matched.nombre_empresa;
+            clientMapCache.set(rawCliName.toUpperCase(), matched);
+          } else if (createMissingClients) {
+            // Auto-crear nuevo cliente
+            const newCorrelativo = `CLI-${String(nextCliSeq).padStart(3, '0')}`;
+            nextCliSeq++;
+            let createdCli = null;
+
+            if (db.isPostgresConnected()) {
+              try {
+                const insCli = await db.pool.query(
+                  `INSERT INTO clientes (correlativo, nombre_empresa, alias, direccion, contacto, telefono, email, activo)
+                   VALUES ($1, $2, $3, $4, $5, $6, $7, true)
+                   RETURNING id, correlativo, nombre_empresa`,
+                  [newCorrelativo, rawCliName, rawCliName, 'Oficinas Centrales', 'Contacto Principal', '2222-0000', 'contacto@empresa.com']
+                );
+                createdCli = insCli.rows[0];
+              } catch (_) {}
+            }
+
+            if (!createdCli) {
+              createdCli = {
+                id: db.mockStore.nextIds.clientes++,
+                correlativo: newCorrelativo,
+                nombre_empresa: rawCliName,
+                alias: rawCliName,
+                direccion: 'Oficinas Centrales',
+                contacto: 'Contacto Principal',
+                telefono: '2222-0000',
+                email: 'contacto@empresa.com',
+                activo: true
+              };
+              db.mockStore.clientes.push(createdCli);
+            }
+
+            existingClients.push(createdCli);
+            clientMapCache.set(rawCliName.toUpperCase(), createdCli);
+            resolvedClientId = createdCli.id;
+            resolvedClientName = createdCli.nombre_empresa;
+          }
+        }
+      }
+
+      const estadoFinal = item.estado === 'Impartida' ? 'Impartida' : 'Programada';
+      const obs = (item.observaciones || item.tipo_servicio || '').trim();
+      const bitacoraFinal = item.bitacora || (estadoFinal === 'Impartida' ? `Servicio impartido conforme a programación AD-RE-11: ${obs}` : null);
+      const capId = parseInt(item.capacitador_id, 10) || 2; // Por defecto Oscar Quan (ID 2) si no se especifica
+      const mod = ['Presencial', 'Virtual', 'Híbrida'].includes(item.modalidad) ? item.modalidad : 'Presencial';
+      const serv = (item.tipo_servicio || 'Asesoría').trim();
+      const hIni = item.hora_inicio || '08:00';
+      const hFin = item.hora_fin || '12:00';
+
+      let newCitaId = null;
+
+      if (db.isPostgresConnected()) {
+        try {
+          const insertQuery = `
+            INSERT INTO citas (
+              cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, 
+              horas, modalidad, tipo_servicio, estado, observaciones, bitacora
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            RETURNING id
+          `;
+          const insRes = await db.pool.query(insertQuery, [
+            resolvedClientId || null,
+            resolvedClientName,
+            capId,
+            item.fecha,
+            hIni,
+            hFin,
+            horasNum,
+            mod,
+            serv,
+            estadoFinal,
+            obs || null,
+            bitacoraFinal
+          ]);
+          newCitaId = insRes.rows[0].id;
+        } catch (insErr) {
+          console.warn('⚠️ [Import] Error al insertar en PostgreSQL, manteniendo en mockStore:', insErr.message);
+        }
+      }
+
+      if (!newCitaId) {
+        newCitaId = db.mockStore.nextIds.citas++;
+      }
+
+      // Sincronizar en mockStore
+      const mockEntry = {
+        id: newCitaId,
+        cliente_id: resolvedClientId || null,
+        cliente_nombre: resolvedClientName,
+        capacitador_id: capId,
+        fecha: item.fecha,
+        hora_inicio: hIni,
+        hora_fin: hFin,
+        horas: horasNum,
+        modalidad: mod,
+        tipo_servicio: serv,
+        estado: estadoFinal,
+        observaciones: obs,
+        bitacora: bitacoraFinal
+      };
+      db.mockStore.citas.push(mockEntry);
+
+      insertedCitasList.push(mockEntry);
+      insertedCount++;
+      totalHorasImportadas += horasNum;
+    }
+
+    // Registrar auditoría del lote
+    try {
+      await db.registrarAuditoria({
+        cita_id: null,
+        accion: 'IMPORTACION_LOTE_EXCEL',
+        usuario: 'Administrador',
+        detalles: {
+          meses: Array.from(targetMonths).join(', '),
+          citasImportadas: insertedCount,
+          totalHoras: totalHorasImportadas
+        },
+        ip_origen: req.ip || req.headers['x-forwarded-for']
+      });
+    } catch (_) {}
+
+    return res.status(201).json({
+      success: true,
+      count: insertedCount,
+      totalHoras: parseFloat(totalHorasImportadas.toFixed(2)),
+      meses: Array.from(targetMonths),
+      message: `Se importaron exitosamente ${insertedCount} citas (${totalHorasImportadas.toFixed(2)} horas).`
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   getCitas,
   getCitaById,
   createCita,
   updateCita,
   deleteCita,
-  getCitaAuditoria
+  getCitaAuditoria,
+  importarLoteCitas
 };

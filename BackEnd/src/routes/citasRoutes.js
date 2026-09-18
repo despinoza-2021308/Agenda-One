@@ -3,6 +3,9 @@ const router = express.Router();
 const controller = require('../controllers/citasController');
 const { validateNumericId } = require('../middlewares/security');
 
+// Importación masiva por lote (Excel / migración)
+router.post('/importar-lote', controller.importarLoteCitas);
+
 // Validar que :id sea estrictamente numérico antes de llamar a cualquier controlador
 router.param('id', validateNumericId);
 

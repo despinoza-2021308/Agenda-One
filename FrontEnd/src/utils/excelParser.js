@@ -1,0 +1,334 @@
+import * as XLSX from 'xlsx';
+
+// Nombres canónicos de días de la semana
+const DAY_NAMES = [
+  'LUNES', 'MARTES', 'MIERCOLES', 'MIÉRCOLES',
+  'JUEVES', 'VIERNES', 'SABADO', 'SÁBADO', 'DOMINGO'
+];
+
+// Columnas base de los 7 días de la semana (cada día ocupa 3 columnas: [desc, horas, capacitador])
+const DAY_COLUMNS = [0, 3, 6, 9, 12, 15, 18];
+
+// Meses en español a número (1 a 12)
+const MONTHS_MAP = {
+  'ENE': 1, 'ENERO': 1,
+  'FEB': 2, 'FEBRERO': 2,
+  'MAR': 3, 'MARZO': 3,
+  'ABR': 4, 'ABRIL': 4,
+  'MAY': 5, 'MAYO': 5,
+  'JUN': 6, 'JUNIO': 6,
+  'JUL': 7, 'JULIO': 7,
+  'AGO': 8, 'AGOSTO': 8,
+  'SEP': 9, 'SEPTIEMBRE': 9,
+  'OCT': 10, 'OCTUBRE': 10,
+  'NOV': 11, 'NOVIEMBRE': 11,
+  'DIC': 12, 'DICIEMBRE': 12
+};
+
+/**
+ * Parsea el nombre de la hoja (ej. "JUN 2026", "MAY 2026", "OCT 2026")
+ */
+export function parseSheetMonthInfo(sheetName) {
+  if (!sheetName) return null;
+  const upper = sheetName.trim().toUpperCase();
+  const yearMatch = upper.match(/20\d{2}/);
+  const year = yearMatch ? parseInt(yearMatch[0], 10) : new Date().getFullYear();
+
+  let monthNum = null;
+  let monthLabel = '';
+  for (const [abbr, m] of Object.entries(MONTHS_MAP)) {
+    if (upper.includes(abbr)) {
+      monthNum = m;
+      monthLabel = abbr;
+      break;
+    }
+  }
+
+  if (!monthNum) return null;
+
+  const monthKey = `${year}-${String(monthNum).padStart(2, '0')}`;
+  return {
+    year,
+    month: monthNum,
+    key: monthKey,
+    sheetName,
+    label: `${monthLabel} ${year}`
+  };
+}
+
+/**
+ * Extrae rangos de hora (ej: "8 A 12", "14 A 18", "8:30 A 12:30", "17 A 17:30")
+ */
+export function extractHorariosFromDesc(desc) {
+  let hora_inicio = '08:00';
+  let hora_fin = '12:00';
+
+  if (!desc) return { hora_inicio, hora_fin };
+
+  const timeMatch = desc.match(/(\d{1,2}(?::\d{2})?)\s*(?:A|-)\s*(\d{1,2}(?::\d{2})?)/i);
+  if (timeMatch) {
+    const formatTime = (t) => {
+      if (t.includes(':')) {
+        const [hh, mm] = t.split(':');
+        return `${hh.padStart(2, '0')}:${mm.padEnd(2, '0')}`;
+      }
+      return `${t.padStart(2, '0')}:00`;
+    };
+    hora_inicio = formatTime(timeMatch[1]);
+    hora_fin = formatTime(timeMatch[2]);
+  }
+
+  return { hora_inicio, hora_fin };
+}
+
+/**
+ * Detecta modalidad a partir del texto
+ */
+export function detectModalidad(desc) {
+  if (!desc) return 'Presencial';
+  if (/VIRTUAL/i.test(desc)) return 'Virtual';
+  if (/H[IÍ]BRIDA/i.test(desc)) return 'Híbrida';
+  return 'Presencial';
+}
+
+/**
+ * Detecta tipo de servicio
+ */
+export function detectTipoServicio(desc) {
+  if (!desc) return 'Asesoría';
+  if (/CURSO/i.test(desc) || /DIP/i.test(desc) || /CAPACITACI[OÓ]N/i.test(desc)) return 'Capacitación';
+  if (/AUDITOR[IÍ]A/i.test(desc)) return 'Auditoría';
+  if (/REUNI[OÓ]N/i.test(desc)) return 'Reunión';
+  return 'Asesoría';
+}
+
+/**
+ * Cruza la descripción con el catálogo de clientes existente
+ */
+export function matchClient(desc, clientsCatalog = []) {
+  if (!desc) return { client: null, suggestedName: 'Cliente General' };
+
+  const clean = desc.replace(/\s+/g, ' ').toUpperCase().trim();
+
+  // 1. Coincidencia exacta o por subcadena en alias / nombre_empresa
+  for (const cli of clientsCatalog) {
+    const alias = (cli.alias || '').toUpperCase().trim();
+    const nombre = (cli.nombre_empresa || '').toUpperCase().trim();
+
+    if (alias && alias.length >= 3 && clean.includes(alias)) {
+      return { client: cli, suggestedName: cli.nombre_empresa };
+    }
+    if (nombre && nombre.length >= 3 && clean.includes(nombre)) {
+      return { client: cli, suggestedName: cli.nombre_empresa };
+    }
+  }
+
+  // 2. Extracción heurística del nombre (primera palabra relevante antes de palabras clave)
+  const tokens = clean.split(/[\s\-]/);
+  const keywords = ['ASESORÍA', 'ASESORIA', 'CAPACITACIÓN', 'CAPACITACION', 'CURSO', 'REUNIÓN', 'REUNION', 'AUDITORÍA', 'AUDITORIA', 'VIRTUAL', 'PRESENCIAL', 'BLOQUEADO'];
+  const nameParts = [];
+  for (const tok of tokens) {
+    if (keywords.includes(tok) || /^\d/.test(tok)) break;
+    nameParts.push(tok);
+  }
+
+  const candidate = nameParts.join(' ').trim();
+  const fallbackName = candidate.length >= 2 ? candidate : tokens[0] || 'Cliente General';
+
+  return { client: null, suggestedName: fallbackName };
+}
+
+/**
+ * Lee un archivo File / ArrayBuffer y devuelve el workbook y hojas compatibles
+ */
+export async function readWorkbookFromFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetNames = workbook.SheetNames || [];
+
+        // Filtrar hojas que correspondan a meses (ej: "JUN 2026", "MAY 2026")
+        const monthSheets = sheetNames
+          .map(name => ({ name, info: parseSheetMonthInfo(name) }))
+          .filter(item => item.info !== null);
+
+        resolve({
+          workbook,
+          allSheets: sheetNames,
+          monthSheets
+        });
+      } catch (err) {
+        reject(new Error('No se pudo leer el archivo Excel: ' + err.message));
+      }
+    };
+    reader.onerror = () => reject(new Error('Error al leer el archivo desde el disco.'));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+/**
+ * Parsea una hoja de mes específica del libro de trabajo AD-RE-11
+ */
+export function parseMonthSheet(workbook, sheetName, clientsCatalog = [], options = {}) {
+  const {
+    excludeZeroHours = true,
+    trainerMapping = {}, // ej: { 'OQ': 2, 'LT': 7 }
+    defaultState = 'Programada' // 'Programada' o 'Impartida'
+  } = options;
+
+  const sheet = workbook.Sheets[sheetName];
+  if (!sheet) {
+    throw new Error(`La hoja "${sheetName}" no existe en el libro de trabajo.`);
+  }
+
+  const monthInfo = parseSheetMonthInfo(sheetName);
+  const year = monthInfo ? monthInfo.year : 2026;
+  const monthNum = monthInfo ? monthInfo.month : 6;
+
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+  // 1. Detectar filas de cabecera de semanas
+  const weekHeaders = [];
+  rows.forEach((r, idx) => {
+    const matchingCols = DAY_COLUMNS.filter(c => {
+      const val = String(r[c] || '').toUpperCase().trim();
+      return DAY_NAMES.some(d => val.includes(d));
+    });
+
+    if (matchingCols.length >= 2) {
+      const dayCols = [];
+      matchingCols.forEach(c => {
+        const text = String(r[c] || '').trim();
+        const numMatch = text.match(/(\d{1,2})/);
+        if (numMatch) {
+          dayCols.push({
+            col: c,
+            day: parseInt(numMatch[1], 10),
+            name: text
+          });
+        }
+      });
+      weekHeaders.push({ rowIndex: idx, days: dayCols });
+    }
+  });
+
+  const validCitas = [];
+  const excludedCitas = [];
+  const specialEvents = [];
+  const detectedTrainerCodes = new Set();
+  const detectedClientNames = new Set();
+  const newClientsSet = new Map();
+
+  // 2. Extraer citas recorriendo las semanas
+  weekHeaders.forEach((wh, wIdx) => {
+    const nextHeader = weekHeaders[wIdx + 1];
+    const endRow = nextHeader ? nextHeader.rowIndex - 1 : Math.min(wh.rowIndex + 14, rows.length - 1);
+
+    for (let r = wh.rowIndex + 1; r <= endRow; r++) {
+      const row = rows[r];
+      if (!row) continue;
+
+      const firstCell = String(row[0] || '').toUpperCase().trim();
+      if (firstCell.includes('TOTAL') || firstCell.includes('RESUMEN')) break;
+
+      wh.days.forEach(d => {
+        const desc = String(row[d.col] || '').replace(/\s+/g, ' ').trim();
+        const hoursRaw = String(row[d.col + 1] || '').trim();
+        const trainerRaw = String(row[d.col + 2] || '').trim().toUpperCase();
+
+        if (!desc) return;
+
+        // Evitar que cabeceras duplicadas se tomen como citas
+        if (DAY_NAMES.some(dn => desc.toUpperCase().includes(dn) && /\d/.test(desc))) return;
+
+        const dateStr = `${year}-${String(monthNum).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
+        const hoursNum = parseFloat(hoursRaw) || 0;
+        const isBlocked = /BLOQUEADO/i.test(desc);
+        const isZeroHours = hoursNum <= 0;
+
+        // Detección de asuetos y festividades especiales
+        if (/DIA DEL TRABAJO|DIA DE LA MADRE|SEMANA SANTA|INDEPENDENCIA|NAVIDAD|AÑO NUEVO/i.test(desc)) {
+          specialEvents.push({
+            date: dateStr,
+            day: d.day,
+            name: d.name,
+            desc
+          });
+          return;
+        }
+
+        const trainerCode = trainerRaw || 'OQ';
+        detectedTrainerCodes.add(trainerCode);
+
+        const { hora_inicio, hora_fin } = extractHorariosFromDesc(desc);
+        const modalidad = detectModalidad(desc);
+        const tipo_servicio = detectTipoServicio(desc);
+
+        // Cruce con catálogo de clientes
+        const { client, suggestedName } = matchClient(desc, clientsCatalog);
+        detectedClientNames.add(suggestedName);
+
+        if (!client) {
+          newClientsSet.set(suggestedName.toUpperCase(), suggestedName);
+        }
+
+        const capacitadorId = trainerMapping[trainerCode] || (trainerCode === 'LT' ? 7 : (trainerCode === 'MO' ? 1 : 2));
+
+        const citaObj = {
+          fecha: dateStr,
+          dia_nombre: d.name,
+          hora_inicio,
+          hora_fin,
+          horas: hoursNum,
+          cliente_id: client ? client.id : null,
+          cliente_nombre: client ? client.nombre_empresa : suggestedName,
+          is_new_client: !client,
+          capacitador_id: capacitadorId,
+          capacitador_iniciales: trainerCode,
+          modalidad,
+          tipo_servicio,
+          estado: defaultState,
+          observaciones: desc,
+          bitacora: defaultState === 'Impartida' ? `Servicio impartido conforme a programación AD-RE-11: ${desc}` : null,
+          isBlocked,
+          isZeroHours
+        };
+
+        if ((excludeZeroHours && isZeroHours) || isBlocked) {
+          excludedCitas.push({
+            ...citaObj,
+            reason: isBlocked ? 'Horario bloqueado' : '0 horas (reunión corta / no computable)'
+          });
+        } else {
+          validCitas.push(citaObj);
+        }
+      });
+    }
+  });
+
+  // 3. Totales y estadísticas
+  const totalHoras = validCitas.reduce((acc, c) => acc + c.horas, 0);
+  const trainerHours = {};
+  validCitas.forEach(c => {
+    trainerHours[c.capacitador_iniciales] = (trainerHours[c.capacitador_iniciales] || 0) + c.horas;
+  });
+
+  return {
+    monthInfo,
+    validCitas,
+    excludedCitas,
+    specialEvents,
+    detectedTrainerCodes: Array.from(detectedTrainerCodes),
+    detectedClientNames: Array.from(detectedClientNames),
+    newClients: Array.from(newClientsSet.values()),
+    stats: {
+      totalValid: validCitas.length,
+      totalExcluded: excludedCitas.length,
+      totalHours: parseFloat(totalHoras.toFixed(2)),
+      trainerHours
+    }
+  };
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, BarChart3, Users, Building2, Plus, Search, Shield, Lock, LogOut, Banknote, Sun, Moon, Smartphone, QrCode } from 'lucide-react';
+import { Calendar, BarChart3, Users, Building2, Plus, Search, Shield, Lock, LogOut, Banknote, Sun, Moon, Smartphone, QrCode, FileSpreadsheet } from 'lucide-react';
 
 export default function Navbar({ 
   activeTab, 
@@ -18,6 +18,7 @@ export default function Navbar({
     { id: 'calendar', label: 'Calendario', shortLabel: 'Agenda', icon: Calendar },
     { id: 'reports', label: 'Reporte Horas', shortLabel: 'Reportes', icon: BarChart3 },
     { id: 'fees', label: 'Honorarios', shortLabel: 'Honorarios', icon: Banknote },
+    { id: 'import', label: 'Importar Excel', shortLabel: 'Importar', icon: FileSpreadsheet },
     { id: 'portal', label: 'Portal Móvil', shortLabel: 'Portal', icon: Smartphone },
     { id: 'trainers', label: 'Capacitadores', shortLabel: 'Equipo', icon: Users },
     { id: 'clients', label: 'Clientes', shortLabel: 'Clientes', icon: Building2 },
@@ -178,7 +179,7 @@ export default function Navbar({
         aria-label="Navegación Móvil"
         className="fixed bottom-0 left-0 right-0 z-40 md:hidden glass-nav border-t border-slate-200/80 dark:border-white/10 backdrop-blur-2xl shadow-2xl pb-safe transition-all duration-200 no-print bg-white/90 dark:bg-[#080d1a]/90"
       >
-        <div className="grid grid-cols-6 items-center px-1 py-1.5 max-w-lg mx-auto">
+        <div className="grid grid-cols-7 items-center px-1 py-1.5 max-w-lg mx-auto">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
