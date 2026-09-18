@@ -136,8 +136,14 @@ async function getCitas(req, res, next) {
         query += ` LIMIT $${params.length}`;
       }
 
-      const result = await db.pool.query(query, params);
-      return res.json(result.rows);
+      try {
+        const result = await db.pool.query(query, params);
+        if (result.rows && result.rows.length > 0) {
+          return res.json(result.rows);
+        }
+      } catch (dbErr) {
+        console.warn('⚠️ [DB] Fallback a mockStore por error en consulta de citas:', dbErr.message);
+      }
     }
 
     // Modo respaldo en memoria

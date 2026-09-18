@@ -38,6 +38,12 @@ export const STATUS_CONFIG = {
   'Reprogramada': { label: 'Reprogramada', emoji: '🔄', badge: 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border-purple-200/80 dark:border-purple-800', dot: 'bg-purple-500' }
 };
 
+export const ASUETOS_OFICIALES = {
+  '2026-01-01': 'ASUETO AÑO NUEVO',
+  '2026-01-02': 'ASUETO AÑO NUEVO',
+  '2026-01-05': 'ASUETO AÑO NUEVO'
+};
+
 export default function CalendarView({ 
   citas = [], 
   capacitadores = [], 
@@ -498,6 +504,8 @@ export default function CalendarView({
                       ? 'bg-slate-100/25 dark:bg-slate-950/40 text-slate-400 dark:text-slate-600'
                       : dayObj.isToday
                       ? 'bg-blue-500/10 dark:bg-blue-600/15 ring-1 ring-inset ring-blue-500/30'
+                      : ASUETOS_OFICIALES[dayObj.dateString]
+                      ? 'bg-amber-100/60 dark:bg-amber-950/30 border border-amber-300/40 dark:border-amber-800/40'
                       : 'hover:bg-white/40 dark:hover:bg-slate-800/30'
                   }`}
                 >
@@ -585,6 +593,11 @@ export default function CalendarView({
                     }}
                     className={`sm:hidden flex-1 flex flex-col justify-start pt-0.5 cursor-pointer`}
                   >
+                    {ASUETOS_OFICIALES[dayObj.dateString] && (
+                      <span className="mb-1 text-[8px] font-black uppercase tracking-wider text-amber-900 dark:text-amber-200 bg-amber-200/90 dark:bg-amber-900/60 rounded px-1 py-0.5 text-center block shadow-2xs">
+                        Asueto
+                      </span>
+                    )}
                     {dayCitas.length > 0 ? (
                       <div className="flex flex-wrap gap-1 items-center content-start p-0.5">
                         {dayCitas.slice(0, 3).map((c, i) => (
@@ -606,6 +619,13 @@ export default function CalendarView({
 
                   {/* Lista de citas en el día para laptops y pantallas grandes (Compacta, elegante, sin desbordamientos) */}
                   <div className="hidden sm:flex flex-1 flex-col space-y-1 overflow-hidden pr-0.5">
+                    {ASUETOS_OFICIALES[dayObj.dateString] && (
+                      <div className="w-full text-center py-2 px-1 rounded-lg bg-amber-200/80 dark:bg-amber-900/40 border border-amber-400/80 dark:border-amber-600/60 shadow-2xs select-none">
+                        <span className="text-[11px] font-black tracking-wide uppercase text-amber-950 dark:text-amber-100 block">
+                          🎉 {ASUETOS_OFICIALES[dayObj.dateString]}
+                        </span>
+                      </div>
+                    )}
                     {dayCitas.slice(0, 2).map((cita) => {
                       const color = cita.capacitador_color || '#3B82F6';
                       const estadoKey = cita.estado || 'Programada';

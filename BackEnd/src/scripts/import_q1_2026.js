@@ -46,37 +46,34 @@ const CLIENTES = [
 // Citas Reales Enero, Febrero y Marzo 2026 de One Consulting
 const CITAS = [
   // ==========================================
-  // ENERO 2026
+  // ENERO 2026 (OFICIAL AD-RE-11 - 32 CITAS)
   // ==========================================
-  // Miércoles 07/01/2026
   {
-    cliente: 'Labymed S.A.',
+    cliente: "Labymed S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-07',
-    hora_inicio: '10:00',
+    hora_inicio: '13:00',
     hora_fin: '17:00',
-    horas: 7.00,
-    modalidad: 'Presencial',
-    tipo_servicio: 'Consultoría',
-    estado: 'Impartida',
-    observaciones: 'Asesoría presencial Labymed 10 a 17 hrs.'
-  },
-  // Jueves 08/01/2026
-  {
-    cliente: 'Daco Heavy S.A.',
-    capacitador: 'OQ',
-    fecha: '2026-01-08',
-    hora_inicio: '08:00',
-    hora_fin: '12:00',
     horas: 4.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Daco Heavy 8 a 12 hrs.'
+    observaciones: "LABYMED ASESORIA PRESENCIAL 13 A 17"
   },
-  // Viernes 09/01/2026
   {
-    cliente: 'Fábrica La Popular S.A.',
+    cliente: "Daco Heavy S.A.",
+    capacitador: 'OQ',
+    fecha: '2026-01-08',
+    hora_inicio: '07:00',
+    hora_fin: '11:00',
+    horas: 4.00,
+    modalidad: 'Presencial',
+    tipo_servicio: 'Consultoría',
+    estado: 'Impartida',
+    observaciones: "DACOHEAVY ASESORIA PRESENCIAL 7 A 11"
+  },
+  {
+    cliente: "Fábrica La Popular S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-09',
     hora_inicio: '08:00',
@@ -85,11 +82,10 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso virtual La Popular 8 a 12 hrs.'
+    observaciones: "LA POPULAR CURSO VIRTUAL 8 A 12"
   },
-  // Lunes 12/01/2026
   {
-    cliente: 'Industrias Licoreras de Guatemala',
+    cliente: "Industrias Licoreras de Guatemala",
     capacitador: 'OQ',
     fecha: '2026-01-12',
     hora_inicio: '08:30',
@@ -98,10 +94,10 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Normas',
     estado: 'Impartida',
-    observaciones: 'Reunión virtual Licorera 8:30 a 9 hrs.'
+    observaciones: "LICORERA REUNIÓN VIRTUAL 8:30 A 9"
   },
   {
-    cliente: 'Forza Delivery S.A.',
+    cliente: "Forza Delivery S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-12',
     hora_inicio: '09:00',
@@ -110,10 +106,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Forza 9 a 12 hrs.'
+    observaciones: "FORZA ASESORIA PRESENCIAL 9 A 12"
   },
   {
-    cliente: 'Labymed S.A.',
+    cliente: "Labymed S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-12',
     hora_inicio: '13:00',
@@ -122,11 +118,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Labymed 13 a 17 hrs.'
+    observaciones: "LABYMED ASESORIA PRESENCIAL 13 A 17"
   },
-  // Martes 13/01/2026
   {
-    cliente: 'Labymed S.A.',
+    cliente: "Labymed S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-13',
     hora_inicio: '08:00',
@@ -135,11 +130,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso presencial Labymed 8 a 12 hrs.'
+    observaciones: "LABYMED CURSO PRESENCIAL 8 a 12"
   },
-  // Miércoles 14/01/2026
   {
-    cliente: 'Daco Heavy S.A.',
+    cliente: "Daco Heavy S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-14',
     hora_inicio: '07:00',
@@ -148,11 +142,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Daco Heavy 7 a 11 hrs.'
+    observaciones: "DACOHEAVY ASESORIA PRESENCIAL 7 A 11"
   },
-  // Jueves 15/01/2026
   {
-    cliente: 'Grupo Enlace S.A.',
+    cliente: "Grupo Enlace S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-15',
     hora_inicio: '08:00',
@@ -161,11 +154,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Normas',
     estado: 'Impartida',
-    observaciones: 'Reunión presencial Enlace 8 a 9 hrs.'
+    observaciones: "REUNIÓN ENLACE PRESENCIAL 8 A 9"
   },
-  // Viernes 16/01/2026
   {
-    cliente: 'Fábrica La Popular S.A.',
+    cliente: "Fábrica La Popular S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-16',
     hora_inicio: '08:00',
@@ -174,11 +166,10 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso virtual La Popular 8 a 12 hrs.'
+    observaciones: "LA POPULAR CURSO VIRTUAL 8 A 12"
   },
-  // Lunes 19/01/2026
   {
-    cliente: 'Labymed S.A.',
+    cliente: "Labymed S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-19',
     hora_inicio: '08:00',
@@ -187,11 +178,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Labymed 8 a 12 hrs.'
+    observaciones: "LABYMED ASESORIA PRESENCIAL 8 A 12"
   },
-  // Martes 20/01/2026
   {
-    cliente: 'Labymed S.A.',
+    cliente: "Labymed S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-20',
     hora_inicio: '08:00',
@@ -200,11 +190,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso presencial Labymed 8 a 12 hrs.'
+    observaciones: "LABYMED CURSO PRESENCIAL 8 a 12"
   },
-  // Miércoles 21/01/2026
   {
-    cliente: 'Daco Heavy S.A.',
+    cliente: "Daco Heavy S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-21',
     hora_inicio: '07:00',
@@ -213,48 +202,46 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Daco Heavy 7 a 11 hrs.'
+    observaciones: "DACOHEAVY ASESORIA PRESENCIAL 7 A 11"
   },
   {
-    cliente: 'Semillas del Campo S.A.',
+    cliente: "Soluservi S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-21',
-    hora_inicio: '08:00',
-    hora_fin: '11:00',
+    hora_inicio: '14:00',
+    hora_fin: '17:00',
     horas: 3.00,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Curso virtual Semillas 8 a 11 hrs.'
-  },
-  // Jueves 22/01/2026
-  {
-    cliente: 'Forza Delivery S.A.',
-    capacitador: 'OQ',
-    fecha: '2026-01-22',
-    hora_inicio: '08:00',
-    hora_fin: '12:00',
-    horas: 4.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Forza 8 a 12 hrs.'
+    observaciones: "SOLUSERSA ASESORIA PRESENCIAL 14 A 17"
   },
   {
-    cliente: 'Semillas del Campo S.A.',
+    cliente: "Forza Delivery S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-22',
-    hora_inicio: '08:00',
-    hora_fin: '11:00',
+    hora_inicio: '09:00',
+    hora_fin: '12:00',
     horas: 3.00,
+    modalidad: 'Presencial',
+    tipo_servicio: 'Consultoría',
+    estado: 'Impartida',
+    observaciones: "FORZA ASESORIA PRESENCIAL 9 A 12"
+  },
+  {
+    cliente: "Semillas del Campo S.A.",
+    capacitador: 'OQ',
+    fecha: '2026-01-22',
+    hora_inicio: '14:00',
+    hora_fin: '16:00',
+    horas: 2.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso virtual Semillas 8 a 11 hrs.'
+    observaciones: "SEMILLAS CURSO VIRTUAL 14 A 16"
   },
-  // Viernes 23/01/2026
   {
-    cliente: 'Fábrica La Popular S.A.',
+    cliente: "Fábrica La Popular S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-23',
     hora_inicio: '08:00',
@@ -263,23 +250,22 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso virtual La Popular 8 a 12 hrs.'
+    observaciones: "LA POPULAR CURSO VIRTUAL 8 A 12"
   },
   {
-    cliente: 'Semillas del Campo S.A.',
+    cliente: "Semillas del Campo S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-23',
-    hora_inicio: '08:00',
-    hora_fin: '11:00',
-    horas: 3.00,
+    hora_inicio: '14:00',
+    hora_fin: '16:00',
+    horas: 2.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso virtual Semillas 8 a 11 hrs.'
+    observaciones: "SEMILLAS CURSO VIRTUAL 14 A 16"
   },
-  // Lunes 26/01/2026
   {
-    cliente: 'Forza Delivery S.A.',
+    cliente: "Forza Delivery S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-26',
     hora_inicio: '09:00',
@@ -288,10 +274,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Forza 9 a 12 hrs.'
+    observaciones: "FORZA ASESORIA PRESENCIAL 9 A 12"
   },
   {
-    cliente: 'Labymed S.A.',
+    cliente: "Labymed S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-26',
     hora_inicio: '13:00',
@@ -300,35 +286,22 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Labymed 13 a 17 hrs.'
-  },
-  // Martes 27/01/2026
-  {
-    cliente: 'Labymed S.A.',
-    capacitador: 'OQ',
-    fecha: '2026-01-27',
-    hora_inicio: '08:00',
-    hora_fin: '12:00',
-    horas: 4.00,
-    modalidad: 'Presencial',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Curso presencial Labymed 8 a 12 hrs.'
+    observaciones: "LABYMED ASESORIA PRESENCIAL 13 A 17"
   },
   {
-    cliente: 'Ética Empresarial',
+    cliente: "Corporación Etisa, S.A",
     capacitador: 'OQ',
     fecha: '2026-01-27',
     hora_inicio: '10:00',
-    hora_fin: '13:00',
-    horas: 3.00,
+    hora_fin: '12:00',
+    horas: 2.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Normas',
     estado: 'Impartida',
-    observaciones: 'Reunión de ética presencial 10 a 13 hrs.'
+    observaciones: "REUNIÓN ETISA PRESENCIAL 10 a 12"
   },
   {
-    cliente: 'Soluservi S.A.',
+    cliente: "Soluservi S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-27',
     hora_inicio: '14:00',
@@ -337,11 +310,22 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Soluservi 14 a 17 hrs.'
+    observaciones: "SOLUSERSA ASESORIA PRESENCIAL 14 A 17"
   },
-  // Miércoles 28/01/2026
   {
-    cliente: 'Daco Heavy S.A.',
+    cliente: "Labymed S.A.",
+    capacitador: 'BJ',
+    fecha: '2026-01-27',
+    hora_inicio: '08:00',
+    hora_fin: '12:00',
+    horas: 4.00,
+    modalidad: 'Presencial',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "LABYMED CURSO PRESENCIAL 8 a 12"
+  },
+  {
+    cliente: "Daco Heavy S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-28',
     hora_inicio: '07:00',
@@ -350,22 +334,22 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Daco Heavy 7 a 11 hrs.'
+    observaciones: "DACOHEAVY ASESORIA PRESENCIAL 7 A 11"
   },
   {
-    cliente: 'Semillas del Campo S.A.',
+    cliente: "Semillas del Campo S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-28',
-    hora_inicio: '08:00',
-    hora_fin: '10:00',
+    hora_inicio: '14:00',
+    hora_fin: '16:00',
     horas: 2.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso virtual Semillas 8 a 10 hrs.'
+    observaciones: "SEMILLAS CURSO VIRTUAL 14 A 16"
   },
   {
-    cliente: 'One Consulting (Auditoría Interna)',
+    cliente: "One Consulting (Auditoría Interna)",
     capacitador: 'OQ',
     fecha: '2026-01-28',
     hora_inicio: '17:00',
@@ -374,47 +358,46 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Normas',
     estado: 'Impartida',
-    observaciones: 'Reunión virtual One Consulting 17 a 18 hrs.'
+    observaciones: "ONE REUNIÓN VIRTUAL 17 A 18"
   },
-  // Jueves 29/01/2026
   {
-    cliente: 'Forza Delivery S.A.',
+    cliente: "One Consulting (Auditoría Interna)",
     capacitador: 'OQ',
     fecha: '2026-01-29',
-    hora_inicio: '08:00',
+    hora_inicio: '07:00',
+    hora_fin: '07:30',
+    horas: 0.50,
+    modalidad: 'Presencial',
+    tipo_servicio: 'Normas',
+    estado: 'Impartida',
+    observaciones: "MISA ANIVERSARIO ONE 7:00 A 7:30 am TIVOLI 16 años TODOS"
+  },
+  {
+    cliente: "Forza Delivery S.A.",
+    capacitador: 'OQ',
+    fecha: '2026-01-29',
+    hora_inicio: '09:00',
     hora_fin: '12:00',
-    horas: 4.00,
+    horas: 3.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Forza 8 a 12 hrs.'
+    observaciones: "FORZA ASESORIA PRESENCIAL 9 A 12"
   },
   {
-    cliente: 'Semillas del Campo S.A.',
+    cliente: "Semillas del Campo S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-29',
-    hora_inicio: '08:00',
-    hora_fin: '10:00',
+    hora_inicio: '14:00',
+    hora_fin: '16:00',
     horas: 2.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso virtual Semillas 8 a 10 hrs.'
+    observaciones: "SEMILLAS CURSO VIRTUAL 14 A 16"
   },
   {
-    cliente: 'Seguimiento de Proyectos One',
-    capacitador: 'OQ',
-    fecha: '2026-01-29',
-    hora_inicio: '11:00',
-    hora_fin: '13:00',
-    horas: 2.00,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Requerimientos Legales',
-    estado: 'Impartida',
-    observaciones: 'Reunión de seguimiento virtual 11 a 13 hrs.'
-  },
-  {
-    cliente: 'One Consulting (Auditoría Interna)',
+    cliente: "One Consulting (Auditoría Interna)",
     capacitador: 'OQ',
     fecha: '2026-01-29',
     hora_inicio: '13:00',
@@ -423,11 +406,10 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Auditoría',
     estado: 'Impartida',
-    observaciones: 'Auditoría interna virtual todos 13 a 17 hrs OQ SR.'
+    observaciones: "AUDITORIA INTERNA VIRTUAL TODOS 13 A 17 OQ SR"
   },
-  // Viernes 30/01/2026
   {
-    cliente: 'Fábrica La Popular S.A.',
+    cliente: "Fábrica La Popular S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-30',
     hora_inicio: '08:00',
@@ -436,21 +418,20 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso virtual La Popular 8 a 12 hrs.'
+    observaciones: "LA POPULAR CURSO VIRTUAL 8 A 12"
   },
   {
-    cliente: 'Semillas del Campo S.A.',
+    cliente: "Semillas del Campo S.A.",
     capacitador: 'OQ',
     fecha: '2026-01-30',
-    hora_inicio: '08:00',
-    hora_fin: '10:00',
+    hora_inicio: '14:00',
+    hora_fin: '16:00',
     horas: 2.00,
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso virtual Semillas 8 a 10 hrs.'
+    observaciones: "SEMILLAS CURSO VIRTUAL 14 A 16"
   },
-
   // ==========================================
   // FEBRERO 2026
   // ==========================================

@@ -181,9 +181,45 @@ const mockStore = {
     { id: 106, nombre_empresa: "CARROUSEL", contacto: "Lic. Marlon Vasquez", telefono: "TEL. 41806847", correo: "marlon@carrousel.com.gt", direccion: "Zona 15 Vista Hermosa 2, Edificio Botticelli II", facturacion: "", activo: true, created_at: new Date('2026-09-18T10:00:00Z') },
     { id: 107, nombre_empresa: "Polycolor Internacional, S.A.", contacto: "Licda. Ingrid Guerra 31340774", telefono: "TEL. 2477 5977 / 3034-6688", correo: "ingrid.guerra@polycolor-ca.com", direccion: "42 Calle 22-17, Zona 12 Bodega 10", facturacion: "", activo: true, created_at: new Date('2026-09-18T10:00:00Z') },
     { id: 108, nombre_empresa: "Forza Retail Logistics", contacto: "Leonel Lopez Rossal Jefe De Calidad y SSO / Cel. 3484-0513", telefono: "", correo: "leonel.lopez@forzadelivery.com", direccion: "15 Av. 6-75 Zona 10, San Miguel Petapa", facturacion: "", activo: true, created_at: new Date('2026-09-18T10:00:00Z') },
-    { id: 109, nombre_empresa: "Forza Data Logistics", contacto: "Ludi Patricia Donis Martínez Supervisor Administrativo y Seguridad (facturación) ludi.donis@forzalatam.com Tel. 2421-8100 Opcion 2 / 5865-3332", telefono: "Tel. 2421-8100", correo: "sherydan.monroy@forzalatam.com", direccion: "15 AV 6-75 Zona 10 San Miguel Petapa Guatemala, MT1 edificio \"B\"", facturacion: "", activo: true, created_at: new Date('2026-09-18T10:00:00Z') }
+    { id: 109, nombre_empresa: "Forza Data Logistics", contacto: "Ludi Patricia Donis Martínez Supervisor Administrativo y Seguridad (facturación) ludi.donis@forzalatam.com Tel. 2421-8100 Opcion 2 / 5865-3332", telefono: "Tel. 2421-8100", correo: "sherydan.monroy@forzalatam.com", direccion: "15 AV 6-75 Zona 10 San Miguel Petapa Guatemala, MT1 edificio \"B\"", facturacion: "", activo: true, created_at: new Date('2026-09-18T10:00:00Z') },
+    { id: 110, nombre_empresa: "SEMILLAS / Semillas del Campo S.A.", contacto: "Coordinación y Calidad Semillas", telefono: "+502 2300-1100", correo: "calidad@semillas.gt", direccion: "Guatemala", facturacion: "", activo: true, created_at: new Date('2026-09-18T10:00:00Z') },
+    { id: 111, nombre_empresa: "One Consulting (Interno)", contacto: "Dirección General / Calidad One Consulting", telefono: "+502 2200-0000", correo: "contacto@oneconsulting.gt", direccion: "Ciudad de Guatemala", facturacion: "", activo: true, created_at: new Date('2026-09-18T10:00:00Z') }
   ],
   citas: [
+    // ==================== ENERO 2026 (OFICIAL AD-RE-11) ====================
+    { id: 101, cliente_id: 77, cliente_nombre: "LABYMED", capacitador_id: 2, fecha: "2026-01-07", hora_inicio: "13:00", hora_fin: "17:00", horas: 4.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "LABYMED ASESORIA PRESENCIAL 13 A 17", bitacora: "Servicio impartido conforme a programación AD-RE-11: LABYMED ASESORIA PRESENCIAL 13 A 17", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 102, cliente_id: 34, cliente_nombre: "DACOHEAVY", capacitador_id: 2, fecha: "2026-01-08", hora_inicio: "07:00", hora_fin: "11:00", horas: 4.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "DACOHEAVY ASESORIA PRESENCIAL 7 A 11", bitacora: "Servicio impartido conforme a programación AD-RE-11: DACOHEAVY ASESORIA PRESENCIAL 7 A 11", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 103, cliente_id: 76, cliente_nombre: "LA POPULAR", capacitador_id: 2, fecha: "2026-01-09", hora_inicio: "08:00", hora_fin: "12:00", horas: 4.00, modalidad: "Virtual", tipo_servicio: "Capacitación", estado: 'Impartida', observaciones: "LA POPULAR CURSO VIRTUAL 8 A 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: LA POPULAR CURSO VIRTUAL 8 A 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 104, cliente_id: 80, cliente_nombre: "LICORERA", capacitador_id: 2, fecha: "2026-01-12", hora_inicio: "08:30", hora_fin: "09:00", horas: 0.50, modalidad: "Virtual", tipo_servicio: "Normas", estado: 'Impartida', observaciones: "LICORERA REUNIÓN VIRTUAL 8:30 A 9", bitacora: "Servicio impartido conforme a programación AD-RE-11: LICORERA REUNIÓN VIRTUAL 8:30 A 9", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 105, cliente_id: 108, cliente_nombre: "FORZA", capacitador_id: 2, fecha: "2026-01-12", hora_inicio: "09:00", hora_fin: "12:00", horas: 3.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "FORZA ASESORIA PRESENCIAL 9 A 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: FORZA ASESORIA PRESENCIAL 9 A 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 106, cliente_id: 77, cliente_nombre: "LABYMED", capacitador_id: 2, fecha: "2026-01-12", hora_inicio: "13:00", hora_fin: "17:00", horas: 4.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "LABYMED ASESORIA PRESENCIAL 13 A 17", bitacora: "Servicio impartido conforme a programación AD-RE-11: LABYMED ASESORIA PRESENCIAL 13 A 17", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 107, cliente_id: 77, cliente_nombre: "LABYMED", capacitador_id: 2, fecha: "2026-01-13", hora_inicio: "08:00", hora_fin: "12:00", horas: 4.00, modalidad: "Presencial", tipo_servicio: "Capacitación", estado: 'Impartida', observaciones: "LABYMED CURSO PRESENCIAL 8 a 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: LABYMED CURSO PRESENCIAL 8 a 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 108, cliente_id: 34, cliente_nombre: "DACOHEAVY", capacitador_id: 2, fecha: "2026-01-14", hora_inicio: "07:00", hora_fin: "11:00", horas: 4.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "DACOHEAVY ASESORIA PRESENCIAL 7 A 11", bitacora: "Servicio impartido conforme a programación AD-RE-11: DACOHEAVY ASESORIA PRESENCIAL 7 A 11", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 109, cliente_id: 45, cliente_nombre: "ENLACE", capacitador_id: 2, fecha: "2026-01-15", hora_inicio: "08:00", hora_fin: "09:00", horas: 1.00, modalidad: "Presencial", tipo_servicio: "Normas", estado: 'Impartida', observaciones: "REUNIÓN ENLACE PRESENCIAL 8 A 9", bitacora: "Servicio impartido conforme a programación AD-RE-11: REUNIÓN ENLACE PRESENCIAL 8 A 9", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 110, cliente_id: 76, cliente_nombre: "LA POPULAR", capacitador_id: 2, fecha: "2026-01-16", hora_inicio: "08:00", hora_fin: "12:00", horas: 4.00, modalidad: "Virtual", tipo_servicio: "Capacitación", estado: 'Impartida', observaciones: "LA POPULAR CURSO VIRTUAL 8 A 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: LA POPULAR CURSO VIRTUAL 8 A 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 111, cliente_id: 77, cliente_nombre: "LABYMED", capacitador_id: 2, fecha: "2026-01-19", hora_inicio: "08:00", hora_fin: "12:00", horas: 4.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "LABYMED ASESORIA PRESENCIAL 8 A 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: LABYMED ASESORIA PRESENCIAL 8 A 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 112, cliente_id: 77, cliente_nombre: "LABYMED", capacitador_id: 2, fecha: "2026-01-20", hora_inicio: "08:00", hora_fin: "12:00", horas: 4.00, modalidad: "Presencial", tipo_servicio: "Capacitación", estado: 'Impartida', observaciones: "LABYMED CURSO PRESENCIAL 8 a 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: LABYMED CURSO PRESENCIAL 8 a 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 113, cliente_id: 34, cliente_nombre: "DACOHEAVY", capacitador_id: 2, fecha: "2026-01-21", hora_inicio: "07:00", hora_fin: "11:00", horas: 4.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "DACOHEAVY ASESORIA PRESENCIAL 7 A 11", bitacora: "Servicio impartido conforme a programación AD-RE-11: DACOHEAVY ASESORIA PRESENCIAL 7 A 11", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 114, cliente_id: 100, cliente_nombre: "SOLUSERSA", capacitador_id: 2, fecha: "2026-01-21", hora_inicio: "14:00", hora_fin: "17:00", horas: 3.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "SOLUSERSA ASESORIA PRESENCIAL 14 A 17", bitacora: "Servicio impartido conforme a programación AD-RE-11: SOLUSERSA ASESORIA PRESENCIAL 14 A 17", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 115, cliente_id: 108, cliente_nombre: "FORZA", capacitador_id: 2, fecha: "2026-01-22", hora_inicio: "09:00", hora_fin: "12:00", horas: 3.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "FORZA ASESORIA PRESENCIAL 9 A 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: FORZA ASESORIA PRESENCIAL 9 A 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 116, cliente_id: 110, cliente_nombre: "SEMILLAS", capacitador_id: 2, fecha: "2026-01-22", hora_inicio: "14:00", hora_fin: "16:00", horas: 2.00, modalidad: "Virtual", tipo_servicio: "Capacitación", estado: 'Impartida', observaciones: "SEMILLAS CURSO VIRTUAL 14 A 16", bitacora: "Servicio impartido conforme a programación AD-RE-11: SEMILLAS CURSO VIRTUAL 14 A 16", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 117, cliente_id: 76, cliente_nombre: "LA POPULAR", capacitador_id: 2, fecha: "2026-01-23", hora_inicio: "08:00", hora_fin: "12:00", horas: 4.00, modalidad: "Virtual", tipo_servicio: "Capacitación", estado: 'Impartida', observaciones: "LA POPULAR CURSO VIRTUAL 8 A 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: LA POPULAR CURSO VIRTUAL 8 A 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 118, cliente_id: 110, cliente_nombre: "SEMILLAS", capacitador_id: 2, fecha: "2026-01-23", hora_inicio: "14:00", hora_fin: "16:00", horas: 2.00, modalidad: "Virtual", tipo_servicio: "Capacitación", estado: 'Impartida', observaciones: "SEMILLAS CURSO VIRTUAL 14 A 16", bitacora: "Servicio impartido conforme a programación AD-RE-11: SEMILLAS CURSO VIRTUAL 14 A 16", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 119, cliente_id: 108, cliente_nombre: "FORZA", capacitador_id: 2, fecha: "2026-01-26", hora_inicio: "09:00", hora_fin: "12:00", horas: 3.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "FORZA ASESORIA PRESENCIAL 9 A 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: FORZA ASESORIA PRESENCIAL 9 A 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 120, cliente_id: 77, cliente_nombre: "LABYMED", capacitador_id: 2, fecha: "2026-01-26", hora_inicio: "13:00", hora_fin: "17:00", horas: 4.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "LABYMED ASESORIA PRESENCIAL 13 A 17", bitacora: "Servicio impartido conforme a programación AD-RE-11: LABYMED ASESORIA PRESENCIAL 13 A 17", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 121, cliente_id: 32, cliente_nombre: "ETISA", capacitador_id: 2, fecha: "2026-01-27", hora_inicio: "10:00", hora_fin: "12:00", horas: 2.00, modalidad: "Presencial", tipo_servicio: "Normas", estado: 'Impartida', observaciones: "REUNIÓN ETISA PRESENCIAL 10 a 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: REUNIÓN ETISA PRESENCIAL 10 a 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 122, cliente_id: 100, cliente_nombre: "SOLUSERSA", capacitador_id: 2, fecha: "2026-01-27", hora_inicio: "14:00", hora_fin: "17:00", horas: 3.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "SOLUSERSA ASESORIA PRESENCIAL 14 A 17", bitacora: "Servicio impartido conforme a programación AD-RE-11: SOLUSERSA ASESORIA PRESENCIAL 14 A 17", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 123, cliente_id: 77, cliente_nombre: "LABYMED", capacitador_id: 8, fecha: "2026-01-27", hora_inicio: "08:00", hora_fin: "12:00", horas: 4.00, modalidad: "Presencial", tipo_servicio: "Capacitación", estado: 'Impartida', observaciones: "LABYMED CURSO PRESENCIAL 8 a 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: LABYMED CURSO PRESENCIAL 8 a 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 124, cliente_id: 34, cliente_nombre: "DACOHEAVY", capacitador_id: 2, fecha: "2026-01-28", hora_inicio: "07:00", hora_fin: "11:00", horas: 4.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "DACOHEAVY ASESORIA PRESENCIAL 7 A 11", bitacora: "Servicio impartido conforme a programación AD-RE-11: DACOHEAVY ASESORIA PRESENCIAL 7 A 11", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 125, cliente_id: 110, cliente_nombre: "SEMILLAS", capacitador_id: 2, fecha: "2026-01-28", hora_inicio: "14:00", hora_fin: "16:00", horas: 2.00, modalidad: "Virtual", tipo_servicio: "Capacitación", estado: 'Impartida', observaciones: "SEMILLAS CURSO VIRTUAL 14 A 16", bitacora: "Servicio impartido conforme a programación AD-RE-11: SEMILLAS CURSO VIRTUAL 14 A 16", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 126, cliente_id: 111, cliente_nombre: "ONE CONSULTING", capacitador_id: 2, fecha: "2026-01-28", hora_inicio: "17:00", hora_fin: "18:00", horas: 1.00, modalidad: "Virtual", tipo_servicio: "Normas", estado: 'Impartida', observaciones: "ONE REUNIÓN VIRTUAL 17 A 18", bitacora: "Servicio impartido conforme a programación AD-RE-11: ONE REUNIÓN VIRTUAL 17 A 18", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 127, cliente_id: 111, cliente_nombre: "ONE CONSULTING", capacitador_id: 2, fecha: "2026-01-29", hora_inicio: "07:00", hora_fin: "07:30", horas: 0.50, modalidad: "Presencial", tipo_servicio: "Normas", estado: 'Impartida', observaciones: "MISA ANIVERSARIO ONE 7:00 A 7:30 am TIVOLI 16 años TODOS", bitacora: "Servicio impartido conforme a programación AD-RE-11: MISA ANIVERSARIO ONE 7:00 A 7:30 am TIVOLI 16 años TODOS", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 128, cliente_id: 108, cliente_nombre: "FORZA", capacitador_id: 2, fecha: "2026-01-29", hora_inicio: "09:00", hora_fin: "12:00", horas: 3.00, modalidad: "Presencial", tipo_servicio: "Consultoría", estado: 'Impartida', observaciones: "FORZA ASESORIA PRESENCIAL 9 A 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: FORZA ASESORIA PRESENCIAL 9 A 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 129, cliente_id: 110, cliente_nombre: "SEMILLAS", capacitador_id: 2, fecha: "2026-01-29", hora_inicio: "14:00", hora_fin: "16:00", horas: 2.00, modalidad: "Virtual", tipo_servicio: "Capacitación", estado: 'Impartida', observaciones: "SEMILLAS CURSO VIRTUAL 14 A 16", bitacora: "Servicio impartido conforme a programación AD-RE-11: SEMILLAS CURSO VIRTUAL 14 A 16", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 130, cliente_id: 111, cliente_nombre: "ONE CONSULTING", capacitador_id: 2, fecha: "2026-01-29", hora_inicio: "13:00", hora_fin: "17:00", horas: 4.00, modalidad: "Virtual", tipo_servicio: "Auditoría", estado: 'Impartida', observaciones: "AUDITORIA INTERNA VIRTUAL TODOS 13 A 17 OQ SR", bitacora: "Servicio impartido conforme a programación AD-RE-11: AUDITORIA INTERNA VIRTUAL TODOS 13 A 17 OQ SR", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 131, cliente_id: 76, cliente_nombre: "LA POPULAR", capacitador_id: 2, fecha: "2026-01-30", hora_inicio: "08:00", hora_fin: "12:00", horas: 4.00, modalidad: "Virtual", tipo_servicio: "Capacitación", estado: 'Impartida', observaciones: "LA POPULAR CURSO VIRTUAL 8 A 12", bitacora: "Servicio impartido conforme a programación AD-RE-11: LA POPULAR CURSO VIRTUAL 8 A 12", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+    { id: 132, cliente_id: 110, cliente_nombre: "SEMILLAS", capacitador_id: 2, fecha: "2026-01-30", hora_inicio: "14:00", hora_fin: "16:00", horas: 2.00, modalidad: "Virtual", tipo_servicio: "Capacitación", estado: 'Impartida', observaciones: "SEMILLAS CURSO VIRTUAL 14 A 16", bitacora: "Servicio impartido conforme a programación AD-RE-11: SEMILLAS CURSO VIRTUAL 14 A 16", firma_cliente: null, firmante_nombre: null, firmante_puesto: null, firmado_at: null },
+
     // Semana 1: Septiembre 01 - 04
     { id: 1, cliente_nombre: 'Industrias Alimentarias del Norte S.A.', capacitador_id: 1, fecha: '2026-09-01', hora_inicio: '08:30', hora_fin: '11:30', horas: 3.00, modalidad: 'Presencial', tipo_servicio: 'Capacitación', estado: 'Impartida', observaciones: 'Inducción de Seguridad Industrial para nuevos ingresos.', bitacora: 'Inducción impartida a 16 operarios de nuevo ingreso. Aprobación del test al 100%.', firma_cliente: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="100" viewBox="0 0 300 100"><path d="M20,60 Q60,10 100,50 T180,40 T260,65" fill="none" stroke="%231e293b" stroke-width="3" stroke-linecap="round"/></svg>', firmante_nombre: 'Ing. Roberto Silva', firmante_puesto: 'Gerente de Planta', firmado_at: '2026-09-01T11:35:00.000Z' },
     { id: 2, cliente_nombre: 'Agropecuaria San Francisco S.A.', capacitador_id: 2, fecha: '2026-09-01', hora_inicio: '14:00', hora_fin: '16:30', horas: 2.50, modalidad: 'Virtual', tipo_servicio: 'Consultoría', estado: 'Impartida', observaciones: 'Revisión preliminar de protocolos de inocuidad agrícola.', bitacora: 'Revisados 8 procedimientos de empaque de hortalizas y trazabilidad de campo.' },
@@ -267,8 +303,8 @@ const mockStore = {
   ],
   nextIds: {
     capacitadores: 6,
-    clientes: 110,
-    citas: 52,
+    clientes: 112,
+    citas: 200,
     auditoria_citas: 3
   }
 };
@@ -354,8 +390,75 @@ async function autoInitTables(client) {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
       CREATE INDEX IF NOT EXISTS idx_auditoria_cita_id ON auditoria_citas(cita_id);
-      CREATE INDEX IF NOT EXISTS idx_auditoria_created_at ON auditoria_citas(created_at);
+            CREATE INDEX IF NOT EXISTS idx_auditoria_created_at ON auditoria_citas(created_at);
+
+      -- Ajustar tipos de columna y asegurar campos requeridos
+      ALTER TABLE clientes ALTER COLUMN nombre_empresa TYPE VARCHAR(255);
+      ALTER TABLE clientes ALTER COLUMN contacto TYPE TEXT;
+      ALTER TABLE clientes ALTER COLUMN telefono TYPE VARCHAR(150);
+      ALTER TABLE clientes ALTER COLUMN correo TYPE VARCHAR(255);
+      ALTER TABLE clientes ADD COLUMN IF NOT EXISTS direccion TEXT;
+      ALTER TABLE clientes ADD COLUMN IF NOT EXISTS facturacion TEXT;
     `);
+
+    // Sincronizar clientes reales si la base de datos está vacía o con datos de ejemplo
+    try {
+      const cliCountRes = await client.query('SELECT COUNT(*) FROM clientes');
+      if (parseInt(cliCountRes.rows[0].count, 10) < 50) {
+        console.log('📦 [DB] Auto-sincronizando 111 clientes reales en PostgreSQL...');
+        for (const cli of mockStore.clientes) {
+          await client.query(`
+            INSERT INTO clientes (nombre_empresa, contacto, telefono, correo, direccion, facturacion)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            ON CONFLICT (nombre_empresa) DO UPDATE SET
+              contacto = EXCLUDED.contacto,
+              telefono = EXCLUDED.telefono,
+              correo = EXCLUDED.correo,
+              direccion = EXCLUDED.direccion,
+              facturacion = EXCLUDED.facturacion;
+          `, [cli.nombre_empresa, cli.contacto || '', cli.telefono || '', cli.correo || '', cli.direccion || '', cli.facturacion || '']);
+        }
+        console.log('✅ [DB] 111 clientes sincronizados exitosamente.');
+      }
+    } catch (cliSyncErr) {
+      console.warn('⚠️ [DB] Aviso al sincronizar clientes:', cliSyncErr.message);
+    }
+
+    // Sincronizar citas oficiales de Enero 2026
+    try {
+      const janCheck = await client.query("SELECT COUNT(*) FROM citas WHERE fecha >= '2026-01-01' AND fecha <= '2026-01-31'");
+      const janCount = parseInt(janCheck.rows[0].count, 10);
+      const oldCheck = await client.query("SELECT 1 FROM citas WHERE fecha = '2026-01-07' AND hora_inicio = '10:00'");
+
+      if (janCount !== 32 || oldCheck.rows.length > 0) {
+        console.log('📅 [DB] Actualizando citas oficiales de Enero 2026 en PostgreSQL...');
+        await client.query("DELETE FROM citas WHERE fecha >= '2026-01-01' AND fecha <= '2026-01-31'");
+        
+        const eneroCitasList = mockStore.citas.filter(c => c.fecha.startsWith('2026-01-'));
+        for (const cita of eneroCitasList) {
+          await client.query(`
+            INSERT INTO citas (cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones, bitacora)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+          `, [
+            cita.cliente_id || null,
+            cita.cliente_nombre,
+            cita.capacitador_id,
+            cita.fecha,
+            cita.hora_inicio,
+            cita.hora_fin,
+            cita.horas,
+            cita.modalidad,
+            cita.tipo_servicio,
+            cita.estado || 'Impartida',
+            cita.observaciones || '',
+            cita.bitacora || ''
+          ]);
+        }
+        console.log('✅ [DB] 32 citas oficiales de Enero 2026 sincronizadas.');
+      }
+    } catch (janSyncErr) {
+      console.warn('⚠️ [DB] Aviso al sincronizar citas de Enero 2026:', janSyncErr.message);
+    }
 
     const capRes = await client.query('SELECT COUNT(*) FROM capacitadores');
     if (parseInt(capRes.rows[0].count, 10) === 0) {

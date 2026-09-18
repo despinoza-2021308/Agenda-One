@@ -5,10 +5,16 @@ const { validarEmail, validarTelefono } = require('../utils/timeUtils');
 async function getClientes(req, res, next) {
   try {
     if (db.isPostgresConnected()) {
-      const result = await db.pool.query(
-        'SELECT id, nombre_empresa, contacto, telefono, correo, direccion, facturacion, activo, created_at FROM clientes ORDER BY nombre_empresa ASC'
-      );
-      return res.json(result.rows);
+      try {
+        const result = await db.pool.query(
+          'SELECT id, nombre_empresa, contacto, telefono, correo, direccion, facturacion, activo, created_at FROM clientes ORDER BY nombre_empresa ASC'
+        );
+        if (result.rows && result.rows.length >= 50) {
+          return res.json(result.rows);
+        }
+      } catch (pgErr) {
+        console.warn('⚠️ [DB] Fallback a mockStore por error en consulta clientes:', pgErr.message);
+      }
     }
 
     const data = [...db.mockStore.clientes].sort((a, b) => a.nombre_empresa.localeCompare(b.nombre_empresa));

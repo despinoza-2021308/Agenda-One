@@ -146,6 +146,45 @@ ON CONFLICT (nombre_empresa) DO NOTHING;
 
 -- 3. Insertar Citas (Septiembre 2026 - Control de Horas)
 INSERT INTO citas (cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones) VALUES
+-- ==========================================
+-- CITAS OFICIALES ENERO 2026 (AD-RE-11)
+-- ==========================================
+(77, 'LABYMED', 2, '2026-01-07', '13:00', '17:00', 4.00, 'Presencial', 'Consultoría', 'Impartida', 'LABYMED ASESORIA PRESENCIAL 13 A 17'),
+(34, 'DACOHEAVY', 2, '2026-01-08', '07:00', '11:00', 4.00, 'Presencial', 'Consultoría', 'Impartida', 'DACOHEAVY ASESORIA PRESENCIAL 7 A 11'),
+(76, 'LA POPULAR', 2, '2026-01-09', '08:00', '12:00', 4.00, 'Virtual', 'Capacitación', 'Impartida', 'LA POPULAR CURSO VIRTUAL 8 A 12'),
+(80, 'LICORERA', 2, '2026-01-12', '08:30', '09:00', 0.50, 'Virtual', 'Normas', 'Impartida', 'LICORERA REUNIÓN VIRTUAL 8:30 A 9'),
+(108, 'FORZA', 2, '2026-01-12', '09:00', '12:00', 3.00, 'Presencial', 'Consultoría', 'Impartida', 'FORZA ASESORIA PRESENCIAL 9 A 12'),
+(77, 'LABYMED', 2, '2026-01-12', '13:00', '17:00', 4.00, 'Presencial', 'Consultoría', 'Impartida', 'LABYMED ASESORIA PRESENCIAL 13 A 17'),
+(77, 'LABYMED', 2, '2026-01-13', '08:00', '12:00', 4.00, 'Presencial', 'Capacitación', 'Impartida', 'LABYMED CURSO PRESENCIAL 8 a 12'),
+(34, 'DACOHEAVY', 2, '2026-01-14', '07:00', '11:00', 4.00, 'Presencial', 'Consultoría', 'Impartida', 'DACOHEAVY ASESORIA PRESENCIAL 7 A 11'),
+(45, 'ENLACE', 2, '2026-01-15', '08:00', '09:00', 1.00, 'Presencial', 'Normas', 'Impartida', 'REUNIÓN ENLACE PRESENCIAL 8 A 9'),
+(76, 'LA POPULAR', 2, '2026-01-16', '08:00', '12:00', 4.00, 'Virtual', 'Capacitación', 'Impartida', 'LA POPULAR CURSO VIRTUAL 8 A 12'),
+(77, 'LABYMED', 2, '2026-01-19', '08:00', '12:00', 4.00, 'Presencial', 'Consultoría', 'Impartida', 'LABYMED ASESORIA PRESENCIAL 8 A 12'),
+(77, 'LABYMED', 2, '2026-01-20', '08:00', '12:00', 4.00, 'Presencial', 'Capacitación', 'Impartida', 'LABYMED CURSO PRESENCIAL 8 a 12'),
+(34, 'DACOHEAVY', 2, '2026-01-21', '07:00', '11:00', 4.00, 'Presencial', 'Consultoría', 'Impartida', 'DACOHEAVY ASESORIA PRESENCIAL 7 A 11'),
+(100, 'SOLUSERSA', 2, '2026-01-21', '14:00', '17:00', 3.00, 'Presencial', 'Consultoría', 'Impartida', 'SOLUSERSA ASESORIA PRESENCIAL 14 A 17'),
+(108, 'FORZA', 2, '2026-01-22', '09:00', '12:00', 3.00, 'Presencial', 'Consultoría', 'Impartida', 'FORZA ASESORIA PRESENCIAL 9 A 12'),
+(110, 'SEMILLAS', 2, '2026-01-22', '14:00', '16:00', 2.00, 'Virtual', 'Capacitación', 'Impartida', 'SEMILLAS CURSO VIRTUAL 14 A 16'),
+(76, 'LA POPULAR', 2, '2026-01-23', '08:00', '12:00', 4.00, 'Virtual', 'Capacitación', 'Impartida', 'LA POPULAR CURSO VIRTUAL 8 A 12'),
+(110, 'SEMILLAS', 2, '2026-01-23', '14:00', '16:00', 2.00, 'Virtual', 'Capacitación', 'Impartida', 'SEMILLAS CURSO VIRTUAL 14 A 16'),
+(108, 'FORZA', 2, '2026-01-26', '09:00', '12:00', 3.00, 'Presencial', 'Consultoría', 'Impartida', 'FORZA ASESORIA PRESENCIAL 9 A 12'),
+(77, 'LABYMED', 2, '2026-01-26', '13:00', '17:00', 4.00, 'Presencial', 'Consultoría', 'Impartida', 'LABYMED ASESORIA PRESENCIAL 13 A 17'),
+(32, 'ETISA', 2, '2026-01-27', '10:00', '12:00', 2.00, 'Presencial', 'Normas', 'Impartida', 'REUNIÓN ETISA PRESENCIAL 10 a 12'),
+(100, 'SOLUSERSA', 2, '2026-01-27', '14:00', '17:00', 3.00, 'Presencial', 'Consultoría', 'Impartida', 'SOLUSERSA ASESORIA PRESENCIAL 14 A 17'),
+(77, 'LABYMED', 8, '2026-01-27', '08:00', '12:00', 4.00, 'Presencial', 'Capacitación', 'Impartida', 'LABYMED CURSO PRESENCIAL 8 a 12'),
+(34, 'DACOHEAVY', 2, '2026-01-28', '07:00', '11:00', 4.00, 'Presencial', 'Consultoría', 'Impartida', 'DACOHEAVY ASESORIA PRESENCIAL 7 A 11'),
+(110, 'SEMILLAS', 2, '2026-01-28', '14:00', '16:00', 2.00, 'Virtual', 'Capacitación', 'Impartida', 'SEMILLAS CURSO VIRTUAL 14 A 16'),
+(111, 'ONE CONSULTING', 2, '2026-01-28', '17:00', '18:00', 1.00, 'Virtual', 'Normas', 'Impartida', 'ONE REUNIÓN VIRTUAL 17 A 18'),
+(111, 'ONE CONSULTING', 2, '2026-01-29', '07:00', '07:30', 0.50, 'Presencial', 'Normas', 'Impartida', 'MISA ANIVERSARIO ONE 7:00 A 7:30 am TIVOLI 16 años TODOS'),
+(108, 'FORZA', 2, '2026-01-29', '09:00', '12:00', 3.00, 'Presencial', 'Consultoría', 'Impartida', 'FORZA ASESORIA PRESENCIAL 9 A 12'),
+(110, 'SEMILLAS', 2, '2026-01-29', '14:00', '16:00', 2.00, 'Virtual', 'Capacitación', 'Impartida', 'SEMILLAS CURSO VIRTUAL 14 A 16'),
+(111, 'ONE CONSULTING', 2, '2026-01-29', '13:00', '17:00', 4.00, 'Virtual', 'Auditoría', 'Impartida', 'AUDITORIA INTERNA VIRTUAL TODOS 13 A 17 OQ SR'),
+(76, 'LA POPULAR', 2, '2026-01-30', '08:00', '12:00', 4.00, 'Virtual', 'Capacitación', 'Impartida', 'LA POPULAR CURSO VIRTUAL 8 A 12'),
+(110, 'SEMILLAS', 2, '2026-01-30', '14:00', '16:00', 2.00, 'Virtual', 'Capacitación', 'Impartida', 'SEMILLAS CURSO VIRTUAL 14 A 16'),
+
+-- ==========================================
+-- CITAS SEPTIEMBRE 2026
+-- ==========================================
 (1, 'Industrias Alimentarias del Norte S.A.', 1, '2026-09-01', '08:30', '11:30', 3.00, 'Presencial', 'Capacitación', 'Impartida', 'Inducción de Seguridad Industrial para nuevos ingresos.'),
 (6, 'Agropecuaria San Francisco S.A.', 2, '2026-09-01', '14:00', '16:30', 2.50, 'Virtual', 'Consultoría', 'Impartida', 'Revisión preliminar de protocolos de inocuidad agrícola.'),
 (2, 'Manufacturas Globales S.A.', 4, '2026-09-02', '09:00', '13:00', 4.00, 'Virtual', 'Capacitación', 'Impartida', 'Taller de Liderazgo Estratégico y Trabajo en Equipo.'),
