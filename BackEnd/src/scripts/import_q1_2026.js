@@ -433,11 +433,10 @@ const CITAS = [
     observaciones: "SEMILLAS CURSO VIRTUAL 14 A 16"
   },
   // ==========================================
-  // FEBRERO 2026
+  // FEBRERO 2026 (OFICIAL AD-RE-11 - 39 CITAS)
   // ==========================================
-  // Lunes 02/02/2026
   {
-    cliente: 'Labymed S.A.',
+    cliente: "LABYMED",
     capacitador: 'OQ',
     fecha: '2026-02-02',
     hora_inicio: '08:00',
@@ -446,35 +445,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Labymed 8 a 12 hrs.'
+    observaciones: "LABYMED ASESORIA PRESENCIAL 8 A 12"
   },
   {
-    cliente: 'Conecta S.A.',
-    capacitador: 'OQ',
-    fecha: '2026-02-02',
-    hora_inicio: '14:00',
-    hora_fin: '15:30',
-    horas: 1.50,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Curso virtual Conecta 14 a 15:30 hrs.'
-  },
-  {
-    cliente: 'INTECAP',
-    capacitador: 'OQ',
-    fecha: '2026-02-02',
-    hora_inicio: '19:00',
-    hora_fin: '21:00',
-    horas: 2.00,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
-  },
-  // Martes 03/02/2026
-  {
-    cliente: 'Labymed S.A.',
+    cliente: "LABYMED",
     capacitador: 'OQ',
     fecha: '2026-02-03',
     hora_inicio: '08:00',
@@ -483,35 +457,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso presencial Labymed 8 a 12 hrs.'
+    observaciones: "LABYMED CURSO PRESENCIAL 8 a 12"
   },
   {
-    cliente: 'Conecta S.A.',
-    capacitador: 'OQ',
-    fecha: '2026-02-03',
-    hora_inicio: '14:00',
-    hora_fin: '15:30',
-    horas: 1.50,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Curso virtual Conecta 14 a 15:30 hrs.'
-  },
-  {
-    cliente: 'Acefos S.A.',
-    capacitador: 'JA',
-    fecha: '2026-02-03',
-    hora_inicio: '07:00',
-    hora_fin: '15:00',
-    horas: 8.00,
-    modalidad: 'Presencial',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Curso presencial Acefos S 7 a 15 hrs [Jaime Avalos].'
-  },
-  // Miércoles 04/02/2026
-  {
-    cliente: 'Daco Heavy S.A.',
+    cliente: "DACOHEAVY",
     capacitador: 'OQ',
     fecha: '2026-02-04',
     hora_inicio: '07:00',
@@ -520,22 +469,82 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Daco Heavy 7 a 11 hrs.'
+    observaciones: "DACOHEAVY ASESORIA PRESENCIAL 7 A 11"
   },
   {
-    cliente: 'Labymed S.A.',
+    cliente: "COLOMBINA",
+    capacitador: 'OQ',
+    fecha: '2026-02-05',
+    hora_inicio: '07:00',
+    hora_fin: '16:00',
+    horas: 8.00,
+    modalidad: 'Presencial',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "COLOMBINA CURSOS PRESENCIAL 7 A 16"
+  },
+  {
+    cliente: "COLOMBINA",
+    capacitador: 'OQ',
+    fecha: '2026-02-06',
+    hora_inicio: '07:00',
+    hora_fin: '16:00',
+    horas: 8.00,
+    modalidad: 'Presencial',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "COLOMBINA CURSOS PRESENCIAL 7 A 16"
+  },
+  {
+    cliente: "CONECTA",
+    capacitador: 'OQ',
+    fecha: '2026-02-02',
+    hora_inicio: '14:00',
+    hora_fin: '15:30',
+    horas: 1.00,
+    modalidad: 'Virtual',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "CONECTA CURSO VIRTUAL 14 A 15:30"
+  },
+  {
+    cliente: "CONECTA",
+    capacitador: 'OQ',
+    fecha: '2026-02-03',
+    hora_inicio: '14:00',
+    hora_fin: '15:30',
+    horas: 1.00,
+    modalidad: 'Virtual',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "CONECTA CURSO VIRTUAL 14 A 15:30"
+  },
+  {
+    cliente: "ONE CONSULTING",
     capacitador: 'OQ',
     fecha: '2026-02-04',
-    hora_inicio: '13:00',
-    hora_fin: '15:00',
-    horas: 2.00,
+    hora_inicio: '12:00',
+    hora_fin: '19:00',
+    horas: 7.00,
     modalidad: 'Virtual',
-    tipo_servicio: 'Consultoría',
+    tipo_servicio: 'Normas',
     estado: 'Impartida',
-    observaciones: 'Revisión POA Labymed virtual 13 a 15 hrs.'
+    observaciones: "REVISIÓN POR LA DIRECCIÓN VIRTUAL 12 A 19"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "INTECAP",
+    capacitador: 'OQ',
+    fecha: '2026-02-02',
+    hora_inicio: '19:00',
+    hora_fin: '21:00',
+    horas: 2.00,
+    modalidad: 'Virtual',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "DIP INTECAP INT 9001 VIRTUAL 19 A 21"
+  },
+  {
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-02-04',
     hora_inicio: '19:00',
@@ -544,37 +553,22 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP INT 9001 Virtual 19 a 21 hrs.'
+    observaciones: "DIP INTECAP INT 9001 VIRTUAL 19 A 21"
   },
-  // Jueves 05/02/2026
   {
-    cliente: 'Colombina S.A.',
-    capacitador: 'OQ',
-    fecha: '2026-02-05',
+    cliente: "ACEROS DE GUATEMALA, S.A.",
+    capacitador: 'JA',
+    fecha: '2026-02-03',
     hora_inicio: '07:00',
     hora_fin: '16:00',
-    horas: 9.00,
+    horas: 8.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Cursos presencial Colombina 7 a 16 hrs.'
+    observaciones: "ACEROS G CURSO PRESENCIAL 7 A 16"
   },
-  // Viernes 06/02/2026
   {
-    cliente: 'Colombina S.A.',
-    capacitador: 'OQ',
-    fecha: '2026-02-06',
-    hora_inicio: '07:00',
-    hora_fin: '16:00',
-    horas: 9.00,
-    modalidad: 'Presencial',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Cursos presencial Colombina 7 a 16 hrs.'
-  },
-  // Lunes 09/02/2026
-  {
-    cliente: 'One Consulting (Auditoría Interna)',
+    cliente: "ONE CONSULTING",
     capacitador: 'OQ',
     fecha: '2026-02-09',
     hora_inicio: '08:00',
@@ -583,23 +577,10 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Auditoría',
     estado: 'Impartida',
-    observaciones: 'Auditoría Virtual One Ente Certificador ICONTEC 8 a 17 hrs Todos.'
+    observaciones: "AUDITORÍA VIRTUAL ONE ENTE CERTIFICADOR ICONTEC 8 a 17 TODOS"
   },
   {
-    cliente: 'INTECAP',
-    capacitador: 'OQ',
-    fecha: '2026-02-09',
-    hora_inicio: '19:00',
-    hora_fin: '21:00',
-    horas: 2.00,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP AUD 9001 Virtual 19 a 21 hrs.'
-  },
-  // Martes 10/02/2026
-  {
-    cliente: 'Labymed S.A.',
+    cliente: "LABYMED",
     capacitador: 'OQ',
     fecha: '2026-02-10',
     hora_inicio: '08:00',
@@ -608,62 +589,70 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso presencial Labymed 8 a 12 hrs.'
-  },
-  // Miércoles 11/02/2026
-  {
-    cliente: 'Daco Heavy S.A.',
-    capacitador: 'OQ',
-    fecha: '2026-02-11',
-    hora_inicio: '07:00',
-    hora_fin: '11:00',
-    horas: 4.00,
-    modalidad: 'Presencial',
-    tipo_servicio: 'Consultoría',
-    estado: 'Impartida',
-    observaciones: 'Asesoría presencial Daco Heavy 7 a 11 hrs.'
+    observaciones: "LABYMED CURSO PRESENCIAL 8 a 12"
   },
   {
-    cliente: 'INTECAP',
-    capacitador: 'OQ',
-    fecha: '2026-02-11',
-    hora_inicio: '19:00',
-    hora_fin: '21:00',
-    horas: 2.00,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP AUD 9001 Virtual 19 a 21 hrs.'
-  },
-  // Jueves 12/02/2026
-  {
-    cliente: 'Forza Delivery S.A.',
+    cliente: "FORZA",
     capacitador: 'OQ',
     fecha: '2026-02-12',
-    hora_inicio: '08:00',
+    hora_inicio: '09:00',
     hora_fin: '12:00',
-    horas: 4.00,
+    horas: 3.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Forza 8 a 12 hrs.'
+    observaciones: "FORZA ASESORIA PRESENCIAL 9 A 12"
   },
-  // Viernes 13/02/2026
   {
-    cliente: 'Colombina S.A.',
+    cliente: "COLOMBINA",
     capacitador: 'OQ',
     fecha: '2026-02-13',
     hora_inicio: '07:00',
     hora_fin: '16:00',
-    horas: 9.00,
+    horas: 8.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Cursos presencial Colombina 7 a 16 hrs.'
+    observaciones: "COLOMBINA CURSOS PRESENCIAL 7 A 16"
   },
-  // Lunes 16/02/2026
   {
-    cliente: 'Soluservi S.A.',
+    cliente: "LABYMED",
+    capacitador: 'OQ',
+    fecha: '2026-02-11',
+    hora_inicio: '13:00',
+    hora_fin: '17:00',
+    horas: 4.00,
+    modalidad: 'Presencial',
+    tipo_servicio: 'Consultoría',
+    estado: 'Impartida',
+    observaciones: "LABYMED ASESORIA PRESENCIAL 13 A 17"
+  },
+  {
+    cliente: "INTECAP",
+    capacitador: 'OQ',
+    fecha: '2026-02-11',
+    hora_inicio: '19:00',
+    hora_fin: '21:00',
+    horas: 2.00,
+    modalidad: 'Virtual',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "DIP INTECAP AUD 9001 VIRTUAL 19 A 21"
+  },
+  {
+    cliente: "INTECAP",
+    capacitador: 'OQ',
+    fecha: '2026-02-09',
+    hora_inicio: '19:00',
+    hora_fin: '21:00',
+    horas: 2.00,
+    modalidad: 'Virtual',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "DIP INTECAP AUD 9001 VIRTUAL 19 A 21"
+  },
+  {
+    cliente: "SOLUSERSA",
     capacitador: 'OQ',
     fecha: '2026-02-16',
     hora_inicio: '08:00',
@@ -672,35 +661,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Soluservi 8 a 12 hrs.'
+    observaciones: "SOLUSERSA ASESORIA PRESENCIAL 8 A 12"
   },
   {
-    cliente: 'Corporación Financiera del Valle',
-    capacitador: 'OQ',
-    fecha: '2026-02-16',
-    hora_inicio: '14:30',
-    hora_fin: '17:00',
-    horas: 2.50,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Normas',
-    estado: 'Impartida',
-    observaciones: 'Reunión virtual Del Valle 14:30 a 17 hrs.'
-  },
-  {
-    cliente: 'INTECAP',
-    capacitador: 'OQ',
-    fecha: '2026-02-16',
-    hora_inicio: '19:00',
-    hora_fin: '21:00',
-    horas: 2.00,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP AUD 9001 Virtual 19 a 21 hrs.'
-  },
-  // Martes 17/02/2026
-  {
-    cliente: 'Labymed S.A.',
+    cliente: "LABYMED",
     capacitador: 'OQ',
     fecha: '2026-02-17',
     hora_inicio: '08:00',
@@ -709,11 +673,10 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Labymed 8 a 12 hrs.'
+    observaciones: "LABYMED ASESORIA PRESENCIAL 8 A 12"
   },
-  // Miércoles 18/02/2026
   {
-    cliente: 'Labymed S.A.',
+    cliente: "LABYMED",
     capacitador: 'OQ',
     fecha: '2026-02-18',
     hora_inicio: '08:00',
@@ -722,10 +685,46 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Curso presencial Labymed 8 a 12 hrs.'
+    observaciones: "LABYMED CURSO PRESENCIAL 8 a 12"
   },
   {
-    cliente: 'Labymed S.A.',
+    cliente: "SOLUSERSA",
+    capacitador: 'OQ',
+    fecha: '2026-02-19',
+    hora_inicio: '08:00',
+    hora_fin: '12:00',
+    horas: 4.00,
+    modalidad: 'Presencial',
+    tipo_servicio: 'Consultoría',
+    estado: 'Impartida',
+    observaciones: "SOLUSERSA ASESORIA PRESENCIAL                8 A 12"
+  },
+  {
+    cliente: "ONE CONSULTING",
+    capacitador: 'OQ',
+    fecha: '2026-02-20',
+    hora_inicio: '08:00',
+    hora_fin: '11:00',
+    horas: 3.00,
+    modalidad: 'Presencial',
+    tipo_servicio: 'Normas',
+    estado: 'Impartida',
+    observaciones: "REUNIÓN INDICADORES 8 A 11"
+  },
+  {
+    cliente: "UNIVERSIDAD DEL VALLE",
+    capacitador: 'OQ',
+    fecha: '2026-02-16',
+    hora_inicio: '16:30',
+    hora_fin: '17:00',
+    horas: 4.00,
+    modalidad: 'Virtual',
+    tipo_servicio: 'Normas',
+    estado: 'Impartida',
+    observaciones: "DEL VALLE REUNIÓN VIRTUAL 16:30 A 17"
+  },
+  {
+    cliente: "LABYMED",
     capacitador: 'OQ',
     fecha: '2026-02-18',
     hora_inicio: '13:00',
@@ -734,10 +733,34 @@ const CITAS = [
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Labymed 13 a 17 hrs.'
+    observaciones: "LABYMED ASESORIA PRESENCIAL 13 A 17"
   },
   {
-    cliente: 'INTECAP',
+    cliente: "SOLUSERSA",
+    capacitador: 'OQ',
+    fecha: '2026-02-20',
+    hora_inicio: '11:00',
+    hora_fin: '13:00',
+    horas: 3.00,
+    modalidad: 'Virtual',
+    tipo_servicio: 'Consultoría',
+    estado: 'Impartida',
+    observaciones: "SOLUSERSA ASESORIA VIRTUAL 11 A 13"
+  },
+  {
+    cliente: "INTECAP",
+    capacitador: 'OQ',
+    fecha: '2026-02-16',
+    hora_inicio: '19:00',
+    hora_fin: '21:00',
+    horas: 2.00,
+    modalidad: 'Virtual',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "DIP INTECAP AUD 9001 VIRTUAL 19 A 21"
+  },
+  {
+    cliente: "INTECAP",
     capacitador: 'OQ',
     fecha: '2026-02-18',
     hora_inicio: '19:00',
@@ -746,184 +769,140 @@ const CITAS = [
     modalidad: 'Virtual',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP AUD 9001 Virtual 19 a 21 hrs.'
-  },
-  // Jueves 19/02/2026
-  {
-    cliente: 'Soluservi S.A.',
-    capacitador: 'OQ',
-    fecha: '2026-02-19',
-    hora_inicio: '08:00',
-    hora_fin: '12:00',
-    horas: 4.00,
-    modalidad: 'Presencial',
-    tipo_servicio: 'Consultoría',
-    estado: 'Impartida',
-    observaciones: 'Asesoría presencial Soluservi 8 a 12 hrs.'
+    observaciones: "DIP INTECAP AUD 9001 VIRTUAL 19 A 21"
   },
   {
-    cliente: 'Ministerio de la Defensa',
+    cliente: "MINISTERIO DE LA DEFENSA",
     capacitador: 'OQ',
     fecha: '2026-02-19',
     hora_inicio: '14:00',
     hora_fin: '15:00',
     horas: 1.00,
     modalidad: 'Presencial',
-    tipo_servicio: 'Consultoría',
+    tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Ministerio de la Defensa 14 a 15 hrs.'
+    observaciones: "MINISTERIO DEFENSA PRESENCIAL 14 A 15"
   },
   {
-    cliente: 'Forza Delivery S.A.',
-    capacitador: 'OQ',
+    cliente: "FORZA",
+    capacitador: 'BJ',
     fecha: '2026-02-19',
-    hora_inicio: '15:00',
-    hora_fin: '16:00',
+    hora_inicio: '09:00',
+    hora_fin: '10:00',
     horas: 1.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Consultoría',
     estado: 'Impartida',
-    observaciones: 'Asesoría presencial Forza 15 a 16 hrs.'
-  },
-  // Viernes 20/02/2026
-  {
-    cliente: 'One Consulting (Auditoría Interna)',
-    capacitador: 'OQ',
-    fecha: '2026-02-20',
-    hora_inicio: '08:00',
-    hora_fin: '11:00',
-    horas: 3.00,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Normas',
-    estado: 'Impartida',
-    observaciones: 'Reunión de Indicadores 8 a 11 hrs.'
+    observaciones: "FORZA ASESORIA PRESENCIAL 9 A 10"
   },
   {
-    cliente: 'Soluservi S.A.',
+    cliente: "MADRE TIERRA",
     capacitador: 'OQ',
-    fecha: '2026-02-20',
-    hora_inicio: '14:00',
+    fecha: '2026-02-23',
+    hora_inicio: '07:00',
     hora_fin: '16:00',
-    horas: 2.00,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Consultoría',
-    estado: 'Impartida',
-    observaciones: 'Asesoría virtual Soluservi 14 a 16 hrs.'
-  },
-  // Lunes 23/02/2026
-  {
-    cliente: 'Ingenio Madre Tierra S.A.',
-    capacitador: 'OQ',
-    fecha: '2026-02-23',
-    hora_inicio: '07:00',
-    hora_fin: '15:00',
     horas: 8.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Auditoría',
     estado: 'Impartida',
-    observaciones: 'Madre Tierra FSC Auditoría Presencial 7 a 15 hrs.'
+    observaciones: "MADRE TIERRA FSSC AUDITORIA PRESENCIAL 7 A 16"
   },
   {
-    cliente: 'INTECAP',
-    capacitador: 'OQ',
-    fecha: '2026-02-23',
-    hora_inicio: '19:00',
-    hora_fin: '21:00',
-    horas: 2.00,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP AUD 9001 Virtual 19 a 21 hrs.'
-  },
-  // Martes 24/02/2026
-  {
-    cliente: 'Ingenio Madre Tierra S.A.',
+    cliente: "MADRE TIERRA",
     capacitador: 'OQ',
     fecha: '2026-02-24',
     hora_inicio: '07:00',
-    hora_fin: '15:00',
+    hora_fin: '16:00',
     horas: 8.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Auditoría',
     estado: 'Impartida',
-    observaciones: 'Madre Tierra FSC Auditoría Presencial 7 a 15 hrs.'
+    observaciones: "MADRE TIERRA FSSC AUDITORIA PRESENCIAL 7 A 16"
   },
   {
-    cliente: 'Acefos S.A.',
-    capacitador: 'JA',
-    fecha: '2026-02-24',
-    hora_inicio: '07:00',
-    hora_fin: '15:00',
-    horas: 8.00,
-    modalidad: 'Presencial',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Curso presencial Acefos S 7 a 15 hrs [Jaime Avalos].'
-  },
-  // Miércoles 25/02/2026
-  {
-    cliente: 'Ingenio Madre Tierra S.A.',
+    cliente: "MADRE TIERRA",
     capacitador: 'OQ',
     fecha: '2026-02-25',
     hora_inicio: '07:00',
-    hora_fin: '15:00',
+    hora_fin: '16:00',
     horas: 8.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Auditoría',
     estado: 'Impartida',
-    observaciones: 'Madre Tierra FSC Auditoría Presencial 7 a 15 hrs.'
+    observaciones: "MADRE TIERRA FSSC AUDITORIA PRESENCIAL 7 A 16"
   },
   {
-    cliente: 'INTECAP',
-    capacitador: 'OQ',
-    fecha: '2026-02-25',
-    hora_inicio: '19:00',
-    hora_fin: '21:00',
-    horas: 2.00,
-    modalidad: 'Virtual',
-    tipo_servicio: 'Capacitación',
-    estado: 'Impartida',
-    observaciones: 'Diplomado INTECAP AUD 9001 Virtual 19 a 21 hrs.'
-  },
-  // Jueves 26/02/2026
-  {
-    cliente: 'Ingenio Madre Tierra S.A.',
+    cliente: "MADRE TIERRA",
     capacitador: 'OQ',
     fecha: '2026-02-26',
     hora_inicio: '07:00',
-    hora_fin: '15:00',
+    hora_fin: '16:00',
     horas: 8.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Auditoría',
     estado: 'Impartida',
-    observaciones: 'Madre Tierra FSC Auditoría Presencial 7 a 15 hrs.'
+    observaciones: "MADRE TIERRA FSSC AUDITORIA PRESENCIAL 7 A 16"
   },
-  // Viernes 27/02/2026
   {
-    cliente: 'Ingenio Madre Tierra S.A.',
+    cliente: "MADRE TIERRA",
     capacitador: 'OQ',
     fecha: '2026-02-27',
     hora_inicio: '07:00',
-    hora_fin: '15:00',
+    hora_fin: '16:00',
     horas: 8.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Auditoría',
     estado: 'Impartida',
-    observaciones: 'Madre Tierra FSC Auditoría Presencial 7 a 15 hrs.'
+    observaciones: "MADRE TIERRA FSSC AUDITORIA PRESENCIAL 7 A 16"
   },
   {
-    cliente: 'Colombina S.A.',
+    cliente: "INTECAP",
+    capacitador: 'OQ',
+    fecha: '2026-02-23',
+    hora_inicio: '19:00',
+    hora_fin: '21:00',
+    horas: 2.00,
+    modalidad: 'Virtual',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "DIP INTECAP AUD 9001 VIRTUAL 19 A 21"
+  },
+  {
+    cliente: "INTECAP",
+    capacitador: 'OQ',
+    fecha: '2026-02-25',
+    hora_inicio: '19:00',
+    hora_fin: '21:00',
+    horas: 2.00,
+    modalidad: 'Virtual',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "DIP INTECAP AUD 9001 VIRTUAL 19 A 21"
+  },
+  {
+    cliente: "COLOMBINA",
     capacitador: 'MO',
     fecha: '2026-02-27',
     hora_inicio: '07:00',
-    hora_fin: '15:00',
+    hora_fin: '16:00',
     horas: 8.00,
     modalidad: 'Presencial',
     tipo_servicio: 'Capacitación',
     estado: 'Impartida',
-    observaciones: 'Cursos presencial Colombina 7 a 15 hrs [Mariana Orellana].'
+    observaciones: "COLOMBINA CURSOS PRESENCIAL 7 A 16"
   },
-
+  {
+    cliente: "ACEROS DE GUATEMALA, S.A.",
+    capacitador: 'JA',
+    fecha: '2026-02-24',
+    hora_inicio: '07:00',
+    hora_fin: '16:00',
+    horas: 8.00,
+    modalidad: 'Presencial',
+    tipo_servicio: 'Capacitación',
+    estado: 'Impartida',
+    observaciones: "ACEROS G CURSO PRESENCIAL 7 A 16"
+  },
   // ==========================================
   // MARZO 2026
   // ==========================================

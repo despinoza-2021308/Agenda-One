@@ -44,6 +44,10 @@ export const ASUETOS_OFICIALES = {
   '2026-01-05': 'ASUETO AÑO NUEVO'
 };
 
+export const EVENTOS_ESPECIALES = {
+  '2026-02-14': { label: '¡DÍA DEL CARIÑO!', emoji: '💖' }
+};
+
 export default function CalendarView({ 
   citas = [], 
   capacitadores = [], 
@@ -506,6 +510,8 @@ export default function CalendarView({
                       ? 'bg-blue-500/10 dark:bg-blue-600/15 ring-1 ring-inset ring-blue-500/30'
                       : ASUETOS_OFICIALES[dayObj.dateString]
                       ? 'bg-amber-100/60 dark:bg-amber-950/30 border border-amber-300/40 dark:border-amber-800/40'
+                      : EVENTOS_ESPECIALES[dayObj.dateString]
+                      ? 'bg-pink-100/60 dark:bg-pink-950/30 border border-pink-300/40 dark:border-pink-800/40'
                       : 'hover:bg-white/40 dark:hover:bg-slate-800/30'
                   }`}
                 >
@@ -598,6 +604,11 @@ export default function CalendarView({
                         Asueto
                       </span>
                     )}
+                    {EVENTOS_ESPECIALES[dayObj.dateString] && (
+                      <span className="mb-1 text-[8px] font-black uppercase tracking-wider text-pink-900 dark:text-pink-200 bg-pink-200/90 dark:bg-pink-900/60 rounded px-1 py-0.5 text-center block shadow-2xs">
+                        💖 Cariño
+                      </span>
+                    )}
                     {dayCitas.length > 0 ? (
                       <div className="flex flex-wrap gap-1 items-center content-start p-0.5">
                         {dayCitas.slice(0, 3).map((c, i) => (
@@ -623,6 +634,13 @@ export default function CalendarView({
                       <div className="w-full text-center py-2 px-1 rounded-lg bg-amber-200/80 dark:bg-amber-900/40 border border-amber-400/80 dark:border-amber-600/60 shadow-2xs select-none">
                         <span className="text-[11px] font-black tracking-wide uppercase text-amber-950 dark:text-amber-100 block">
                           🎉 {ASUETOS_OFICIALES[dayObj.dateString]}
+                        </span>
+                      </div>
+                    )}
+                    {EVENTOS_ESPECIALES[dayObj.dateString] && (
+                      <div className="w-full text-center py-2 px-1 rounded-lg bg-pink-200/80 dark:bg-pink-900/40 border border-pink-400/80 dark:border-pink-600/60 shadow-2xs select-none">
+                        <span className="text-[11px] font-black tracking-wide uppercase text-pink-950 dark:text-pink-100 block">
+                          💖 {EVENTOS_ESPECIALES[dayObj.dateString].label}
                         </span>
                       </div>
                     )}
