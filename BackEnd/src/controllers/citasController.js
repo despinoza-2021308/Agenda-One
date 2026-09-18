@@ -56,6 +56,24 @@ function resolverAccionAuditoria(prev, cambios) {
 }
 
 
+function formatMockCita(c) {
+  const cliente = db.mockStore.clientes.find(cli => cli.id === c.cliente_id) || {};
+  const cap = db.mockStore.capacitadores.find(cp => cp.id === c.capacitador_id) || {};
+  return {
+    ...c,
+    cliente_nombre: c.cliente_nombre || cliente.nombre_empresa || 'Cliente General',
+    capacitador_nombre: cap.nombre_completo || 'Capacitador',
+    capacitador_iniciales: cap.iniciales || '??',
+    capacitador_color: cap.color || '#3B82F6',
+    estado: c.estado || 'Programada',
+    horas: Number(c.horas),
+    firma_cliente: c.firma_cliente || null,
+    firmante_nombre: c.firmante_nombre || null,
+    firmante_puesto: c.firmante_puesto || null,
+    firmado_at: c.firmado_at || null
+  };
+}
+
 // Obtener citas con filtros opcionales (rango de fechas, capacitador, cliente, estado)
 async function getCitas(req, res, next) {
   try {
@@ -139,6 +157,30 @@ async function getCitas(req, res, next) {
       try {
         const result = await db.pool.query(query, params);
         if (result.rows && result.rows.length > 0) {
+          if (month && year) {
+            const hasMonthRows = result.rows.some(r => {
+              const [y, m] = String(r.fecha).split('T')[0].split('-').map(Number);
+              return y === Number(year) && m === Number(month);
+            });
+            if (!hasMonthRows) {
+              const mockMonthCitas = db.mockStore.citas.filter(mc => {
+                const [y, m] = String(mc.fecha).split('T')[0].split('-').map(Number);
+                return y === Number(year) && m === Number(month);
+              });
+              if (mockMonthCitas.length > 0) {
+                console.warn(`⚠️ [Citas] PostgreSQL retornó 0 citas para ${year}-${month}. Usando fallback de mockStore.`);
+                return res.json(mockMonthCitas.map(formatMockCita));
+              }
+            }
+          } else if (!start_date && !end_date && !searchTerm) {
+            const pgMonthKeys = new Set(result.rows.map(r => String(r.fecha).slice(0, 7)));
+            const missingMockCitas = db.mockStore.citas.filter(mc => !pgMonthKeys.has(String(mc.fecha).slice(0, 7)));
+            if (missingMockCitas.length > 0) {
+              console.log(`ℹ️ [Citas] Complementando ${missingMockCitas.length} citas de meses ausentes en PostgreSQL.`);
+              const formattedMissing = missingMockCitas.map(formatMockCita);
+              return res.json([...result.rows, ...formattedMissing].sort((a, b) => b.fecha.localeCompare(a.fecha)));
+            }
+          }
           return res.json(result.rows);
         }
       } catch (dbErr) {
@@ -147,23 +189,7 @@ async function getCitas(req, res, next) {
     }
 
     // Modo respaldo en memoria
-    let citas = db.mockStore.citas.map(c => {
-      const cliente = db.mockStore.clientes.find(cli => cli.id === c.cliente_id) || {};
-      const cap = db.mockStore.capacitadores.find(cp => cp.id === c.capacitador_id) || {};
-      return {
-        ...c,
-        cliente_nombre: c.cliente_nombre || cliente.nombre_empresa || 'Cliente General',
-        capacitador_nombre: cap.nombre_completo || 'Capacitador',
-        capacitador_iniciales: cap.iniciales || '??',
-        capacitador_color: cap.color || '#3B82F6',
-        estado: c.estado || 'Programada',
-        horas: Number(c.horas),
-        firma_cliente: c.firma_cliente || null,
-        firmante_nombre: c.firmante_nombre || null,
-        firmante_puesto: c.firmante_puesto || null,
-        firmado_at: c.firmado_at || null
-      };
-    });
+    let citas = db.mockStore.citas.map(formatMockCita);
 
     if (start_date) {
       citas = citas.filter(c => c.fecha >= start_date);
