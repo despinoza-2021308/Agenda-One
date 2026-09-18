@@ -62,8 +62,26 @@ export default function App() {
   const [monthUpdatesMap, setMonthUpdatesMap] = useState(() => loadMonthUpdates());
 
   const [urlPortalCode, setUrlPortalCode] = useState(initialPortalParam);
-  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 8, 9)); // Septiembre 2026
+  // Fecha actual de la agenda con persistencia en sessionStorage (por defecto Abril 2026 - mes activo)
+  const [currentDate, setCurrentDate] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('agenda_current_date');
+      if (saved) {
+        const d = new Date(saved);
+        if (!isNaN(d.getTime())) return d;
+      }
+    } catch (_) {}
+    return new Date(2026, 3, 6); // Por defecto Abril 2026
+  });
+
+  const handleSetCurrentDate = useCallback((newDate) => {
+    setCurrentDate(newDate);
+    try {
+      if (newDate instanceof Date) {
+        sessionStorage.setItem('agenda_current_date', newDate.toISOString());
+      }
+    } catch (_) {}
+  }, []);
 
   // Control de Tema (Modo Oscuro / Claro)
   const [theme, setTheme] = useState(() => {
@@ -211,26 +229,21 @@ export default function App() {
     }
   }, []);
 
-  // Cargar citas del mes
+  // Cargar citas (precarga completa en memoria para navegación instantánea 0ms y conteo exacto de horas)
   const loadCitas = useCallback(async () => {
     try {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1;
-      const citasData = await api.getCitas({ year, month });
+      const citasData = await api.getCitas();
       setCitas(citasData);
     } catch (err) {
       console.error('Error al cargar citas:', err);
     }
-  }, [currentDate]);
+  }, []);
 
   useEffect(() => {
     loadCapacitadores();
     loadClientes();
-  }, [loadCapacitadores, loadClientes]);
-
-  useEffect(() => {
     loadCitas();
-  }, [loadCitas]);
+  }, [loadCapacitadores, loadClientes, loadCitas]);
 
   // Gestor para ejecutar acciones tras autenticación exitosa
   const handleAdminLoginSuccess = () => {
@@ -346,13 +359,10 @@ export default function App() {
       if (formData.fecha) {
         const [fYear, fMonth] = String(formData.fecha).split('-').map(Number);
         if (fYear && fMonth && (currentDate.getFullYear() !== fYear || (currentDate.getMonth() + 1) !== fMonth)) {
-          setCurrentDate(new Date(fYear, fMonth - 1, 1));
-        } else {
-          await loadCitas();
+          handleSetCurrentDate(new Date(fYear, fMonth - 1, 1));
         }
-      } else {
-        await loadCitas();
       }
+      await loadCitas();
       await loadClientes();
 
       // Si se editó o creó desde las Citas del Día, volver a abrir las citas del día con la información actualizada
@@ -638,7 +648,7 @@ export default function App() {
             citas={citas}
             capacitadores={capacitadores}
             currentDate={currentDate}
-            setCurrentDate={setCurrentDate}
+            setCurrentDate={handleSetCurrentDate}
             onSelectCita={handleSelectAppointment}
             onAddCitaDate={handleOpenNewAppointment}
             onOpenWhatsApp={handleOpenWhatsApp}
@@ -660,7 +670,7 @@ export default function App() {
             citas={citas}
             capacitadores={capacitadores}
             currentDate={currentDate}
-            setCurrentDate={setCurrentDate}
+            setCurrentDate={handleSetCurrentDate}
             onSaveCapacitador={handleSaveCapacitador}
             isAdmin={isAdmin}
             onOpenAdminLogin={() => setIsAdminLoginModalOpen(true)}

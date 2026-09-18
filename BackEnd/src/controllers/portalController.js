@@ -192,7 +192,34 @@ async function getTrainerPortalData(req, res, next) {
         ORDER BY c.fecha ASC, c.hora_inicio ASC`,
         [capacitador.id]
       );
-      citas = citasRes.rows;
+
+      if (citasRes.rows.length === 0 && db.mockStore.citas.some(c => c.capacitador_id === capacitador.id)) {
+        console.warn(`⚠️ [Portal] PostgreSQL retornó 0 citas para capacitador ${codigo}. Usando fallback de mockStore.`);
+        citas = db.mockStore.citas
+          .filter(c => c.capacitador_id === capacitador.id)
+          .map(c => {
+            const cli = db.mockStore.clientes.find(item => item.id === c.cliente_id) || {};
+            return {
+              ...c,
+              cliente_nombre: c.cliente_nombre || cli.nombre_empresa || 'Cliente General',
+              cliente_contacto: cli.contacto || null,
+              cliente_telefono: cli.telefono || null,
+              cliente_correo: cli.correo || null,
+              capacitador_nombre: capacitador.nombre_completo,
+              capacitador_iniciales: capacitador.iniciales,
+              capacitador_color: capacitador.color,
+              estado: c.estado || 'Programada',
+              horas: Number(c.horas),
+              firma_cliente: c.firma_cliente || null,
+              firmante_nombre: c.firmante_nombre || null,
+              firmante_puesto: c.firmante_puesto || null,
+              firmado_at: c.firmado_at || null
+            };
+          })
+          .sort((a, b) => (a.fecha + a.hora_inicio).localeCompare(b.fecha + b.hora_inicio));
+      } else {
+        citas = citasRes.rows;
+      }
     } else {
       citas = db.mockStore.citas
         .filter(c => c.capacitador_id === capacitador.id)

@@ -41,13 +41,23 @@ async function getResumenMensual(req, res, next) {
       `;
 
       const result = await db.pool.query(query, [year, month]);
-      
       const stats = calcularKPIs(result.rows, year, month);
-      return res.json({
-        periodo: { year, month },
-        resumenPorCapacitador: result.rows,
-        kpis: stats
+
+      // Si PostgreSQL no tiene citas para este mes pero mockStore sí tiene, usar mockStore como fallback de seguridad
+      const mockMonthCitas = db.mockStore.citas.filter(ci => {
+        const [y, m] = String(ci.fecha).split('T')[0].split('-').map(Number);
+        return y === year && m === month && ci.estado !== 'Cancelada';
       });
+
+      if ((stats.totalHorasMes === 0 || stats.totalCitasMes === 0) && mockMonthCitas.length > 0) {
+        console.warn(`⚠️ [Reportes] PostgreSQL retornó 0 citas para ${year}-${month}. Usando fallback de mockStore (${mockMonthCitas.length} citas).`);
+      } else {
+        return res.json({
+          periodo: { year, month },
+          resumenPorCapacitador: result.rows,
+          kpis: stats
+        });
+      }
     }
 
     // Modo respaldo en memoria
@@ -141,7 +151,12 @@ async function getHistorico(req, res, next) {
         ORDER BY total_horas_historico DESC
       `;
       const result = await db.pool.query(query);
-      return res.json(result.rows);
+      const totalHorasHist = result.rows.reduce((sum, r) => sum + (parseFloat(r.total_horas_historico) || 0), 0);
+      if (totalHorasHist === 0 && db.mockStore.citas.length > 0) {
+        console.warn('⚠️ [Reportes] PostgreSQL histórico retornó 0 horas. Usando fallback de mockStore.');
+      } else {
+        return res.json(result.rows);
+      }
     }
 
     // Modo respaldo

@@ -164,14 +164,32 @@ export default function CalendarView({
     setCurrentDate(new Date());
   };
 
-  // Filtrado de citas por capacitador y estado
-  const filteredCitas = useMemo(() => {
+  // Citas pertenecientes al mes visible actualmente (año y mes seleccionados en la cabecera)
+  const monthCitas = useMemo(() => {
+    return citas.filter(c => {
+      if (!c.fecha) return false;
+      const [y, m] = String(c.fecha).split('T')[0].split('-').map(Number);
+      return y === year && (m - 1) === month;
+    });
+  }, [citas, year, month]);
+
+  // Citas de todo el sistema filtradas según capacitador y estado (para celdas de días y turnos)
+  const filteredAllCitas = useMemo(() => {
     return citas.filter(c => {
       const matchCap = selectedCapacitadorId === 'ALL' || String(c.capacitador_id) === String(selectedCapacitadorId);
       const matchStatus = selectedStatus === 'ALL' || (c.estado || 'Programada') === selectedStatus;
       return matchCap && matchStatus;
     });
   }, [citas, selectedCapacitadorId, selectedStatus]);
+
+  // Filtrado de citas del mes por capacitador y estado (para contadores, total de horas y lista mensual)
+  const filteredCitas = useMemo(() => {
+    return monthCitas.filter(c => {
+      const matchCap = selectedCapacitadorId === 'ALL' || String(c.capacitador_id) === String(selectedCapacitadorId);
+      const matchStatus = selectedStatus === 'ALL' || (c.estado || 'Programada') === selectedStatus;
+      return matchCap && matchStatus;
+    });
+  }, [monthCitas, selectedCapacitadorId, selectedStatus]);
 
   // Horas acumuladas efectivas según filtro actual en el mes (excluye citas canceladas)
   const totalHorasFiltradas = useMemo(() => {
@@ -183,10 +201,10 @@ export default function CalendarView({
   // Citas del día seleccionado para el modal de detalle
   const modalDayCitas = useMemo(() => {
     if (!selectedDayDetails?.dateString) return [];
-    return filteredCitas
+    return filteredAllCitas
       .filter(c => String(c.fecha || '').split('T')[0] === selectedDayDetails.dateString)
       .sort((a, b) => (a.hora_inicio || '').localeCompare(b.hora_inicio || ''));
-  }, [filteredCitas, selectedDayDetails]);
+  }, [filteredAllCitas, selectedDayDetails]);
 
   const modalDayTotalHoras = useMemo(() => {
     return modalDayCitas
@@ -407,12 +425,12 @@ export default function CalendarView({
                 : 'glass-pill text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800'
             }`}
           >
-            Todos ({citas.length})
+            Todos ({monthCitas.length})
           </button>
 
           {capacitadores.map((cap) => {
             const isSelected = selectedCapacitadorId === String(cap.id);
-            const countForCap = citas.filter(c => c.capacitador_id === cap.id).length;
+            const countForCap = monthCitas.filter(c => c.capacitador_id === cap.id).length;
 
             return (
               <button
@@ -460,7 +478,7 @@ export default function CalendarView({
 
           {Object.entries(STATUS_CONFIG).map(([stKey, stCfg]) => {
             const isSelected = selectedStatus === stKey;
-            const countForStatus = citas.filter(c => {
+            const countForStatus = monthCitas.filter(c => {
               const matchesCap = selectedCapacitadorId === 'ALL' || String(c.capacitador_id) === String(selectedCapacitadorId);
               return matchesCap && (c.estado || 'Programada') === stKey;
             }).length;
@@ -504,7 +522,7 @@ export default function CalendarView({
           {/* Días del calendario con celdas equilibradas y tarjetas compactas de alta legibilidad */}
           <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-slate-200/50 dark:divide-white/5 flex-1 w-full min-w-0">
             {calendarDays.map((dayObj, index) => {
-              const dayCitas = filteredCitas.filter(c => String(c.fecha || '').split('T')[0] === dayObj.dateString);
+              const dayCitas = filteredAllCitas.filter(c => String(c.fecha || '').split('T')[0] === dayObj.dateString);
               const dayTotalHoras = dayCitas
                 .filter(c => c.estado !== 'Cancelada')
                 .reduce((acc, c) => acc + (parseFloat(c.horas) || 0), 0);
