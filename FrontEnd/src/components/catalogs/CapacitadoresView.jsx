@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Users, 
   Plus, 
@@ -104,17 +105,19 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
   };
 
   const handleNameChange = (name) => {
-    let initials = formData.iniciales;
-    // Sugerir iniciales automáticamente si está creando y no las ha escrito
-    if (!editingCap && !initials) {
-      const parts = name.trim().split(/\s+/);
-      if (parts.length >= 2) {
-        initials = (parts[0][0] + parts[1][0]).toUpperCase();
-      } else if (parts.length === 1 && parts[0].length >= 2) {
-        initials = parts[0].substring(0, 2).toUpperCase();
+    setFormData(prev => {
+      let initials = prev.iniciales;
+      // Sugerir iniciales automáticamente si está creando y no las ha escrito
+      if (!editingCap && (!initials || initials.length <= 2)) {
+        const parts = name.trim().split(/\s+/);
+        if (parts.length >= 2 && parts[0] && parts[1]) {
+          initials = (parts[0][0] + parts[1][0]).toUpperCase();
+        } else if (parts.length === 1 && parts[0].length >= 2) {
+          initials = parts[0].substring(0, 2).toUpperCase();
+        }
       }
-    }
-    setFormData({ ...formData, nombre_completo: name, iniciales });
+      return { ...prev, nombre_completo: name, iniciales };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -345,70 +348,89 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
         ))}
       </div>
 
-      {/* Modal Crear / Editar */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 dark:bg-black/75 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+      {/* Modal Crear / Editar montado en Portal (z-[9999]) para que nunca quede tapado por el navbar ni se corte */}
+      {isModalOpen && createPortal(
+        <div 
+          className="fixed inset-0 z-[9999] w-full h-full min-h-[100dvh] bg-slate-950/70 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden animate-in fade-in duration-200"
+          onClick={() => setIsModalOpen(false)}
+        >
           <div 
-            className="glass-panel w-full max-w-md rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            className="glass-panel w-full max-w-lg max-h-[92dvh] rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 overflow-hidden flex flex-col my-auto relative animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200/60 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md">
-              <div className="flex items-center gap-2">
+            {/* Encabezado Fijo (shrink-0) */}
+            <div className="shrink-0 flex items-center justify-between px-5 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200/60 dark:border-white/10 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md">
+              <div className="flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                  className="p-1.5 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                   title="Volver"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                  {editingCap ? 'Editar Capacitador' : 'Registrar Nuevo Capacitador'}
-                </h3>
+                <div>
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-tight">
+                    {editingCap ? 'Editar Capacitador' : 'Registrar Nuevo Capacitador'}
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                    Control Centralizado de Equipo AD-RE-11
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {error && (
-              <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
+              <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2 shrink-0">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            {/* Formulario Scrolleable (flex-1 overflow-y-auto) */}
+            <form id="capacitador-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                <label 
+                  htmlFor="cap-nombre-completo"
+                  className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+                >
                   Nombre Completo <span className="text-rose-500">*</span>
                 </label>
                 <input
+                  id="cap-nombre-completo"
                   type="text"
                   required
+                  autoFocus
                   placeholder="Ej: Mauricio Orozco"
                   value={formData.nombre_completo}
                   onChange={(e) => handleNameChange(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                <label 
+                  htmlFor="cap-iniciales"
+                  className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1"
+                >
                   Iniciales / Código de Agenda <span className="text-rose-500">*</span>
                 </label>
                 <input
+                  id="cap-iniciales"
                   type="text"
                   required
                   maxLength={5}
                   placeholder="Ej: MO, OQ, PF"
                   value={formData.iniciales}
-                  onChange={(e) => setFormData({ ...formData, iniciales: e.target.value.toUpperCase() })}
-                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => setFormData(prev => ({ ...prev, iniciales: e.target.value.toUpperCase() }))}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-mono font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                   Código de 2 a 4 letras que aparecerá en los bloques de la agenda.
@@ -417,13 +439,16 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <label 
+                    htmlFor="cap-pin"
+                    className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5"
+                  >
                     <KeyRound className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                    PIN de Seguridad (4 dígitos) <span className="text-rose-500">*</span>
+                    <span>PIN de Seguridad (4 dígitos) <span className="text-rose-500">*</span></span>
                   </label>
                   <button
                     type="button"
-                    onClick={() => setFormData({ ...formData, pin: generateRandomSecurePin() })}
+                    onClick={() => setFormData(prev => ({ ...prev, pin: generateRandomSecurePin() }))}
                     className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
                     title="Generar combinación de PIN segura y no secuencial"
                   >
@@ -433,13 +458,14 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                 </div>
                 <div className="relative">
                   <input
+                    id="cap-pin"
                     type="text"
                     maxLength={4}
                     inputMode="numeric"
                     placeholder="Ej: 8492"
                     value={formData.pin}
-                    onChange={(e) => setFormData({ ...formData, pin: e.target.value.replace(/\D/g, '').slice(0, 4) })}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold tracking-widest text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => setFormData(prev => ({ ...prev, pin: e.target.value.replace(/\D/g, '').slice(0, 4) }))}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-mono font-bold tracking-widest text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
@@ -448,16 +474,20 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <label 
+                  htmlFor="cap-telefono"
+                  className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5"
+                >
                   <Phone className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  Teléfono / WhatsApp
+                  <span>Teléfono / WhatsApp</span>
                 </label>
                 <input
+                  id="cap-telefono"
                   type="text"
                   placeholder="Ej: +502 5555-1234"
                   value={formData.telefono}
-                  onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
                 <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
                   Incluye código de país (ej. +502 para Guatemala) para el envío directo por WhatsApp.
@@ -465,23 +495,27 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <label 
+                  htmlFor="cap-tarifa"
+                  className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1.5"
+                >
                   <Banknote className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  Honorarios por Hora (Quetzales) <span className="text-rose-500">*</span>
+                  <span>Honorarios por Hora (Quetzales) <span className="text-rose-500">*</span></span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400 font-bold text-xs">
                     Q
                   </div>
                   <input
+                    id="cap-tarifa"
                     type="number"
                     step="0.50"
                     min="0"
                     required
                     placeholder="150.00"
                     value={formData.tarifa_hora}
-                    onChange={(e) => setFormData({ ...formData, tarifa_hora: e.target.value })}
-                    className="w-full pl-8 pr-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => setFormData(prev => ({ ...prev, tarifa_hora: e.target.value }))}
+                    className="w-full pl-8 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
@@ -493,15 +527,15 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <Palette className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                  Color Distintivo
+                  <span>Color Distintivo</span>
                 </label>
                 <div className="flex items-center gap-2 flex-wrap mb-2">
                   {COLOR_PALETTES.map((color) => (
                     <button
                       key={color}
                       type="button"
-                      onClick={() => setFormData({ ...formData, color })}
-                      className={`w-7 h-7 rounded-xl transition-all ${
+                      onClick={() => setFormData(prev => ({ ...prev, color }))}
+                      className={`w-7 h-7 rounded-xl transition-all cursor-pointer ${
                         formData.color === color ? 'ring-2 ring-offset-2 ring-slate-800 dark:ring-slate-300 scale-110' : 'hover:scale-105'
                       }`}
                       style={{ backgroundColor: color }}
@@ -512,7 +546,7 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                   <input
                     type="color"
                     value={formData.color}
-                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
                     className="w-8 h-8 rounded-lg cursor-pointer border border-slate-200 dark:border-slate-700 p-0"
                   />
                   <span className="text-xs font-mono text-slate-600 dark:text-slate-300 uppercase font-semibold">
@@ -522,36 +556,39 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
               </div>
 
               {/* Previsualización del Badge */}
-              <div className="bg-slate-50 dark:bg-slate-800/70 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-3">
+              <div className="bg-slate-50 dark:bg-slate-800/70 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center gap-3">
                 <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Vista previa en calendario:</span>
                 <div
-                  className="px-2.5 py-1 rounded-md text-xs font-extrabold text-white flex items-center gap-1 shadow-xs"
+                  className="px-2.5 py-1 rounded-md text-xs font-extrabold text-white flex items-center gap-1 shadow-2xs"
                   style={{ backgroundColor: formData.color }}
                 >
                   <span>{formData.iniciales || '??'}</span>
                 </div>
               </div>
-
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-md shadow-blue-500/20"
-                >
-                  <Check className="w-4 h-4" />
-                  {loading ? 'Guardando...' : 'Guardar'}
-                </button>
-              </div>
             </form>
+
+            {/* Pie de Página Fijo (shrink-0) - Siempre visible */}
+            <div className="shrink-0 px-6 py-3.5 border-t border-slate-200/60 dark:border-white/10 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                form="capacitador-form"
+                disabled={loading}
+                className="inline-flex items-center gap-2 liquid-btn-primary px-5 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-md cursor-pointer disabled:opacity-50"
+              >
+                <Check className="w-4 h-4 stroke-[2.5]" />
+                <span>{loading ? 'Guardando...' : (editingCap ? 'Guardar Cambios' : 'Guardar Capacitador')}</span>
+              </button>
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Modal de confirmación elegante para eliminar / desactivar capacitador */}

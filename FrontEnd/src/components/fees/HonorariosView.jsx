@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Banknote, 
   TrendingUp, 
@@ -740,10 +741,16 @@ export default function HonorariosView({
         )}
       </div>
 
-      {/* Modal Rápido de Modificación de Tarifa por Hora */}
-      {editingRateTrainer && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in zoom-in-95 duration-150">
+      {/* Modal Rápido de Modificación de Tarifa por Hora montado en Portal (z-[9999]) */}
+      {editingRateTrainer && createPortal(
+        <div 
+          className="fixed inset-0 z-[9999] w-full h-full min-h-[100dvh] overflow-y-auto bg-slate-950/70 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150"
+          onClick={() => setEditingRateTrainer(null)}
+        >
+          <div 
+            className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl shadow-2xl border border-white/80 dark:border-white/10 overflow-hidden animate-in zoom-in-95 duration-150 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
               <div className="flex items-center gap-2">
                 <Coins className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -751,16 +758,16 @@ export default function HonorariosView({
               </div>
               <button
                 onClick={() => setEditingRateTrainer(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
-              <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200/80 dark:border-slate-700">
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-extrabold text-white"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-extrabold text-white shadow-xs"
                   style={{ backgroundColor: editingRateTrainer.color }}
                 >
                   {editingRateTrainer.iniciales}
@@ -794,7 +801,7 @@ export default function HonorariosView({
                     placeholder="200.00"
                     value={newRateValue}
                     onChange={(e) => setNewRateValue(e.target.value)}
-                    className="w-full pl-8 pr-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full pl-8 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
                 <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
@@ -812,9 +819,9 @@ export default function HonorariosView({
                 </button>
                 <button
                   type="button"
-                  disabled={savingRate}
                   onClick={handleSaveRate}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
+                  disabled={savingRate}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-500/20 transition-all cursor-pointer disabled:opacity-50"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>{savingRate ? 'Guardando...' : 'Actualizar Tarifa'}</span>
@@ -822,7 +829,8 @@ export default function HonorariosView({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>
