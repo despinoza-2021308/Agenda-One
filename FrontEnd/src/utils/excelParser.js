@@ -194,6 +194,17 @@ export const DEFAULT_TRAINER_IDS = {
   'SR': 2  // Respaldo de consultoría
 };
 
+export const TRAINER_NAME_KEYWORDS = {
+  'MARIANA': 'MO', 'ORELLANA': 'MO',
+  'PEDRO': 'PF', 'FUENTES': 'PF',
+  'ZOILA': 'ZG', 'GALVEZ': 'ZG',
+  'JOSUE': 'JB', 'BAUTISTA': 'JB',
+  'JAIME': 'JA', 'AVALOS': 'JA',
+  'LUIS': 'LT', 'TEO': 'LT',
+  'BYRON': 'BJ', 'JEREZ': 'BJ',
+  'OSCAR': 'OQ', 'QUAN': 'OQ'
+};
+
 /**
  * Extrae o resuelve el código del capacitador a partir de la celda de capacitador y la descripción.
  */
@@ -207,6 +218,13 @@ export function extractTrainerCode(trainerRaw, desc = '', knownCodes = []) {
     // Coincidencia directa exacta
     if (codesList.includes(clean)) {
       return clean;
+    }
+
+    // Coincidencia por nombre completo o primer nombre en celda de capacitador
+    for (const [nameKey, code] of Object.entries(TRAINER_NAME_KEYWORDS)) {
+      if (clean.includes(nameKey) && codesList.includes(code)) {
+        return code;
+      }
     }
 
     // Si viene compuesto o con guiones (ej. "OQ- MO-JB-BJ", "MO / OQ", "OQ MF CJ")
@@ -245,6 +263,13 @@ export function extractTrainerCode(trainerRaw, desc = '', knownCodes = []) {
       if (code === 'OQ') continue;
       const wordRegex = new RegExp(`(?:^|[^A-Z])${code}(?:[^A-Z]|$)`);
       if (wordRegex.test(cleanDesc)) {
+        return code;
+      }
+    }
+
+    // Patrón 2D: Coincidencia por nombre del capacitador en la descripción (revisando los demás antes que OQ)
+    for (const [nameKey, code] of Object.entries(TRAINER_NAME_KEYWORDS)) {
+      if (nameKey !== 'OSCAR' && nameKey !== 'QUAN' && cleanDesc.includes(nameKey) && codesList.includes(code)) {
         return code;
       }
     }
@@ -347,7 +372,8 @@ export function parseMonthSheet(workbook, sheetName, clientsCatalog = [], option
         if (DAY_NAMES.some(dn => desc.toUpperCase().includes(dn) && /\d/.test(desc))) return;
 
         const dateStr = `${year}-${String(monthNum).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
-        let hoursNum = parseFloat(hoursRaw) || 0;
+        // Soporte robusto de decimales en español (ej: "4,5" -> 4.5)
+        let hoursNum = parseFloat(String(hoursRaw).replace(',', '.')) || 0;
 
         // Solo si la plantilla de la hoja es de 1 sola columna por día (sin columna H) se infieren las horas del texto
         if (wh.step === 1 && hoursNum <= 0) {
@@ -430,6 +456,115 @@ export function parseMonthSheet(workbook, sheetName, clientsCatalog = [], option
       });
     }
   });
+
+  // 2B. Fallback: Si no tiene formato de cuadrícula semanal AD-RE-11, intentar como tabla plana (1 fila = 1 cita)
+  if (weekHeaders.length === 0 && rows.length > 1) {
+    let headerRowIdx = -1;
+    let colMap = {};
+    for (let r = 0; r < Math.min(10, rows.length); r++) {
+      const row = rows[r];
+      if (!Array.isArray(row)) continue;
+      const colMapCandidate = {};
+      row.forEach((c, idx) => {
+        const val = String(c || '').toUpperCase().trim();
+        if (val.includes('FECHA')) colMapCandidate.fecha = idx;
+        else if (val.includes('HORA INI') || val === 'INICIO') colMapCandidate.hora_inicio = idx;
+        else if (val.includes('HORA FIN') || val === 'FIN') colMapCandidate.hora_fin = idx;
+        else if (val.includes('HORA') || val === 'H') colMapCandidate.horas = idx;
+        else if (val.includes('CAPACITADOR') || val.includes('INICIAL')) colMapCandidate.capacitador = idx;
+        else if (val.includes('CLIENTE') || val.includes('EMPRESA')) colMapCandidate.cliente = idx;
+        else if (val.includes('MODALIDAD')) colMapCandidate.modalidad = idx;
+        else if (val.includes('SERVICIO') || val.includes('TIPO')) colMapCandidate.tipo_servicio = idx;
+        else if (val.includes('OBS') || val.includes('DESC')) colMapCandidate.observaciones = idx;
+      });
+      if (colMapCandidate.fecha !== undefined && (colMapCandidate.cliente !== undefined || colMapCandidate.observaciones !== undefined)) {
+        headerRowIdx = r;
+        colMap = colMapCandidate;
+        break;
+      }
+    }
+
+    if (headerRowIdx !== -1) {
+      for (let r = headerRowIdx + 1; r < rows.length; r++) {
+        const row = rows[r];
+        if (!row || !Array.isArray(row)) continue;
+        const rawDate = row[colMap.fecha];
+        if (!rawDate) continue;
+
+        let dateStr = '';
+        if (typeof rawDate === 'number') {
+          const jsDate = new Date(Math.round((rawDate - 25569) * 86400 * 1000));
+          if (!isNaN(jsDate.getTime())) {
+            dateStr = jsDate.toISOString().split('T')[0];
+          }
+        } else {
+          const s = String(rawDate).trim();
+          if (/^\d{4}-\d{2}-\d{2}/.test(s)) dateStr = s.slice(0, 10);
+          else if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(s)) {
+            const parts = s.split('/');
+            dateStr = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+          }
+        }
+        if (!dateStr) continue;
+
+        const rawHours = colMap.horas !== undefined ? String(row[colMap.horas] || '').replace(',', '.') : '';
+        let hoursNum = parseFloat(rawHours) || 0;
+        const rawDesc = colMap.observaciones !== undefined ? String(row[colMap.observaciones] || '').trim() : '';
+        const rawTrainer = colMap.capacitador !== undefined ? String(row[colMap.capacitador] || '').trim() : '';
+        const rawClient = colMap.cliente !== undefined ? String(row[colMap.cliente] || '').trim() : '';
+
+        const trainerCode = extractTrainerCode(rawTrainer, rawDesc, Object.keys(effectiveTrainerMap));
+        detectedTrainerCodes.add(trainerCode);
+
+        const { client, suggestedName } = matchClient(rawClient || rawDesc, clientsCatalog);
+        detectedClientNames.add(suggestedName);
+        if (!client) {
+          newClientsSet.set(suggestedName.toUpperCase(), suggestedName);
+        }
+
+        const { hora_inicio, hora_fin } = extractHorariosFromDesc(rawDesc);
+        const hIni = (colMap.hora_inicio !== undefined && String(row[colMap.hora_inicio]).trim()) || hora_inicio;
+        const hFin = (colMap.hora_fin !== undefined && String(row[colMap.hora_fin]).trim()) || hora_fin;
+
+        if (hoursNum <= 0 && hIni && hFin && hIni !== hFin) {
+          const [h1, m1] = hIni.split(':').map(Number);
+          const [h2, m2] = hFin.split(':').map(Number);
+          const diff = (h2 + m2 / 60) - (h1 + m1 / 60);
+          if (diff > 0 && diff <= 16) hoursNum = parseFloat(diff.toFixed(2));
+        }
+
+        const isBlocked = /BLOQUEADO/i.test(rawDesc);
+        const isZeroHours = hoursNum <= 0;
+        const capacitadorId = effectiveTrainerMap[trainerCode] || DEFAULT_TRAINER_IDS[trainerCode] || 2;
+
+        const citaObj = {
+          fecha: dateStr,
+          dia_nombre: '',
+          hora_inicio: hIni,
+          hora_fin: hFin,
+          horas: hoursNum,
+          cliente_id: client ? client.id : null,
+          cliente_nombre: client ? client.nombre_empresa : suggestedName,
+          is_new_client: !client,
+          capacitador_id: capacitadorId,
+          capacitador_iniciales: trainerCode,
+          modalidad: (colMap.modalidad !== undefined && String(row[colMap.modalidad]).trim()) || detectModalidad(rawDesc),
+          tipo_servicio: (colMap.tipo_servicio !== undefined && String(row[colMap.tipo_servicio]).trim()) || detectTipoServicio(rawDesc),
+          estado: defaultState,
+          observaciones: rawDesc || rawClient,
+          bitacora: defaultState === 'Impartida' ? `Servicio importado: ${rawDesc}` : null,
+          isBlocked,
+          isZeroHours
+        };
+
+        if ((excludeZeroHours && isZeroHours) || isBlocked) {
+          excludedCitas.push({ ...citaObj, reason: isBlocked ? 'Horario bloqueado' : '0 horas' });
+        } else {
+          validCitas.push(citaObj);
+        }
+      }
+    }
+  }
 
   // 3. Totales y estadísticas
   const totalHoras = validCitas.reduce((acc, c) => acc + c.horas, 0);

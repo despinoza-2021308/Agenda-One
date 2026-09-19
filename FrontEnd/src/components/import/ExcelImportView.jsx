@@ -221,6 +221,12 @@ export default function ExcelImportView({
     }
   };
 
+  const allAvailableSheets = useMemo(() => {
+    if (monthSheets.length > 0) return monthSheets.map(s => ({ name: s.name, label: s.info ? s.info.label : s.name }));
+    if (workbook?.SheetNames?.length > 0) return workbook.SheetNames.map(name => ({ name, label: name }));
+    return [];
+  }, [monthSheets, workbook]);
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300 pb-12">
       
@@ -270,33 +276,19 @@ export default function ExcelImportView({
         </div>
       </div>
 
-      {/* RESULTADO DE IMPORTACIÓN EXITOSA (MODAL / BANNER) */}
+      {/* RESULTADO DE IMPORTACIÓN PREVIA */}
       {importResult && (
-        <div className="bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-blue-500/20 dark:from-emerald-950/60 dark:via-teal-950/50 dark:to-blue-950/60 p-6 rounded-3xl border border-emerald-400/40 dark:border-emerald-700/60 shadow-glass animate-in zoom-in-95 duration-200">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 shrink-0">
-                <CheckCircle2 className="w-7 h-7 stroke-[2.5]" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                  ¡Citas de {importResult.mes} importadas con éxito!
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-                  Se registraron <strong>{importResult.count} citas</strong> con un total de <strong>{importResult.totalHoras} horas</strong>. La agenda y los honorarios están actualizados.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={onBackToCalendar}
-                className="liquid-btn-primary px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center gap-1.5"
-              >
-                <span>Ver en el Calendario</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
+        <div className="p-5 rounded-3xl bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-400/40 dark:border-emerald-700/60 shadow-glass flex items-start gap-4">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md">
+            <CheckCircle2 className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="font-extrabold text-sm sm:text-base text-emerald-900 dark:text-emerald-200">
+              ¡Importación de {importResult.mes} Completada con Éxito!
+            </h3>
+            <p className="text-xs sm:text-sm text-emerald-700/90 dark:text-emerald-300/90 mt-0.5">
+              Se han registrado y sincronizado en la base de datos <strong>{importResult.count} citas</strong> que suman un total de <strong>{importResult.totalHoras} horas</strong> oficiales.
+            </p>
           </div>
         </div>
       )}
@@ -372,7 +364,7 @@ export default function ExcelImportView({
                     {file.name}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {(file.size / 1024).toFixed(1)} KB • {monthSheets.length} hojas de meses detectadas
+                    {(file.size / 1024).toFixed(1)} KB • {allAvailableSheets.length} hojas detectadas
                   </p>
                 </div>
               ) : (
@@ -394,20 +386,20 @@ export default function ExcelImportView({
           </div>
 
           {/* Selector de Hoja / Mes */}
-          {monthSheets.length > 0 && (
+          {allAvailableSheets.length > 0 && (
             <div className="mt-5 pt-4 border-t border-slate-200/60 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span>Mes a importar (Hoja del libro):</span>
+                <span>Hoja o Mes a importar:</span>
               </label>
               <select
                 value={selectedSheet}
                 onChange={(e) => setSelectedSheet(e.target.value)}
                 className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white shadow-2xs focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
               >
-                {monthSheets.map((s) => (
+                {allAvailableSheets.map((s) => (
                   <option key={s.name} value={s.name}>
-                    📅 {s.info ? s.info.label : s.name}
+                    📄 {s.label}
                   </option>
                 ))}
               </select>
@@ -498,6 +490,11 @@ export default function ExcelImportView({
                   <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
                     Previene duplicados si vuelves a importar el mismo mes actualizado.
                   </span>
+                  {replaceExistingMonth && (
+                    <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 block mt-1">
+                      ⚠️ Atención: Las citas previamente guardadas en este mes se sobreescribirán con las del Excel.
+                    </span>
+                  )}
                 </div>
               </label>
 
