@@ -1026,7 +1026,15 @@ async function importarLoteCitas(req, res, next) {
       const estadoFinal = item.estado === 'Impartida' ? 'Impartida' : 'Programada';
       const obs = (item.observaciones || item.tipo_servicio || '').trim();
       const bitacoraFinal = item.bitacora || (estadoFinal === 'Impartida' ? `Servicio impartido conforme a programación AD-RE-11: ${obs}` : null);
-      const capId = parseInt(item.capacitador_id, 10) || 2; // Por defecto Oscar Quan (ID 2) si no se especifica
+      let capId = parseInt(item.capacitador_id, 10);
+      if (!capId || isNaN(capId)) {
+        if (item.capacitador_iniciales) {
+          const cleanIni = String(item.capacitador_iniciales).trim().toUpperCase();
+          const foundCap = db.mockStore.capacitadores.find(cp => cp.iniciales === cleanIni);
+          if (foundCap) capId = foundCap.id;
+        }
+      }
+      if (!capId || isNaN(capId)) capId = 2; // Por defecto Oscar Quan (ID 2) si no se especifica
       const mod = ['Presencial', 'Virtual', 'Híbrida'].includes(item.modalidad) ? item.modalidad : 'Presencial';
       const serv = (item.tipo_servicio || 'Asesoría').trim();
       const hIni = item.hora_inicio || '08:00';

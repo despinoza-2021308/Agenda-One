@@ -169,6 +169,84 @@ export async function readWorkbookFromFile(file) {
   });
 }
 
+export const DEFAULT_TRAINER_IDS = {
+  'MO': 1, // Mariana Orellana
+  'OQ': 2, // Oscar Quan
+  'PF': 3, // Pedro Fuentes
+  'ZG': 4, // Zoila Galvez
+  'JB': 5, // Josue Bautista
+  'JA': 6, // Jaime Avalos
+  'LT': 7, // Luis Teo
+  'BJ': 8, // Byron Jerez
+  'LM': 2, // Lic. Mario (Consultoría de apoyo)
+  'SR': 2  // Respaldo de consultoría
+};
+
+/**
+ * Extrae o resuelve el código del capacitador a partir de la celda de capacitador y la descripción.
+ */
+export function extractTrainerCode(trainerRaw, desc = '', knownCodes = []) {
+  const codesList = knownCodes.length > 0 ? knownCodes : Object.keys(DEFAULT_TRAINER_IDS);
+
+  // 1. Limpieza y análisis de trainerRaw (columna C del día)
+  if (trainerRaw) {
+    const clean = String(trainerRaw).replace(/[\r\n\t]/g, ' ').trim().toUpperCase();
+    
+    // Coincidencia directa exacta
+    if (codesList.includes(clean)) {
+      return clean;
+    }
+
+    // Si viene compuesto o con guiones (ej. "OQ- MO-JB-BJ", "MO / OQ", "OQ MF CJ")
+    // Dar prioridad a cualquier capacitador asignado que NO sea OQ
+    const tokens = clean.split(/[\s\-/,|;]+/).filter(Boolean);
+    const nonOq = tokens.find(t => codesList.includes(t) && t !== 'OQ');
+    if (nonOq) return nonOq;
+
+    const anyMatch = tokens.find(t => codesList.includes(t));
+    if (anyMatch) return anyMatch;
+
+    // Si es un código limpio de 2 a 3 letras alfabéticas
+    if (/^[A-Z]{2,3}$/.test(clean)) {
+      return clean;
+    }
+  }
+
+  // 2. Búsqueda secundaria inteligente dentro del texto de la descripción
+  if (desc) {
+    const cleanDesc = String(desc).replace(/\s+/g, ' ').trim().toUpperCase();
+
+    // Patrón 2A: Iniciales entre corchetes o paréntesis, ej: "[MO]", "(PF)", "[LT]"
+    const bracketMatch = cleanDesc.match(/(?:\[|\()([A-Z]{2,3})(?:\]|\))/);
+    if (bracketMatch && codesList.includes(bracketMatch[1])) {
+      return bracketMatch[1];
+    }
+
+    // Patrón 2B: Iniciales explícitas al final del texto, ej: "LA POPULAR VIRTUAL 14 A 17 LT" o "INTECAP CURSO MO"
+    const endMatch = cleanDesc.match(/\b([A-Z]{2,3})\s*$/);
+    if (endMatch && codesList.includes(endMatch[1])) {
+      return endMatch[1];
+    }
+
+    // Patrón 2C: Iniciales como palabra aislada en el texto (revisando los demás antes que OQ)
+    for (const code of codesList) {
+      if (code === 'OQ') continue;
+      const wordRegex = new RegExp(`(?:^|[^A-Z])${code}(?:[^A-Z]|$)`);
+      if (wordRegex.test(cleanDesc)) {
+        return code;
+      }
+    }
+
+    // Si contiene explícitamente OQ en la descripción
+    if (/(?:^|[^A-Z])OQ(?:[^A-Z]|$)/.test(cleanDesc)) {
+      return 'OQ';
+    }
+  }
+
+  // 3. Fallback estándar si no se especificó capacitador
+  return 'OQ';
+}
+
 /**
  * Parsea una hoja de mes específica del libro de trabajo AD-RE-11
  */
@@ -190,28 +268,35 @@ export function parseMonthSheet(workbook, sheetName, clientsCatalog = [], option
 
   const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-  // 1. Detectar filas de cabecera de semanas
+  // 1. Detectar filas de cabecera de semanas (soporta formato estándar de 3 columnas o 1 columna por día)
   const weekHeaders = [];
   rows.forEach((r, idx) => {
-    const matchingCols = DAY_COLUMNS.filter(c => {
-      const val = String(r[c] || '').toUpperCase().trim();
-      return DAY_NAMES.some(d => val.includes(d));
-    });
-
-    if (matchingCols.length >= 2) {
-      const dayCols = [];
-      matchingCols.forEach(c => {
-        const text = String(r[c] || '').trim();
-        const numMatch = text.match(/(\d{1,2})/);
+    if (!r || !Array.isArray(r)) return;
+    const matchingCols = [];
+    r.forEach((cell, colIdx) => {
+      const val = String(cell || '').toUpperCase().trim();
+      const isDayName = DAY_NAMES.some(d => val.includes(d));
+      if (isDayName) {
+        const numMatch = val.match(/(\d{1,2})/);
         if (numMatch) {
-          dayCols.push({
-            col: c,
+          matchingCols.push({
+            col: colIdx,
             day: parseInt(numMatch[1], 10),
-            name: text
+            name: String(cell).trim()
           });
         }
-      });
-      weekHeaders.push({ rowIndex: idx, days: dayCols });
+      }
+    });
+
+    if (matchingCols.length >= 1) {
+      let step = 3;
+      if (matchingCols.length >= 2) {
+        const diff = matchingCols[1].col - matchingCols[0].col;
+        if (diff >= 1 && diff <= 4) {
+          step = diff;
+        }
+      }
+      weekHeaders.push({ rowIndex: idx, days: matchingCols, step });
     }
   });
 
@@ -221,6 +306,11 @@ export function parseMonthSheet(workbook, sheetName, clientsCatalog = [], option
   const detectedTrainerCodes = new Set();
   const detectedClientNames = new Set();
   const newClientsSet = new Map();
+
+  const effectiveTrainerMap = {
+    ...DEFAULT_TRAINER_IDS,
+    ...trainerMapping
+  };
 
   // 2. Extraer citas recorriendo las semanas
   weekHeaders.forEach((wh, wIdx) => {
@@ -236,8 +326,8 @@ export function parseMonthSheet(workbook, sheetName, clientsCatalog = [], option
 
       wh.days.forEach(d => {
         const desc = String(row[d.col] || '').replace(/\s+/g, ' ').trim();
-        const hoursRaw = String(row[d.col + 1] || '').trim();
-        const trainerRaw = String(row[d.col + 2] || '').trim().toUpperCase();
+        const hoursRaw = wh.step >= 2 ? String(row[d.col + 1] || '').trim() : '';
+        const trainerRaw = wh.step >= 3 ? String(row[d.col + 2] || '').trim().toUpperCase() : '';
 
         if (!desc) return;
 
@@ -245,7 +335,21 @@ export function parseMonthSheet(workbook, sheetName, clientsCatalog = [], option
         if (DAY_NAMES.some(dn => desc.toUpperCase().includes(dn) && /\d/.test(desc))) return;
 
         const dateStr = `${year}-${String(monthNum).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
-        const hoursNum = parseFloat(hoursRaw) || 0;
+        let hoursNum = parseFloat(hoursRaw) || 0;
+
+        // Si no traía columna de horas pero contiene rango de horario en el texto (ej. "8 A 12")
+        if (hoursNum <= 0) {
+          const { hora_inicio, hora_fin } = extractHorariosFromDesc(desc);
+          if (hora_inicio && hora_fin && hora_inicio !== hora_fin) {
+            const [h1, m1] = hora_inicio.split(':').map(Number);
+            const [h2, m2] = hora_fin.split(':').map(Number);
+            const diff = (h2 + m2 / 60) - (h1 + m1 / 60);
+            if (diff > 0 && diff <= 16) {
+              hoursNum = parseFloat(diff.toFixed(2));
+            }
+          }
+        }
+
         const isBlocked = /BLOQUEADO/i.test(desc);
         const isZeroHours = hoursNum <= 0;
 
@@ -260,7 +364,8 @@ export function parseMonthSheet(workbook, sheetName, clientsCatalog = [], option
           return;
         }
 
-        const trainerCode = trainerRaw || 'OQ';
+        // Extracción inteligente del capacitador (columna C o texto en la descripción)
+        const trainerCode = extractTrainerCode(trainerRaw, desc, Object.keys(effectiveTrainerMap));
         detectedTrainerCodes.add(trainerCode);
 
         const { hora_inicio, hora_fin } = extractHorariosFromDesc(desc);
@@ -275,7 +380,7 @@ export function parseMonthSheet(workbook, sheetName, clientsCatalog = [], option
           newClientsSet.set(suggestedName.toUpperCase(), suggestedName);
         }
 
-        const capacitadorId = trainerMapping[trainerCode] || (trainerCode === 'LT' ? 7 : (trainerCode === 'MO' ? 1 : 2));
+        const capacitadorId = effectiveTrainerMap[trainerCode] || DEFAULT_TRAINER_IDS[trainerCode] || 2;
 
         const citaObj = {
           fecha: dateStr,

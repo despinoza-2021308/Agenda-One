@@ -127,4 +127,75 @@ describe('Pruebas de Importación Masiva de Citas por Lote (Excel)', () => {
     const hasZero = citasJunio.some(c => parseFloat(c.horas) === 0);
     assert.strictEqual(hasZero, false, 'No deben existir citas con 0 horas');
   });
+
+  it('POST /api/citas/importar-lote debe preservar capacitadores distintos a Oscar Quan (MO, PF, LT, BJ)', async () => {
+    const multiTrainerBatch = [
+      {
+        cliente_nombre: 'ACEROS DE GUATEMALA, S.A.',
+        capacitador_id: 1,
+        capacitador_iniciales: 'MO',
+        fecha: '2026-07-01',
+        hora_inicio: '08:00',
+        hora_fin: '12:00',
+        horas: 4,
+        modalidad: 'Presencial',
+        tipo_servicio: 'Capacitación',
+        estado: 'Programada'
+      },
+      {
+        cliente_nombre: 'LA POPULAR',
+        capacitador_id: 7,
+        capacitador_iniciales: 'LT',
+        fecha: '2026-07-02',
+        hora_inicio: '14:00',
+        hora_fin: '17:00',
+        horas: 3,
+        modalidad: 'Virtual',
+        tipo_servicio: 'Capacitación',
+        estado: 'Programada'
+      },
+      {
+        cliente_nombre: 'INTECAP',
+        capacitador_id: null,
+        capacitador_iniciales: 'PF', // Debe resolverse por iniciales
+        fecha: '2026-07-03',
+        hora_inicio: '08:00',
+        hora_fin: '12:00',
+        horas: 4,
+        modalidad: 'Presencial',
+        tipo_servicio: 'Capacitación',
+        estado: 'Programada'
+      }
+    ];
+
+    const res = await fetch(`${baseUrl}/api/citas/importar-lote`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        mes: '2026-07',
+        replaceExistingMonth: true,
+        citas: multiTrainerBatch
+      })
+    });
+
+    assert.strictEqual(res.status, 201);
+    const data = await res.json();
+    assert.strictEqual(data.count, 3);
+
+    const resGet = await fetch(`${baseUrl}/api/citas?month=7&year=2026`);
+    assert.strictEqual(resGet.status, 200);
+    const citasJulio = await resGet.json();
+
+    const moCita = citasJulio.find(c => c.cliente_nombre.includes('ACEROS'));
+    assert.strictEqual(moCita.capacitador_id, 1, 'Mariana Orellana debe tener ID 1');
+
+    const ltCita = citasJulio.find(c => c.cliente_nombre.includes('LA POPULAR'));
+    assert.strictEqual(ltCita.capacitador_id, 7, 'Luis Teo debe tener ID 7');
+
+    const pfCita = citasJulio.find(c => c.cliente_nombre.includes('INTECAP'));
+    assert.strictEqual(pfCita.capacitador_id, 3, 'Pedro Fuentes debe tener ID 3 resuelto por iniciales');
+  });
 });

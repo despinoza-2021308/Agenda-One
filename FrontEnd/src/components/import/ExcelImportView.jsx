@@ -191,6 +191,7 @@ export default function ExcelImportView({
           cliente_id: c.cliente_id,
           cliente_nombre: c.cliente_nombre,
           capacitador_id: c.capacitador_id,
+          capacitador_iniciales: c.capacitador_iniciales,
           fecha: c.fecha,
           hora_inicio: c.hora_inicio,
           hora_fin: c.hora_fin,
