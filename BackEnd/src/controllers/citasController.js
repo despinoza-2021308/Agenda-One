@@ -156,31 +156,7 @@ async function getCitas(req, res, next) {
 
       try {
         const result = await db.pool.query(query, params);
-        if (result.rows && result.rows.length > 0) {
-          if (month && year) {
-            const hasMonthRows = result.rows.some(r => {
-              const [y, m] = String(r.fecha).split('T')[0].split('-').map(Number);
-              return y === Number(year) && m === Number(month);
-            });
-            if (!hasMonthRows) {
-              const mockMonthCitas = db.mockStore.citas.filter(mc => {
-                const [y, m] = String(mc.fecha).split('T')[0].split('-').map(Number);
-                return y === Number(year) && m === Number(month);
-              });
-              if (mockMonthCitas.length > 0) {
-                console.warn(`⚠️ [Citas] PostgreSQL retornó 0 citas para ${year}-${month}. Usando fallback de mockStore.`);
-                return res.json(mockMonthCitas.map(formatMockCita));
-              }
-            }
-          } else if (!start_date && !end_date && !searchTerm) {
-            const pgMonthKeys = new Set(result.rows.map(r => String(r.fecha).slice(0, 7)));
-            const missingMockCitas = db.mockStore.citas.filter(mc => !pgMonthKeys.has(String(mc.fecha).slice(0, 7)));
-            if (missingMockCitas.length > 0) {
-              console.log(`ℹ️ [Citas] Complementando ${missingMockCitas.length} citas de meses ausentes en PostgreSQL.`);
-              const formattedMissing = missingMockCitas.map(formatMockCita);
-              return res.json([...result.rows, ...formattedMissing].sort((a, b) => b.fecha.localeCompare(a.fecha)));
-            }
-          }
+        if (result.rows) {
           return res.json(result.rows);
         }
       } catch (dbErr) {
@@ -373,15 +349,18 @@ async function createCita(req, res, next) {
       return res.status(400).json({ message: 'Las observaciones no pueden exceder los 500 caracteres.' });
     }
 
+    let trainerTarifa = 150.00;
+
     // Validación de que el capacitador existe y está activo
     if (db.isPostgresConnected()) {
-      const capCheck = await db.pool.query('SELECT id, activo, nombre_completo FROM capacitadores WHERE id = $1', [capacitador_id]);
+      const capCheck = await db.pool.query('SELECT id, activo, nombre_completo, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora FROM capacitadores WHERE id = $1', [capacitador_id]);
       if (capCheck.rows.length === 0) {
         return res.status(404).json({ message: 'El capacitador seleccionado no existe.' });
       }
       if (!capCheck.rows[0].activo) {
         return res.status(400).json({ message: `El capacitador ${capCheck.rows[0].nombre_completo} se encuentra inactivo y no puede recibir nuevas asignaciones.` });
       }
+      trainerTarifa = parseFloat(capCheck.rows[0].tarifa_hora) || 150.00;
     } else {
       const capCheck = db.mockStore.capacitadores.find(cp => cp.id === parseInt(capacitador_id, 10));
       if (!capCheck) {
@@ -390,6 +369,7 @@ async function createCita(req, res, next) {
       if (capCheck.activo === false) {
         return res.status(400).json({ message: `El capacitador ${capCheck.nombre_completo} se encuentra inactivo y no puede recibir nuevas asignaciones.` });
       }
+      trainerTarifa = parseFloat(capCheck.tarifa_hora) || 150.00;
     }
 
     // Validación inteligente: Verificar si el capacitador ya tiene un compromiso en ese rango de horas
@@ -450,14 +430,15 @@ async function createCita(req, res, next) {
       const insertQuery = `
         INSERT INTO citas (
           cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, 
-          horas, modalidad, tipo_servicio, estado, observaciones
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+          horas, modalidad, tipo_servicio, estado, observaciones, tarifa_hora
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         RETURNING 
           id, cliente_id, cliente_nombre, capacitador_id,
           TO_CHAR(fecha, 'YYYY-MM-DD') AS fecha,
           TO_CHAR(hora_inicio, 'HH24:MI') AS hora_inicio,
           TO_CHAR(hora_fin, 'HH24:MI') AS hora_fin,
           horas::FLOAT AS horas, modalidad, tipo_servicio, estado, observaciones,
+          COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora,
           bitacora, firma_cliente, firmante_nombre, firmante_puesto, firmado_at,
           created_at, updated_at
       `;
@@ -472,7 +453,8 @@ async function createCita(req, res, next) {
         mod,
         serv,
         estadoFinal,
-        obs || null
+        obs || null,
+        trainerTarifa
       ]);
 
       const created = result.rows[0];
@@ -487,7 +469,8 @@ async function createCita(req, res, next) {
           hora_fin,
           horas: horasCalculadas,
           modalidad: mod,
-          tipo_servicio: serv
+          tipo_servicio: serv,
+          tarifa_hora: trainerTarifa
         },
         ip_origen: req.ip || req.headers['x-forwarded-for']
       });
@@ -507,6 +490,7 @@ async function createCita(req, res, next) {
       modalidad: mod,
       tipo_servicio: serv,
       estado: estadoFinal,
+      tarifa_hora: trainerTarifa,
       observaciones: obs
     };
 
@@ -546,6 +530,7 @@ async function createCita(req, res, next) {
 async function updateCita(req, res, next) {
   try {
     const { id } = req.params;
+    let horasFinal = undefined;
     const {
       cliente_nombre,
       cliente_id,
@@ -1068,7 +1053,7 @@ async function importarLoteCitas(req, res, next) {
           if (foundCap) capId = foundCap.id;
         }
       }
-      if (!capId || isNaN(capId) || capId < 1 || capId > 8) capId = 2; // Por defecto Oscar Quan (ID 2) si no se especifica
+      if (!capId || isNaN(capId) || capId < 1) capId = 2; // Por defecto Oscar Quan (ID 2) si no se especifica
       const mod = ['Presencial', 'Virtual', 'Híbrida'].includes(item.modalidad) ? item.modalidad : 'Presencial';
       
       let serv = (item.tipo_servicio || 'Asesoría').trim();
@@ -1081,6 +1066,9 @@ async function importarLoteCitas(req, res, next) {
 
       const hIni = item.hora_inicio || '08:00';
       const hFin = item.hora_fin || '12:00';
+
+      const capObj = db.mockStore.capacitadores.find(cp => cp.id === capId);
+      const capTarifa = (capObj && capObj.tarifa_hora) ? parseFloat(capObj.tarifa_hora) : 150.00;
 
       // Verificar que el resolvedClientId realmente exista en PostgreSQL para evitar fallas por FK
       let pgClientId = resolvedClientId;
@@ -1095,8 +1083,8 @@ async function importarLoteCitas(req, res, next) {
           const insertQuery = `
             INSERT INTO citas (
               cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, 
-              horas, modalidad, tipo_servicio, estado, observaciones, bitacora
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+              horas, modalidad, tipo_servicio, estado, observaciones, bitacora, tarifa_hora
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
             RETURNING id
           `;
           try {
@@ -1112,7 +1100,8 @@ async function importarLoteCitas(req, res, next) {
               serv,
               estadoFinal,
               obs || null,
-              bitacoraFinal
+              bitacoraFinal,
+              capTarifa
             ]);
             newCitaId = insRes.rows[0].id;
           } catch (firstErr) {
@@ -1131,7 +1120,8 @@ async function importarLoteCitas(req, res, next) {
                 serv,
                 estadoFinal,
                 obs || null,
-                bitacoraFinal
+                bitacoraFinal,
+                capTarifa
               ]);
               newCitaId = retryRes.rows[0].id;
             } else {
@@ -1161,7 +1151,8 @@ async function importarLoteCitas(req, res, next) {
         tipo_servicio: serv,
         estado: estadoFinal,
         observaciones: obs,
-        bitacora: bitacoraFinal
+        bitacora: bitacoraFinal,
+        tarifa_hora: capTarifa
       };
       db.mockStore.citas.push(mockEntry);
 

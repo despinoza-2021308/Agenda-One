@@ -65,17 +65,29 @@ export function extractHorariosFromDesc(desc) {
 
   if (!desc) return { hora_inicio, hora_fin };
 
-  const timeMatch = desc.match(/(\d{1,2}(?::\d{2})?)\s*(?:A|-)\s*(\d{1,2}(?::\d{2})?)/i);
-  if (timeMatch) {
-    const formatTime = (t) => {
-      if (t.includes(':')) {
-        const [hh, mm] = t.split(':');
-        return `${hh.padStart(2, '0')}:${mm.padEnd(2, '0')}`;
-      }
-      return `${t.padStart(2, '0')}:00`;
+  // Requiere límites de palabra \b para evitar falsos positivos con códigos de normas (ej: ISO 9001 - 2015)
+  const timeMatches = desc.matchAll(/\b(\d{1,2}(?::\d{2})?)\s*(?:A|-|A LAS)\s*(\d{1,2}(?::\d{2})?)\b/gi);
+  for (const match of timeMatches) {
+    const parseHour = (t) => {
+      const [h, min = 0] = t.split(':').map(Number);
+      return h + min / 60;
     };
-    hora_inicio = formatTime(timeMatch[1]);
-    hora_fin = formatTime(timeMatch[2]);
+    const t1 = parseHour(match[1]);
+    const t2 = parseHour(match[2]);
+
+    // Validar que sea un horario laboral plausible (5:00 a 23:00) y que fin > inicio
+    if (t1 >= 5 && t1 <= 21 && t2 >= 6 && t2 <= 23 && t2 > t1 && (t2 - t1) <= 16) {
+      const formatTime = (t) => {
+        if (t.includes(':')) {
+          const [hh, mm] = t.split(':');
+          return `${hh.padStart(2, '0')}:${mm.padEnd(2, '0')}`;
+        }
+        return `${t.padStart(2, '0')}:00`;
+      };
+      hora_inicio = formatTime(match[1]);
+      hora_fin = formatTime(match[2]);
+      break;
+    }
   }
 
   return { hora_inicio, hora_fin };

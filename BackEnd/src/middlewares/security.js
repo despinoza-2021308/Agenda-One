@@ -36,8 +36,8 @@ const corsOptions = {
 
     return callback(new Error('Acceso no permitido por la política de seguridad CORS'));
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key', 'x-admin-key', 'x-trainer-pin'],
   credentials: true,
   maxAge: 86400 // Cache de preflight por 24 horas
 };

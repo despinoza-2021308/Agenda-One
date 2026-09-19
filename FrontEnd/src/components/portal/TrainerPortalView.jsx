@@ -114,7 +114,7 @@ export default function TrainerPortalView({
     try {
       const year = queryDate.getFullYear();
       const month = queryDate.getMonth() + 1;
-      const todayStr = '2026-09-09'; // Fecha de contexto de la agenda o día actual
+      const todayStr = new Date().toISOString().split('T')[0];
 
       const data = await api.getTrainerPortal(codeToFetch, { year, month, today: todayStr });
       setPortalData(data);

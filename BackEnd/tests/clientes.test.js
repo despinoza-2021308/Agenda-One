@@ -38,8 +38,10 @@ describe('Pruebas del Catálogo de Clientes Reales (109 Empresas)', () => {
     }
   });
 
-  it('GET /api/clientes debe retornar al menos 109 clientes reales ordenados', async () => {
-    const res = await fetch(`${baseUrl}/api/clientes`);
+  it('GET /api/clientes (Admin) debe retornar al menos 109 clientes reales ordenados con datos completos', async () => {
+    const res = await fetch(`${baseUrl}/api/clientes`, {
+      headers: { 'x-admin-key': 'OneCon2026' }
+    });
     assert.strictEqual(res.status, 200);
     const clients = await res.json();
     assert.ok(Array.isArray(clients), 'Debe retornar un arreglo');
@@ -60,6 +62,20 @@ describe('Pruebas del Catálogo de Clientes Reales (109 Empresas)', () => {
 
     const labymed = clients.find(c => c.nombre_empresa.includes('LABYMED'));
     assert.ok(labymed, 'Debe existir LABYMED');
+  });
+
+  it('GET /api/clientes (Público) debe retornar lista sanitizada sin teléfonos ni correos sensibles', async () => {
+    const res = await fetch(`${baseUrl}/api/clientes`);
+    assert.strictEqual(res.status, 200);
+    const clients = await res.json();
+    assert.ok(Array.isArray(clients));
+    assert.ok(clients.length >= 109);
+
+    const aceros = clients.find(c => c.nombre_empresa.includes('ACEROS DE GUATEMALA'));
+    assert.ok(aceros, 'Debe existir ACEROS');
+    assert.strictEqual(aceros.telefono, undefined, 'No debe exponer teléfono a usuarios públicos');
+    assert.strictEqual(aceros.correo, undefined, 'No debe exponer correo a usuarios públicos');
+    assert.strictEqual(aceros.facturacion, undefined, 'No debe exponer facturación a usuarios públicos');
   });
 
   it('POST /api/clientes debe registrar un cliente con dirección física y correo múltiple', async () => {

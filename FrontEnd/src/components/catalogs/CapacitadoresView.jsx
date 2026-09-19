@@ -19,6 +19,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import ConfirmModal from '../common/ConfirmModal';
+import { copyTextToClipboard } from '../../utils/clipboardUtils';
 
 const COLOR_PALETTES = [
   '#2563EB', // Azul Royal
@@ -69,11 +70,13 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
     setRevealedPins(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const copyPin = (id, pinVal) => {
+  const copyPin = async (id, pinVal) => {
     if (!pinVal) return;
-    navigator.clipboard.writeText(String(pinVal));
-    setCopiedPinId(id);
-    setTimeout(() => setCopiedPinId(null), 2000);
+    const ok = await copyTextToClipboard(String(pinVal));
+    if (ok) {
+      setCopiedPinId(id);
+      setTimeout(() => setCopiedPinId(null), 2000);
+    }
   };
 
   const openNewModal = () => {

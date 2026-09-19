@@ -1,15 +1,25 @@
 const db = require('../config/db');
 const { validarEmail, validarTelefono } = require('../utils/timeUtils');
+const { checkAdminCredential } = require('../middlewares/auth');
 
-// Obtener todos los clientes
+// Obtener todos los clientes (contacto, teléfono, correo y facturación protegidos para no-admin)
 async function getClientes(req, res, next) {
   try {
+    const isAdmin = !!checkAdminCredential(req);
+
     if (db.isPostgresConnected()) {
       try {
         const result = await db.pool.query(
           'SELECT id, nombre_empresa, contacto, telefono, correo, direccion, facturacion, activo, created_at FROM clientes ORDER BY nombre_empresa ASC'
         );
         if (result.rows && result.rows.length >= 50) {
+          if (!isAdmin) {
+            return res.json(result.rows.map(c => ({
+              id: c.id,
+              nombre_empresa: c.nombre_empresa,
+              activo: c.activo
+            })));
+          }
           return res.json(result.rows);
         }
       } catch (pgErr) {
@@ -18,6 +28,13 @@ async function getClientes(req, res, next) {
     }
 
     const data = [...db.mockStore.clientes].sort((a, b) => a.nombre_empresa.localeCompare(b.nombre_empresa));
+    if (!isAdmin) {
+      return res.json(data.map(c => ({
+        id: c.id,
+        nombre_empresa: c.nombre_empresa,
+        activo: c.activo
+      })));
+    }
     return res.json(data);
   } catch (error) {
     next(error);
@@ -28,16 +45,25 @@ async function getClientes(req, res, next) {
 async function getClienteById(req, res, next) {
   try {
     const { id } = req.params;
+    const isAdmin = !!checkAdminCredential(req);
+
     if (db.isPostgresConnected()) {
       const result = await db.pool.query('SELECT * FROM clientes WHERE id = $1', [id]);
       if (result.rows.length === 0) {
         return res.status(404).json({ message: 'Cliente no encontrado' });
       }
-      return res.json(result.rows[0]);
+      const c = result.rows[0];
+      if (!isAdmin) {
+        return res.json({ id: c.id, nombre_empresa: c.nombre_empresa, activo: c.activo });
+      }
+      return res.json(c);
     }
 
     const item = db.mockStore.clientes.find(c => c.id === parseInt(id, 10));
     if (!item) return res.status(404).json({ message: 'Cliente no encontrado' });
+    if (!isAdmin) {
+      return res.json({ id: item.id, nombre_empresa: item.nombre_empresa, activo: item.activo });
+    }
     return res.json(item);
   } catch (error) {
     next(error);

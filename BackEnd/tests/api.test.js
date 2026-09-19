@@ -172,4 +172,46 @@ describe('Pruebas de Integración de Endpoints y Robustez de API', () => {
     assert.ok(eventos.some(e => e.accion === 'CREACION'), 'Debe existir registro de CREACION');
     assert.ok(eventos.some(e => e.accion === 'REPROGRAMACION'), 'Debe existir registro de REPROGRAMACION');
   });
+
+  it('PUT /api/citas/:id debe aceptar actualización parcial de estado sin campos de hora sin ReferenceError', async () => {
+    const resPartial = await fetch(`${baseUrl}/api/citas/1`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        estado: 'Impartida'
+      })
+    });
+
+    assert.strictEqual(resPartial.status, 200, 'Debe responder 200 sin lanzar ReferenceError horasFinal');
+    const updated = await resPartial.json();
+    assert.strictEqual(updated.estado, 'Impartida');
+    assert.ok(Number(updated.horas) > 0, 'Las horas deben conservarse de la cita previa');
+  });
+
+  it('POST /api/citas debe congelar la tarifa_hora activa del capacitador en la cita creada', async () => {
+    const resCreate = await fetch(`${baseUrl}/api/citas`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+      },
+      body: JSON.stringify({
+        cliente_nombre: 'Empresa Test Tarifa Congelada S.A.',
+        capacitador_id: 2, // Oscar Quan: Q200/hr
+        fecha: '2026-09-30',
+        hora_inicio: '10:00',
+        hora_fin: '12:00',
+        modalidad: 'Presencial',
+        tipo_servicio: 'Consultoría',
+        observaciones: 'Prueba de congelamiento de tarifa.'
+      })
+    });
+
+    assert.strictEqual(resCreate.status, 201);
+    const creada = await resCreate.json();
+    assert.strictEqual(Number(creada.tarifa_hora), 200.00, 'Debe registrar la tarifa activa de Oscar Quan (Q 200.00/hr)');
+  });
 });

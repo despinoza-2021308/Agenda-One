@@ -11,6 +11,7 @@ import {
   Wifi, 
   Globe 
 } from 'lucide-react';
+import { copyTextToClipboard } from '../../utils/clipboardUtils';
 
 export default function MobileQrModal({ 
   isOpen, 
@@ -52,10 +53,12 @@ export default function MobileQrModal({
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(targetUrl);
-      setCopied(true);
-      if (onShowToast) onShowToast('¡Enlace copiado al portapapeles!');
-      setTimeout(() => setCopied(false), 2500);
+      const ok = await copyTextToClipboard(targetUrl);
+      if (ok) {
+        setCopied(true);
+        if (onShowToast) onShowToast('¡Enlace copiado al portapapeles!');
+        setTimeout(() => setCopied(false), 2500);
+      }
     } catch (err) {
       console.error('Error al copiar:', err);
     }

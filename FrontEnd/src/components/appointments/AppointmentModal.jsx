@@ -131,8 +131,9 @@ export default function AppointmentModal({
     if (!inicio || !fin) return 0;
     const [h1, m1] = inicio.split(':').map(Number);
     const [h2, m2] = fin.split(':').map(Number);
-    let minDiff = (h2 * 60 + m2) - (h1 * 60 + m1);
-    if (minDiff < 0) minDiff += 24 * 60;
+    if (isNaN(h1) || isNaN(m1) || isNaN(h2) || isNaN(m2)) return 0;
+    const minDiff = (h2 * 60 + m2) - (h1 * 60 + m1);
+    if (minDiff <= 0) return 0;
     return Math.round((minDiff / 60) * 100) / 100;
   };
 

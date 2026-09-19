@@ -569,6 +569,7 @@ async function autoInitTables(client) {
 
       ALTER TABLE citas ADD COLUMN IF NOT EXISTS estado VARCHAR(25) NOT NULL DEFAULT 'Programada';
       ALTER TABLE citas ADD COLUMN IF NOT EXISTS bitacora TEXT;
+      ALTER TABLE citas ADD COLUMN IF NOT EXISTS tarifa_hora NUMERIC(10, 2) DEFAULT 150.00;
       ALTER TABLE citas ALTER COLUMN tipo_servicio TYPE VARCHAR(50);
       ALTER TABLE citas DROP CONSTRAINT IF EXISTS citas_tipo_servicio_check;
       ALTER TABLE citas ADD CONSTRAINT citas_tipo_servicio_check CHECK (tipo_servicio IN (
@@ -628,18 +629,14 @@ async function autoInitTables(client) {
       console.warn('⚠️ [DB] Aviso al sincronizar clientes:', cliSyncErr.message);
     }
 
-    // Sincronizar citas oficiales de Enero 2026
+    // Poblar citas semilla únicamente si la tabla está completamente vacía (primera inicialización)
     try {
-      const janCheck = await client.query("SELECT COUNT(*) FROM citas WHERE fecha >= '2026-01-01' AND fecha <= '2026-01-31'");
-      const janCount = parseInt(janCheck.rows[0].count, 10);
-      const oldCheck = await client.query("SELECT 1 FROM citas WHERE fecha = '2026-01-07' AND hora_inicio = '10:00'");
+      const totalCitasCheck = await client.query('SELECT COUNT(*) FROM citas');
+      const totalCitas = parseInt(totalCitasCheck.rows[0].count, 10);
 
-      if (janCount !== 32 || oldCheck.rows.length > 0) {
-        console.log('📅 [DB] Actualizando citas oficiales de Enero 2026 en PostgreSQL...');
-        await client.query("DELETE FROM citas WHERE fecha >= '2026-01-01' AND fecha <= '2026-01-31'");
-        
-        const eneroCitasList = mockStore.citas.filter(c => c.fecha.startsWith('2026-01-'));
-        for (const cita of eneroCitasList) {
+      if (totalCitas === 0) {
+        console.log('🌱 [DB] Tabla de citas vacía. Cargando datos semilla iniciales de 2026...');
+        for (const cita of mockStore.citas) {
           await client.query(`
             INSERT INTO citas (cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones, bitacora)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
@@ -658,151 +655,10 @@ async function autoInitTables(client) {
             cita.bitacora || ''
           ]);
         }
-        console.log('✅ [DB] 32 citas oficiales de Enero 2026 sincronizadas.');
+        console.log(`✅ [DB] ${mockStore.citas.length} citas semilla iniciales sincronizadas.`);
       }
-    } catch (janSyncErr) {
-      console.warn('⚠️ [DB] Aviso al sincronizar citas de Enero 2026:', janSyncErr.message);
-    }
-
-    // Sincronizar citas oficiales de Febrero 2026
-    try {
-      const febCheck = await client.query("SELECT COUNT(*) FROM citas WHERE fecha >= '2026-02-01' AND fecha <= '2026-02-28'");
-      const febCount = parseInt(febCheck.rows[0].count, 10);
-      const oldFebCheck = await client.query("SELECT 1 FROM citas WHERE fecha = '2026-02-02' AND hora_inicio = '10:00'");
-
-      if (febCount !== 39 || oldFebCheck.rows.length > 0) {
-        console.log('📅 [DB] Actualizando citas oficiales de Febrero 2026 en PostgreSQL...');
-        await client.query("DELETE FROM citas WHERE fecha >= '2026-02-01' AND fecha <= '2026-02-28'");
-        
-        const febreroCitasList = mockStore.citas.filter(c => c.fecha.startsWith('2026-02-'));
-        for (const cita of febreroCitasList) {
-          await client.query(`
-            INSERT INTO citas (cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones, bitacora)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-          `, [
-            cita.cliente_id || null,
-            cita.cliente_nombre,
-            cita.capacitador_id,
-            cita.fecha,
-            cita.hora_inicio,
-            cita.hora_fin,
-            cita.horas,
-            cita.modalidad,
-            cita.tipo_servicio,
-            cita.estado || 'Impartida',
-            cita.observaciones || '',
-            cita.bitacora || ''
-          ]);
-        }
-        console.log('✅ [DB] 39 citas oficiales de Febrero 2026 sincronizadas.');
-      }
-    } catch (febSyncErr) {
-      console.warn('⚠️ [DB] Aviso al sincronizar citas de Febrero 2026:', febSyncErr.message);
-    }
-
-    // Sincronizar citas oficiales de Marzo 2026
-    try {
-      const marCheck = await client.query("SELECT COUNT(*) FROM citas WHERE fecha >= '2026-03-01' AND fecha <= '2026-03-31'");
-      const marCount = parseInt(marCheck.rows[0].count, 10);
-
-      if (marCount !== 45) {
-        console.log('📅 [DB] Actualizando citas oficiales de Marzo 2026 en PostgreSQL...');
-        await client.query("DELETE FROM citas WHERE fecha >= '2026-03-01' AND fecha <= '2026-03-31'");
-        
-        const marzoCitasList = mockStore.citas.filter(c => c.fecha.startsWith('2026-03-'));
-        for (const cita of marzoCitasList) {
-          await client.query(`
-            INSERT INTO citas (cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones, bitacora)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-          `, [
-            cita.cliente_id || null,
-            cita.cliente_nombre,
-            cita.capacitador_id,
-            cita.fecha,
-            cita.hora_inicio,
-            cita.hora_fin,
-            cita.horas,
-            cita.modalidad,
-            cita.tipo_servicio,
-            cita.estado || 'Impartida',
-            cita.observaciones || '',
-            cita.bitacora || ''
-          ]);
-        }
-        console.log('✅ [DB] 45 citas oficiales de Marzo 2026 sincronizadas.');
-      }
-    } catch (marSyncErr) {
-      console.warn('⚠️ [DB] Aviso al sincronizar citas de Marzo 2026:', marSyncErr.message);
-    }
-
-    // Sincronizar citas oficiales de Abril 2026
-    try {
-      const abrCheck = await client.query("SELECT COUNT(*) FROM citas WHERE fecha >= '2026-04-01' AND fecha <= '2026-04-30'");
-      const abrCount = parseInt(abrCheck.rows[0].count, 10);
-
-      if (abrCount !== 44) {
-        console.log('📅 [DB] Actualizando citas oficiales de Abril 2026 en PostgreSQL...');
-        await client.query("DELETE FROM citas WHERE fecha >= '2026-04-01' AND fecha <= '2026-04-30'");
-        
-        const abrilCitasList = mockStore.citas.filter(c => c.fecha.startsWith('2026-04-'));
-        for (const cita of abrilCitasList) {
-          await client.query(`
-            INSERT INTO citas (cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones, bitacora)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-          `, [
-            cita.cliente_id || null,
-            cita.cliente_nombre,
-            cita.capacitador_id,
-            cita.fecha,
-            cita.hora_inicio,
-            cita.hora_fin,
-            cita.horas,
-            cita.modalidad,
-            cita.tipo_servicio,
-            cita.estado || 'Impartida',
-            cita.observaciones || '',
-            cita.bitacora || ''
-          ]);
-        }
-        console.log('✅ [DB] 44 citas oficiales de Abril 2026 sincronizadas.');
-      }
-    } catch (abrSyncErr) {
-      console.warn('⚠️ [DB] Aviso al sincronizar citas de Abril 2026:', abrSyncErr.message);
-    }
-
-    // Sincronizar citas oficiales de Mayo 2026
-    try {
-      const mayCheck = await client.query("SELECT COUNT(*) FROM citas WHERE fecha >= '2026-05-01' AND fecha <= '2026-05-31'");
-      const mayCount = parseInt(mayCheck.rows[0].count, 10);
-
-      if (mayCount !== 59) {
-        console.log('📅 [DB] Actualizando citas oficiales de Mayo 2026 en PostgreSQL...');
-        await client.query("DELETE FROM citas WHERE fecha >= '2026-05-01' AND fecha <= '2026-05-31'");
-        
-        const mayoCitasList = mockStore.citas.filter(c => c.fecha.startsWith('2026-05-'));
-        for (const cita of mayoCitasList) {
-          await client.query(`
-            INSERT INTO citas (cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones, bitacora)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-          `, [
-            cita.cliente_id || null,
-            cita.cliente_nombre,
-            cita.capacitador_id,
-            cita.fecha,
-            cita.hora_inicio,
-            cita.hora_fin,
-            cita.horas,
-            cita.modalidad,
-            cita.tipo_servicio,
-            cita.estado || 'Impartida',
-            cita.observaciones || '',
-            cita.bitacora || ''
-          ]);
-        }
-        console.log('✅ [DB] 59 citas oficiales de Mayo 2026 sincronizadas.');
-      }
-    } catch (janSyncErr) {
-      console.warn('⚠️ [DB] Aviso al sincronizar citas de Enero 2026:', janSyncErr.message);
+    } catch (seedErr) {
+      console.warn('⚠️ [DB] Aviso al sincronizar citas semilla:', seedErr.message);
     }
 
     const capRes = await client.query('SELECT COUNT(*) FROM capacitadores');
@@ -899,6 +755,18 @@ async function autoInitTables(client) {
       `);
       console.log('🌱 [DB] Tablas y datos semilla creados exitosamente en PostgreSQL.');
     }
+
+    // Sincronizar secuencias de PostgreSQL para evitar conflictos de clave primaria
+    try {
+      await client.query(`
+        SELECT setval('capacitadores_id_seq', (SELECT COALESCE(MAX(id), 1) FROM capacitadores));
+        SELECT setval('clientes_id_seq', (SELECT COALESCE(MAX(id), 1) FROM clientes));
+        SELECT setval('citas_id_seq', (SELECT COALESCE(MAX(id), 1) FROM citas));
+      `);
+      console.log('🔄 [DB] Secuencias de claves primarias sincronizadas.');
+    } catch (seqErr) {
+      console.warn('⚠️ [DB] Aviso al sincronizar secuencias:', seqErr.message);
+    }
   } catch (initErr) {
     console.warn('⚠️ [DB] Aviso en auto-inicialización de tablas:', initErr.message);
   }
@@ -926,7 +794,15 @@ async function testConnection() {
 
 function ensureConnected() {
   if (!initPromise) {
-    initPromise = testConnection();
+    initPromise = testConnection().then(connected => {
+      if (!connected) {
+        initPromise = null;
+      }
+      return connected;
+    }).catch(() => {
+      initPromise = null;
+      return false;
+    });
   }
   return initPromise;
 }
@@ -935,13 +811,14 @@ ensureConnected();
 
 async function registrarAuditoria({ cita_id, accion, usuario = 'Administrador', detalles = null, ip_origen = null }) {
   const timestamp = new Date();
+  const safeCitaId = (cita_id !== undefined && cita_id !== null && !isNaN(Number(cita_id))) ? Number(cita_id) : 0;
   if (isPostgresConnected) {
     try {
       const res = await pool.query(
         `INSERT INTO auditoria_citas (cita_id, accion, usuario, detalles, ip_origen, created_at)
          VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
         [
-          Number(cita_id),
+          safeCitaId,
           accion,
           usuario,
           detalles ? JSON.stringify(detalles) : null,

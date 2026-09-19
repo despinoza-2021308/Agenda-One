@@ -79,6 +79,7 @@ ALTER TABLE citas ADD COLUMN IF NOT EXISTS firma_cliente TEXT;
 ALTER TABLE citas ADD COLUMN IF NOT EXISTS firmante_nombre VARCHAR(120);
 ALTER TABLE citas ADD COLUMN IF NOT EXISTS firmante_puesto VARCHAR(100);
 ALTER TABLE citas ADD COLUMN IF NOT EXISTS firmado_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE citas ADD COLUMN IF NOT EXISTS tarifa_hora NUMERIC(10, 2) DEFAULT 150.00;
 ALTER TABLE citas ALTER COLUMN tipo_servicio TYPE VARCHAR(50);
 
 DO $$
@@ -166,5 +167,11 @@ BEGIN
         CREATE POLICY "Acceso total auditoria" ON auditoria_citas FOR ALL USING (true) WITH CHECK (true);
     END IF;
 END $$;
+
+-- 9. Sincronización de Secuencias de Claves Primarias
+SELECT setval('capacitadores_id_seq', (SELECT COALESCE(MAX(id), 1) FROM capacitadores));
+SELECT setval('clientes_id_seq', (SELECT COALESCE(MAX(id), 1) FROM clientes));
+SELECT setval('citas_id_seq', (SELECT COALESCE(MAX(id), 1) FROM citas));
+
 
 

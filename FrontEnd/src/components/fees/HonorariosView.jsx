@@ -20,6 +20,7 @@ import {
   FileSpreadsheet,
   ArrowLeft
 } from 'lucide-react';
+import { copyTextToClipboard } from '../../utils/clipboardUtils';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -279,11 +280,11 @@ export default function HonorariosView({
       document.body.removeChild(link);
       if (onShowToast) onShowToast(`Enviando liquidación de honorarios a ${trainer.nombre_completo}...`);
     } else {
-      // Si no tiene teléfono configurado, copiar al portapapeles
-      navigator.clipboard.writeText(mensaje).then(() => {
-        if (onShowToast) onShowToast(`Reporte de honorarios de ${trainer.nombre_completo} copiado al portapapeles.`);
-      }).catch(() => {
-        alert(mensaje);
+      // Si no tiene teléfono configurado, copiar al portapapeles con soporte HTTP local
+      copyTextToClipboard(mensaje).then((ok) => {
+        if (ok && onShowToast) {
+          onShowToast(`Reporte de honorarios de ${trainer.nombre_completo} copiado al portapapeles.`);
+        }
       });
     }
   };

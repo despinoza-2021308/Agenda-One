@@ -64,7 +64,7 @@ export default function App() {
 
   const [urlPortalCode, setUrlPortalCode] = useState(initialPortalParam);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
-  // Fecha actual de la agenda con persistencia en sessionStorage (por defecto Abril 2026 - mes activo)
+  // Fecha actual de la agenda con persistencia en sessionStorage (por defecto fecha actual del sistema)
   const [currentDate, setCurrentDate] = useState(() => {
     try {
       const saved = sessionStorage.getItem('agenda_current_date');
@@ -73,7 +73,7 @@ export default function App() {
         if (!isNaN(d.getTime())) return d;
       }
     } catch (_) {}
-    return new Date(2026, 3, 6); // Por defecto Abril 2026
+    return new Date(); // Fecha actual dinámica
   });
 
   const handleSetCurrentDate = useCallback((newDate) => {
@@ -246,6 +246,16 @@ export default function App() {
     loadClientes();
     loadCitas();
   }, [loadCapacitadores, loadClientes, loadCitas]);
+
+  // Sincronización periódica en segundo plano cada 60 segundos si la pestaña está visible
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        loadCitas();
+      }
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [loadCitas]);
 
   // Gestor para ejecutar acciones tras autenticación exitosa
   const handleAdminLoginSuccess = () => {

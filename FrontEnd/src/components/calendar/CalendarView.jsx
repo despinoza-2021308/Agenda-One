@@ -229,12 +229,16 @@ export default function CalendarView({
     const prevMonthLastDay = new Date(year, month, 0).getDate();
     for (let i = startDayOfWeek - 1; i >= 0; i--) {
       const dayNum = prevMonthLastDay - i;
-      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+      const prevDate = new Date(year, month - 1, dayNum);
+      const py = prevDate.getFullYear();
+      const pm = String(prevDate.getMonth() + 1).padStart(2, '0');
+      const pd = String(dayNum).padStart(2, '0');
+      const dateStr = `${py}-${pm}-${pd}`;
       days.push({
         dayNumber: dayNum,
         dateString: dateStr,
         isCurrentMonth: false,
-        date: new Date(year, month - 1, dayNum)
+        date: prevDate
       });
     }
 
@@ -255,12 +259,16 @@ export default function CalendarView({
     const remainingDays = 7 - (days.length % 7);
     if (remainingDays < 7) {
       for (let nextDay = 1; nextDay <= remainingDays; nextDay++) {
-        const dateStr = `${year}-${String(month + 2).padStart(2, '0')}-${String(nextDay).padStart(2, '0')}`;
+        const nextDate = new Date(year, month + 1, nextDay);
+        const ny = nextDate.getFullYear();
+        const nm = String(nextDate.getMonth() + 1).padStart(2, '0');
+        const nd = String(nextDay).padStart(2, '0');
+        const dateStr = `${ny}-${nm}-${nd}`;
         days.push({
           dayNumber: nextDay,
           dateString: dateStr,
           isCurrentMonth: false,
-          date: new Date(year, month + 1, nextDay)
+          date: nextDate
         });
       }
     }

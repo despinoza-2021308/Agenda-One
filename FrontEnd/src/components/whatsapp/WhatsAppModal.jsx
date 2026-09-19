@@ -14,6 +14,7 @@ import {
   Sparkles, 
   Share2 
 } from 'lucide-react';
+import { copyTextToClipboard } from '../../utils/clipboardUtils';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -297,13 +298,15 @@ export default function WhatsAppModal({
     return '';
   }, [mode, targetCita, currentTrainer, selectedDate, relevantCitas, totalHoras, includePortalLink]);
 
-  // Copiar al portapapeles
+  // Copiar al portapapeles con soporte para HTTP local
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(generatedMessage);
-      setCopied(true);
-      if (onShowToast) onShowToast('¡Mensaje copiado al portapapeles!');
-      setTimeout(() => setCopied(false), 2500);
+      const ok = await copyTextToClipboard(generatedMessage);
+      if (ok) {
+        setCopied(true);
+        if (onShowToast) onShowToast('¡Mensaje copiado al portapapeles!');
+        setTimeout(() => setCopied(false), 2500);
+      }
     } catch (err) {
       console.error('Error al copiar:', err);
     }

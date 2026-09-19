@@ -29,8 +29,8 @@ async function getResumenMensual(req, res, next) {
           COALESCE(SUM(CASE WHEN (ci.estado <> 'Cancelada' OR ci.estado IS NULL) AND ci.modalidad = 'Virtual' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_virtual,
           COALESCE(SUM(CASE WHEN (ci.estado <> 'Cancelada' OR ci.estado IS NULL) AND ci.modalidad = 'Híbrida' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_hibrida,
           COALESCE(SUM(CASE WHEN ci.estado = 'Impartida' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_impartidas,
-          ROUND(COALESCE(c.tarifa_hora, 150.00) * COALESCE(SUM(CASE WHEN ci.estado <> 'Cancelada' OR ci.estado IS NULL THEN ci.horas ELSE 0 END), 0), 2)::FLOAT AS total_honorarios,
-          ROUND(COALESCE(c.tarifa_hora, 150.00) * COALESCE(SUM(CASE WHEN ci.estado = 'Impartida' THEN ci.horas ELSE 0 END), 0), 2)::FLOAT AS honorarios_impartidos
+          COALESCE(SUM(CASE WHEN ci.estado <> 'Cancelada' OR ci.estado IS NULL THEN ROUND(COALESCE(ci.tarifa_hora, c.tarifa_hora, 150.00) * ci.horas, 2) ELSE 0 END), 0)::FLOAT AS total_honorarios,
+          COALESCE(SUM(CASE WHEN ci.estado = 'Impartida' THEN ROUND(COALESCE(ci.tarifa_hora, c.tarifa_hora, 150.00) * ci.horas, 2) ELSE 0 END), 0)::FLOAT AS honorarios_impartidos
         FROM capacitadores c
         LEFT JOIN citas ci ON c.id = ci.capacitador_id 
           AND EXTRACT(YEAR FROM ci.fecha) = $1 
@@ -92,8 +92,8 @@ async function getResumenMensual(req, res, next) {
         .reduce((acc, curr) => acc + Number(curr.horas), 0);
 
       const tarifa_hora = Number(cap.tarifa_hora || 150.00);
-      const total_honorarios = Math.round(total_horas * tarifa_hora * 100) / 100;
-      const honorarios_impartidos = Math.round(horas_impartidas * tarifa_hora * 100) / 100;
+      const total_honorarios = Math.round(citasValidas.reduce((acc, curr) => acc + (Number(curr.horas) * Number(curr.tarifa_hora || tarifa_hora)), 0) * 100) / 100;
+      const honorarios_impartidos = Math.round(citasCap.filter(c => c.estado === 'Impartida').reduce((acc, curr) => acc + (Number(curr.horas) * Number(curr.tarifa_hora || tarifa_hora)), 0) * 100) / 100;
 
       return {
         capacitador_id: cap.id,
