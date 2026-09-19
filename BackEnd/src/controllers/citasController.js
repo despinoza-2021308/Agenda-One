@@ -87,9 +87,9 @@ async function getCitas(req, res, next) {
           c.cliente_id,
           COALESCE(c.cliente_nombre, cl.nombre_empresa, 'Cliente General') AS cliente_nombre,
           c.capacitador_id,
-          cp.nombre_completo AS capacitador_nombre,
-          cp.iniciales AS capacitador_iniciales,
-          cp.color AS capacitador_color,
+          COALESCE(cp.nombre_completo, 'Capacitador') AS capacitador_nombre,
+          COALESCE(cp.iniciales, 'OQ') AS capacitador_iniciales,
+          COALESCE(cp.color, '#7C3AED') AS capacitador_color,
           TO_CHAR(c.fecha, 'YYYY-MM-DD') AS fecha,
           TO_CHAR(c.hora_inicio, 'HH24:MI') AS hora_inicio,
           TO_CHAR(c.hora_fin, 'HH24:MI') AS hora_fin,
@@ -107,7 +107,7 @@ async function getCitas(req, res, next) {
           c.updated_at
         FROM citas c
         LEFT JOIN clientes cl ON c.cliente_id = cl.id
-        INNER JOIN capacitadores cp ON c.capacitador_id = cp.id
+        LEFT JOIN capacitadores cp ON c.capacitador_id = cp.id
         WHERE 1=1
       `;
       const params = [];
@@ -931,12 +931,37 @@ async function importarLoteCitas(req, res, next) {
       db.mockStore.citas = db.mockStore.citas.filter(c => !targetMonths.has(String(c.fecha).slice(0, 7)));
     }
 
-    // 2. Resolver catálogo de clientes (buscar existentes o crear faltantes)
-    let existingClients = [];
+    // 2. Sincronizar catálogo de capacitadores oficiales en PostgreSQL si aplica
     if (db.isPostgresConnected()) {
       try {
-        const clientsRes = await db.pool.query('SELECT id, nombre_empresa, alias, correlativo FROM clientes');
+        await db.pool.query(`
+          INSERT INTO capacitadores (id, nombre_completo, iniciales, color, tarifa_hora) VALUES
+          (1, 'Mariana Orellana', 'MO', '#2563EB', 175.00),
+          (2, 'Oscar Quan', 'OQ', '#7C3AED', 200.00),
+          (3, 'Pedro Fuentes', 'PF', '#059669', 175.00),
+          (4, 'Zoila Galvez', 'ZG', '#D97706', 150.00),
+          (5, 'Josue Bautista', 'JB', '#DC2626', 150.00),
+          (6, 'Jaime Avalos', 'JA', '#059669', 150.00),
+          (7, 'Luis Teo', 'LT', '#D97706', 175.00),
+          (8, 'Byron Jerez', 'BJ', '#DC2626', 175.00)
+          ON CONFLICT (iniciales) DO UPDATE SET 
+            nombre_completo = EXCLUDED.nombre_completo,
+            color = EXCLUDED.color
+        `);
+      } catch (capSyncErr) {
+        // Continuar si ya existen o si hay conflicto de secuencias
+      }
+    }
+
+    // 3. Resolver catálogo de clientes (buscar existentes o crear faltantes)
+    let existingClients = [];
+    const validPgClientIds = new Set();
+
+    if (db.isPostgresConnected()) {
+      try {
+        const clientsRes = await db.pool.query('SELECT id, nombre_empresa FROM clientes');
         existingClients = clientsRes.rows;
+        existingClients.forEach(c => validPgClientIds.add(c.id));
       } catch (_) {
         existingClients = db.mockStore.clientes;
       }
@@ -948,20 +973,28 @@ async function importarLoteCitas(req, res, next) {
     const findClientMatch = (name) => {
       if (!name) return null;
       const cleanName = String(name).trim().toUpperCase();
+      // 1. Coincidencia exacta
+      const exact = existingClients.find(ec => (ec.nombre_empresa || '').toUpperCase().trim() === cleanName);
+      if (exact) return exact;
+      // 2. Coincidencia por subcadena
       return existingClients.find(ec => {
-        const emp = (ec.nombre_empresa || '').toUpperCase();
-        const ali = (ec.alias || '').toUpperCase();
-        return emp === cleanName || ali === cleanName || cleanName.includes(emp) || emp.includes(cleanName);
+        const emp = (ec.nombre_empresa || '').toUpperCase().trim();
+        return emp.length >= 3 && (emp.includes(cleanName) || cleanName.includes(emp));
       });
     };
 
     const clientMapCache = new Map();
-    let nextCliSeq = existingClients.length + 1;
 
-    // 3. Procesar e insertar citas
+    // 4. Procesar e insertar citas
     let insertedCount = 0;
     let totalHorasImportadas = 0;
     const insertedCitasList = [];
+
+    const TIPOS_VALIDOS = [
+      'Consultoría', 'Capacitación', 'Auditoría', 'Normas', 
+      'Requerimientos Legales', 'Mediciones', 'Consultoria', 
+      'Capacitacion', 'Auditoria', 'Asesoría', 'Curso', 'Reunión', 'Seguimiento'
+    ];
 
     for (const item of citas) {
       const horasNum = parseFloat(item.horas || 0);
@@ -983,34 +1016,35 @@ async function importarLoteCitas(req, res, next) {
             resolvedClientName = matched.nombre_empresa;
             clientMapCache.set(rawCliName.toUpperCase(), matched);
           } else if (createMissingClients) {
-            // Auto-crear nuevo cliente
-            const newCorrelativo = `CLI-${String(nextCliSeq).padStart(3, '0')}`;
-            nextCliSeq++;
             let createdCli = null;
 
             if (db.isPostgresConnected()) {
               try {
                 const insCli = await db.pool.query(
-                  `INSERT INTO clientes (correlativo, nombre_empresa, alias, direccion, contacto, telefono, email, activo)
-                   VALUES ($1, $2, $3, $4, $5, $6, $7, true)
-                   RETURNING id, correlativo, nombre_empresa`,
-                  [newCorrelativo, rawCliName, rawCliName, 'Oficinas Centrales', 'Contacto Principal', '2222-0000', 'contacto@empresa.com']
+                  `INSERT INTO clientes (nombre_empresa, contacto, telefono, correo, direccion, activo)
+                   VALUES ($1, 'Contacto Principal', '2222-0000', 'contacto@empresa.com', 'Oficinas Centrales', true)
+                   ON CONFLICT (nombre_empresa) DO UPDATE SET activo = true
+                   RETURNING id, nombre_empresa`,
+                  [rawCliName]
                 );
-                createdCli = insCli.rows[0];
+                if (insCli.rows.length > 0) {
+                  createdCli = insCli.rows[0];
+                  validPgClientIds.add(createdCli.id);
+                }
               } catch (_) {}
             }
 
             if (!createdCli) {
               createdCli = {
                 id: db.mockStore.nextIds.clientes++,
-                correlativo: newCorrelativo,
                 nombre_empresa: rawCliName,
-                alias: rawCliName,
-                direccion: 'Oficinas Centrales',
                 contacto: 'Contacto Principal',
                 telefono: '2222-0000',
-                email: 'contacto@empresa.com',
-                activo: true
+                correo: 'contacto@empresa.com',
+                direccion: 'Oficinas Centrales',
+                facturacion: '',
+                activo: true,
+                created_at: new Date()
               };
               db.mockStore.clientes.push(createdCli);
             }
@@ -1034,11 +1068,25 @@ async function importarLoteCitas(req, res, next) {
           if (foundCap) capId = foundCap.id;
         }
       }
-      if (!capId || isNaN(capId)) capId = 2; // Por defecto Oscar Quan (ID 2) si no se especifica
+      if (!capId || isNaN(capId) || capId < 1 || capId > 8) capId = 2; // Por defecto Oscar Quan (ID 2) si no se especifica
       const mod = ['Presencial', 'Virtual', 'Híbrida'].includes(item.modalidad) ? item.modalidad : 'Presencial';
-      const serv = (item.tipo_servicio || 'Asesoría').trim();
+      
+      let serv = (item.tipo_servicio || 'Asesoría').trim();
+      if (!TIPOS_VALIDOS.includes(serv)) {
+        if (/CURSO|CAPACITA|DIP/i.test(serv)) serv = 'Capacitación';
+        else if (/AUDIT/i.test(serv)) serv = 'Auditoría';
+        else if (/REUNI/i.test(serv)) serv = 'Reunión';
+        else serv = 'Asesoría';
+      }
+
       const hIni = item.hora_inicio || '08:00';
       const hFin = item.hora_fin || '12:00';
+
+      // Verificar que el resolvedClientId realmente exista en PostgreSQL para evitar fallas por FK
+      let pgClientId = resolvedClientId;
+      if (db.isPostgresConnected() && pgClientId && !validPgClientIds.has(pgClientId)) {
+        pgClientId = null;
+      }
 
       let newCitaId = null;
 
@@ -1051,21 +1099,45 @@ async function importarLoteCitas(req, res, next) {
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             RETURNING id
           `;
-          const insRes = await db.pool.query(insertQuery, [
-            resolvedClientId || null,
-            resolvedClientName,
-            capId,
-            item.fecha,
-            hIni,
-            hFin,
-            horasNum,
-            mod,
-            serv,
-            estadoFinal,
-            obs || null,
-            bitacoraFinal
-          ]);
-          newCitaId = insRes.rows[0].id;
+          try {
+            const insRes = await db.pool.query(insertQuery, [
+              pgClientId || null,
+              resolvedClientName,
+              capId,
+              item.fecha,
+              hIni,
+              hFin,
+              horasNum,
+              mod,
+              serv,
+              estadoFinal,
+              obs || null,
+              bitacoraFinal
+            ]);
+            newCitaId = insRes.rows[0].id;
+          } catch (firstErr) {
+            // Si falló por clave foránea (cliente_id o capacitador_id), reintentar sin cliente_id y con capId seguro
+            if (firstErr.code === '23503') {
+              console.warn(`⚠️ [Import] Violación FK al insertar ${rawCliName}, reintentando seguro sin cliente_id:`, firstErr.message);
+              const retryRes = await db.pool.query(insertQuery, [
+                null,
+                resolvedClientName,
+                capId,
+                item.fecha,
+                hIni,
+                hFin,
+                horasNum,
+                mod,
+                serv,
+                estadoFinal,
+                obs || null,
+                bitacoraFinal
+              ]);
+              newCitaId = retryRes.rows[0].id;
+            } else {
+              throw firstErr;
+            }
+          }
         } catch (insErr) {
           console.warn('⚠️ [Import] Error al insertar en PostgreSQL, manteniendo en mockStore:', insErr.message);
         }

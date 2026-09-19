@@ -9,7 +9,10 @@ INSERT INTO capacitadores (nombre_completo, iniciales, color, tarifa_hora) VALUE
 ('Oscar Quan', 'OQ', '#7C3AED', 200.00),           -- Violeta / Púrpura (Q 200.00/hr)
 ('Pedro Fuentes', 'PF', '#059669', 175.00),        -- Esmeralda (Q 175.00/hr)
 ('Zoila Galvez', 'ZG', '#D97706', 150.00),         -- Ámbar / Naranja (Q 150.00/hr)
-('Josue Bautista', 'JB', '#DC2626', 150.00)        -- Rojo Carmesí (Q 150.00/hr)
+('Josue Bautista', 'JB', '#DC2626', 150.00),        -- Rojo Carmesí (Q 150.00/hr)
+('Jaime Avalos', 'JA', '#059669', 150.00),          -- Esmeralda (Q 150.00/hr)
+('Luis Teo', 'LT', '#D97706', 175.00),              -- Ámbar (Q 175.00/hr)
+('Byron Jerez', 'BJ', '#DC2626', 175.00)            -- Rojo (Q 175.00/hr)
 ON CONFLICT (iniciales) DO UPDATE SET tarifa_hora = EXCLUDED.tarifa_hora;
 
 -- 2. Insertar Catálogo Oficial de Clientes (109 Empresas Reales CO-RE-05)

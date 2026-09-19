@@ -16,6 +16,19 @@ CREATE TABLE IF NOT EXISTS capacitadores (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+INSERT INTO capacitadores (id, nombre_completo, iniciales, color, tarifa_hora) VALUES
+(1, 'Mariana Orellana', 'MO', '#2563EB', 175.00),
+(2, 'Oscar Quan', 'OQ', '#7C3AED', 200.00),
+(3, 'Pedro Fuentes', 'PF', '#059669', 175.00),
+(4, 'Zoila Galvez', 'ZG', '#D97706', 150.00),
+(5, 'Josue Bautista', 'JB', '#DC2626', 150.00),
+(6, 'Jaime Avalos', 'JA', '#059669', 150.00),
+(7, 'Luis Teo', 'LT', '#D97706', 175.00),
+(8, 'Byron Jerez', 'BJ', '#DC2626', 175.00)
+ON CONFLICT (iniciales) DO UPDATE SET 
+  nombre_completo = EXCLUDED.nombre_completo,
+  color = EXCLUDED.color;
+
 -- 2. Tabla de Clientes
 CREATE TABLE IF NOT EXISTS clientes (
     id SERIAL PRIMARY KEY,
