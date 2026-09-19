@@ -22,10 +22,15 @@ router.use('/citas', requireAdminAuth, citasRoutes);
 router.use('/reportes', reportesRoutes);
 
 router.get('/health', (req, res) => {
+  const db = require('../config/db');
   res.json({
     status: 'ok',
     timestamp: new Date(),
-    service: 'Agenda Centralizada AD-RE-11 API'
+    service: 'Agenda Centralizada AD-RE-11 API',
+    database: {
+      connected: db.isPostgresConnected(),
+      mode: db.isPostgresConnected() ? 'PostgreSQL (Cloud Persistente)' : 'Memoria RAM (mockStore fallback)'
+    }
   });
 });
 
