@@ -64,16 +64,18 @@ export default function App() {
 
   const [urlPortalCode, setUrlPortalCode] = useState(initialPortalParam);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
-  // Fecha actual de la agenda con persistencia en sessionStorage (por defecto fecha actual del sistema)
+  // Fecha actual de la agenda con persistencia en sessionStorage (por defecto ciclo oficial 2026 AD-RE-11)
   const [currentDate, setCurrentDate] = useState(() => {
     try {
       const saved = sessionStorage.getItem('agenda_current_date');
       if (saved) {
         const d = new Date(saved);
-        if (!isNaN(d.getTime())) return d;
+        if (!isNaN(d.getTime())) {
+          if (d.getFullYear() === 2026) return d;
+        }
       }
     } catch (_) {}
-    return new Date(); // Fecha actual dinámica
+    return new Date(2026, 3, 6); // Por defecto Abril 2026 (mes central oficial con citas AD-RE-11)
   });
 
   const handleSetCurrentDate = useCallback((newDate) => {
@@ -236,6 +238,26 @@ export default function App() {
     try {
       const citasData = await api.getCitas();
       setCitas(citasData);
+
+      // Auto-enfoque al ciclo con citas registradas si el usuario está en un mes vacío de otro año
+      if (Array.isArray(citasData) && citasData.length > 0) {
+        setCurrentDate(prev => {
+          const y = prev.getFullYear();
+          const m = prev.getMonth();
+          const hasCitasInCurrentMonth = citasData.some(c => {
+            if (!c.fecha) return false;
+            const [cy, cm] = String(c.fecha).split('T')[0].split('-').map(Number);
+            return cy === y && (cm - 1) === m;
+          });
+
+          if (!hasCitasInCurrentMonth && y !== 2026) {
+            const targetDate = new Date(2026, 3, 6);
+            try { sessionStorage.setItem('agenda_current_date', targetDate.toISOString()); } catch (_) {}
+            return targetDate;
+          }
+          return prev;
+        });
+      }
     } catch (err) {
       console.error('Error al cargar citas:', err);
     }

@@ -619,7 +619,26 @@ async function autoInitTables(client) {
       ALTER TABLE clientes ADD COLUMN IF NOT EXISTS facturacion TEXT;
     `);
 
-    // Sincronizar y asegurar que todos los clientes de mockStore existan en PostgreSQL
+    // 1. Sincronizar catálogo de capacitadores PRIMERO (para satisfacer las claves foráneas de citas)
+    try {
+      for (const cap of mockStore.capacitadores) {
+        await client.query(`
+          INSERT INTO capacitadores (id, nombre_completo, iniciales, color, tarifa_hora, pin)
+          VALUES ($1, $2, $3, $4, $5, $6)
+          ON CONFLICT (iniciales) DO UPDATE SET
+            nombre_completo = EXCLUDED.nombre_completo,
+            color = EXCLUDED.color,
+            tarifa_hora = EXCLUDED.tarifa_hora,
+            pin = EXCLUDED.pin;
+        `, [cap.id, cap.nombre_completo, cap.iniciales, cap.color, cap.tarifa_hora, cap.pin || '1000']);
+      }
+      await client.query("SELECT setval('capacitadores_id_seq', (SELECT COALESCE(MAX(id), 1) FROM capacitadores));");
+      console.log(`✅ [DB] ${mockStore.capacitadores.length} capacitadores sincronizados exitosamente.`);
+    } catch (capSyncErr) {
+      console.warn('⚠️ [DB] Aviso al sincronizar capacitadores:', capSyncErr.message);
+    }
+
+    // 2. Sincronizar catálogo de clientes SEGUNDO
     try {
       const cliCountRes = await client.query('SELECT COUNT(*) FROM clientes');
       const currentCliCount = parseInt(cliCountRes.rows[0].count, 10);
@@ -645,17 +664,24 @@ async function autoInitTables(client) {
       console.warn('⚠️ [DB] Aviso al sincronizar clientes:', cliSyncErr.message);
     }
 
-    // Poblar citas semilla únicamente si la tabla está completamente vacía (primera inicialización)
+    // 3. Sincronizar citas TERCERO (poblando todos los meses de 2026 sin duplicados)
     try {
-      const totalCitasCheck = await client.query('SELECT COUNT(*) FROM citas');
-      const totalCitas = parseInt(totalCitasCheck.rows[0].count, 10);
+      const existingCitasRes = await client.query(`
+        SELECT TO_CHAR(fecha, 'YYYY-MM-DD') AS fecha, TO_CHAR(hora_inicio, 'HH24:MI') AS hora_inicio, capacitador_id
+        FROM citas
+      `);
+      const existingKeys = new Set(
+        existingCitasRes.rows.map(r => `${r.fecha}_${(r.hora_inicio || '').slice(0, 5)}_${r.capacitador_id}`)
+      );
 
-      if (totalCitas === 0) {
-        console.log('🌱 [DB] Tabla de citas vacía. Cargando datos semilla iniciales de 2026...');
-        for (const cita of mockStore.citas) {
+      let insertedCount = 0;
+      for (const cita of mockStore.citas) {
+        const hIni = (cita.hora_inicio || '').slice(0, 5);
+        const key = `${cita.fecha}_${hIni}_${cita.capacitador_id}`;
+        if (!existingKeys.has(key)) {
           await client.query(`
-            INSERT INTO citas (cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones, bitacora)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            INSERT INTO citas (cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones, bitacora, tarifa_hora)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
           `, [
             cita.cliente_id || null,
             cita.cliente_nombre,
@@ -668,108 +694,19 @@ async function autoInitTables(client) {
             cita.tipo_servicio,
             cita.estado || 'Impartida',
             cita.observaciones || '',
-            cita.bitacora || ''
+            cita.bitacora || '',
+            cita.tarifa_hora || 150.00
           ]);
+          existingKeys.add(key);
+          insertedCount++;
         }
-        console.log(`✅ [DB] ${mockStore.citas.length} citas semilla iniciales sincronizadas.`);
       }
+      if (insertedCount > 0) {
+        console.log(`✅ [DB] ${insertedCount} citas oficiales 2026 sincronizadas en PostgreSQL.`);
+      }
+      await client.query("SELECT setval('citas_id_seq', (SELECT COALESCE(MAX(id), 1) FROM citas));");
     } catch (seedErr) {
       console.warn('⚠️ [DB] Aviso al sincronizar citas semilla:', seedErr.message);
-    }
-
-    const capRes = await client.query('SELECT COUNT(*) FROM capacitadores');
-    if (parseInt(capRes.rows[0].count, 10) === 0) {
-      await client.query(`
-        INSERT INTO capacitadores (nombre_completo, iniciales, color, tarifa_hora, pin) VALUES
-        ('Mariana Orellana', 'MO', '#2563EB', 175.00, '8492'),
-        ('Oscar Quan', 'OQ', '#7C3AED', 200.00, '3715'),
-        ('Pedro Fuentes', 'PF', '#059669', 175.00, '9524'),
-        ('Zoila Galvez', 'ZG', '#D97706', 150.00, '4861'),
-        ('Josue Bautista', 'JB', '#DC2626', 150.00, '7239'),
-        ('Jaime Avalos', 'JA', '#059669', 150.00, '6158'),
-        ('Luis Teo', 'LT', '#D97706', 175.00, '2947'),
-        ('Byron Jerez', 'BJ', '#DC2626', 175.00, '5382')
-        ON CONFLICT (iniciales) DO UPDATE SET tarifa_hora = EXCLUDED.tarifa_hora, pin = EXCLUDED.pin;
-
-        INSERT INTO clientes (nombre_empresa, contacto, telefono, correo) VALUES
-        ('Industrias Alimentarias del Norte S.A.', 'Ing. Roberto Silva', '+502 5555-1122', 'rsilva@alimnorte.gt'),
-        ('Manufacturas Globales S.A.', 'Lic. Mariana Soto', '+502 5555-2233', 'msoto@manuglobal.gt'),
-        ('Distribuidora Logística Central', 'Carlos Alvarado', '+502 5555-3344', 'calvarado@districentral.gt'),
-        ('Servicios Médicos Especializados', 'Dra. Andrea Morales', '+502 5555-4455', 'amorales@medicosesp.gt'),
-        ('Corporación Financiera del Valle', 'Rodrigo Jiménez', '+502 5555-5566', 'rjimenez@finanzascv.gt'),
-        ('Agropecuaria San Francisco S.A.', 'Ing. Carlos Mendoza', '+502 5555-6677', 'cmendoza@agrosanfrancisco.gt'),
-        ('Farmacéutica Panamericana S.A.', 'Licda. Sofía Castillo', '+502 5555-7788', 'scastillo@farmapanamericana.gt'),
-        ('Constructora e Inmobiliaria Metropolitana', 'Arq. Fernando Ramos', '+502 5555-8899', 'framos@metropolitana.gt'),
-        ('Banco Regional del Sur', 'Lic. Claudia Estrada', '+502 5555-9900', 'cestrada@bancoregional.gt'),
-        ('Supermercados La Unión S.A.', 'Lic. Mario Velásquez', '+502 5555-0011', 'mvelasquez@launion.gt')
-        ON CONFLICT (nombre_empresa) DO NOTHING;
-
-        INSERT INTO citas (cliente_id, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones) VALUES
-        (1, 1, '2026-09-01', '08:30', '11:30', 3.00, 'Presencial', 'Capacitación', 'Impartida', 'Inducción de Seguridad Industrial para nuevos ingresos.'),
-        (6, 2, '2026-09-01', '14:00', '16:30', 2.50, 'Virtual', 'Consultoría', 'Impartida', 'Revisión preliminar de protocolos de inocuidad agrícola.'),
-        (2, 4, '2026-09-02', '09:00', '13:00', 4.00, 'Virtual', 'Capacitación', 'Impartida', 'Taller de Liderazgo Estratégico y Trabajo en Equipo.'),
-        (7, 3, '2026-09-02', '14:00', '17:00', 3.00, 'Presencial', 'Mediciones', 'Impartida', 'Validación de áreas limpias y bitácoras de temperatura.'),
-        (3, 5, '2026-09-03', '08:00', '14:00', 6.00, 'Presencial', 'Auditoría', 'Impartida', 'Auditoría ISO 9001 - Fase 1: Almacenes y distribución.'),
-        (8, 1, '2026-09-03', '09:30', '12:00', 2.50, 'Presencial', 'Capacitación', 'Impartida', 'Prevención de riesgos en trabajos de altura y uso de arnés.'),
-        (4, 2, '2026-09-04', '09:00', '12:00', 3.00, 'Virtual', 'Consultoría', 'Impartida', 'Estandarización de procesos clínicos y consentimiento digital.'),
-        (9, 4, '2026-09-04', '14:00', '16:30', 2.50, 'Virtual', 'Normas', 'Impartida', 'Alineación de necesidades formativas de servicio al cliente.'),
-        (1, 1, '2026-09-07', '08:00', '12:00', 4.00, 'Presencial', 'Capacitación', 'Impartida', 'Módulo 1: Buenas Prácticas de Manufactura en planta.'),
-        (2, 2, '2026-09-07', '09:00', '11:30', 2.50, 'Virtual', 'Consultoría', 'Impartida', 'Revisión documental del Sistema de Gestión de Calidad.'),
-        (10, 3, '2026-09-07', '14:00', '17:00', 3.00, 'Presencial', 'Consultoría', 'Impartida', 'Control de mermas y protocolos de higiene en perecederos.'),
-        (3, 3, '2026-09-08', '08:30', '14:30', 6.00, 'Presencial', 'Auditoría', 'Impartida', 'Auditoría interna de procesos en planta y transporte.'),
-        (9, 5, '2026-09-08', '10:00', '12:30', 2.50, 'Virtual', 'Capacitación', 'Impartida', 'Ciberseguridad y prevención de phishing para ejecutivos.'),
-        (6, 4, '2026-09-09', '08:30', '11:30', 3.00, 'Presencial', 'Capacitación', 'Impartida', 'Manejo seguro de químicos agrícolas y primeros auxilios.'),
-        (4, 1, '2026-09-09', '14:00', '16:00', 2.00, 'Virtual', 'Normas', 'Impartida', 'Reunión de coordinación con gerencia médica.'),
-        (5, 2, '2026-09-09', '14:00', '16:00', 2.00, 'Virtual', 'Consultoría', 'En Curso', 'Sesión de análisis de riesgo crediticio y auditoría de carteras.'),
-        (7, 3, '2026-09-09', '16:30', '18:30', 2.00, 'Virtual', 'Requerimientos Legales', 'Programada', 'Revisión del plan de capacitación de fin de año.'),
-        (5, 4, '2026-09-10', '08:00', '13:00', 5.00, 'Presencial', 'Capacitación', 'Programada', 'Capacitación en Seguridad Ocupacional y brigadas de evacuación.'),
-        (8, 5, '2026-09-10', '09:00', '12:00', 3.00, 'Presencial', 'Consultoría', 'Programada', 'Supervisión de protocolos de seguridad en obra gris.'),
-        (7, 3, '2026-09-10', '14:00', '16:30', 2.50, 'Virtual', 'Requerimientos Legales', 'Programada', 'Seguimiento a planes de acción correctiva de auditoría interna.'),
-        (10, 1, '2026-09-11', '08:30', '12:00', 3.50, 'Presencial', 'Capacitación', 'Programada', 'Atención de quejas y resolución de conflictos en punto de venta.'),
-        (1, 2, '2026-09-11', '10:00', '12:00', 2.00, 'Virtual', 'Requerimientos Legales', 'Programada', 'Seguimiento a planes de acción de HACCP.'),
-        (2, 5, '2026-09-11', '14:00', '17:00', 3.00, 'Presencial', 'Mediciones', 'Programada', 'Revisión de planos eléctricos y etiquetado LOTO.'),
-        (2, 5, '2026-09-14', '08:00', '16:00', 8.00, 'Presencial', 'Auditoría', 'Programada', 'Jornada completa de auditoría de calidad ISO 9001.'),
-        (6, 1, '2026-09-14', '09:00', '12:30', 3.50, 'Presencial', 'Consultoría', 'Programada', 'Asesoría en Buenas Prácticas Agrícolas (BPA).'),
-        (3, 1, '2026-09-15', '09:00', '12:30', 3.50, 'Presencial', 'Consultoría', 'Programada', 'Asesoría en control estadístico de procesos de entrega.'),
-        (9, 2, '2026-09-15', '14:00', '17:00', 3.00, 'Virtual', 'Capacitación', 'Programada', 'Taller de Cumplimiento Regulatorio y Prevención de Lavado de Dinero.'),
-        (7, 3, '2026-09-16', '08:30', '12:30', 4.00, 'Presencial', 'Capacitación', 'Programada', 'Buenas Prácticas de Almacenamiento y Distribución (BPAD).'),
-        (4, 3, '2026-09-16', '13:00', '17:00', 4.00, 'Virtual', 'Capacitación', 'Cancelada', 'Taller virtual de gestión por procesos (Reprogramado a solicitud de cliente).'),
-        (10, 4, '2026-09-16', '14:00', '16:30', 2.50, 'Presencial', 'Requerimientos Legales', 'Programada', 'Revisión de implementación de metodología 5S en bodega central.'),
-        (5, 3, '2026-09-17', '08:00', '12:00', 4.00, 'Presencial', 'Capacitación', 'Reprogramada', 'Capacitación en Manejo Defensivo y Seguridad de Flotilla.'),
-        (8, 5, '2026-09-17', '09:00', '13:00', 4.00, 'Presencial', 'Capacitación', 'Programada', 'Seguridad en Espacios Confinados y Excavaciones.'),
-        (1, 1, '2026-09-17', '14:30', '17:00', 2.50, 'Virtual', 'Consultoría', 'Programada', 'Diseño de indicadores de desempeño para supervisores.'),
-        (5, 2, '2026-09-18', '09:00', '11:00', 2.00, 'Virtual', 'Normas', 'Programada', 'Cierre de ciclo de capacitación trimestral y entrega de notas.'),
-        (6, 4, '2026-09-18', '13:30', '16:30', 3.00, 'Presencial', 'Capacitación', 'Programada', 'Comité de Salud y Seguridad Ocupacional: Funciones y responsabilidades.'),
-        (1, 5, '2026-09-21', '08:00', '13:00', 5.00, 'Presencial', 'Capacitación', 'Programada', 'Mantenimiento Productivo Total (TPM) en líneas de envasado.'),
-        (9, 3, '2026-09-21', '14:00', '17:00', 3.00, 'Virtual', 'Consultoría', 'Programada', 'Optimización de tiempos de espera y atención en agencias.'),
-        (2, 1, '2026-09-22', '08:30', '15:00', 6.50, 'Presencial', 'Auditoría', 'Programada', 'Auditoría de Cumplimiento Ambiental y Gestión de Residuos.'),
-        (7, 2, '2026-09-22', '09:00', '12:00', 3.00, 'Virtual', 'Consultoría', 'Programada', 'Análisis de Causa Raíz (RCA) para desviaciones de calidad.'),
-        (3, 4, '2026-09-23', '09:00', '12:00', 3.00, 'Virtual', 'Capacitación', 'Programada', 'Seminario de Finanzas y Costos Operativos para Jefaturas.'),
-        (10, 5, '2026-09-23', '14:00', '17:30', 3.50, 'Presencial', 'Normas', 'Programada', 'Manejo Seguro de Montacargas y Equipos de Tracción.'),
-        (8, 1, '2026-09-24', '08:30', '12:30', 4.00, 'Presencial', 'Capacitación', 'Programada', 'Liderazgo de Cuadrillas y Comunicación Efectiva en Obra.'),
-        (4, 2, '2026-09-24', '14:00', '16:00', 2.00, 'Virtual', 'Requerimientos Legales', 'Programada', 'Seguimiento a acciones correctivas de bioseguridad hospitalaria.'),
-        (5, 3, '2026-09-25', '09:00', '13:00', 4.00, 'Presencial', 'Capacitación', 'Programada', 'Evaluación y Certificación de Competencias Laborales.'),
-        (6, 4, '2026-09-25', '14:00', '17:00', 3.00, 'Virtual', 'Consultoría', 'Programada', 'Revisión del Manual de Bienestar Laboral y Clima Organizacional.'),
-        (7, 5, '2026-09-28', '08:30', '12:30', 4.00, 'Presencial', 'Auditoría', 'Programada', 'Pre-auditoría de Certificación BPM ante autoridad sanitaria.'),
-        (1, 1, '2026-09-28', '14:00', '16:30', 2.50, 'Virtual', 'Normas', 'Programada', 'Reunión de Cierre Mensual y revisión de KPIs del Modelo AD-RE-11.'),
-        (2, 4, '2026-09-29', '09:00', '12:00', 3.00, 'Virtual', 'Normas', 'Programada', 'Ergonomía en el Puesto de Trabajo y Prevención de Lesiones.'),
-        (9, 2, '2026-09-29', '13:30', '16:30', 3.00, 'Virtual', 'Consultoría', 'Programada', 'Asesoría en Plan de Continuidad de Negocio (BCP).'),
-        (3, 5, '2026-09-30', '08:00', '12:00', 4.00, 'Presencial', 'Auditoría', 'Programada', 'Presentación de Resultados Finales de Auditoría de Cierre Trimestral.'),
-        (10, 3, '2026-09-30', '13:00', '16:00', 3.00, 'Presencial', 'Normas', 'Programada', 'Sesión ejecutiva de balance de horas y satisfacción de capacitaciones.');
-
-        CREATE TABLE IF NOT EXISTS auditoria_citas (
-          id SERIAL PRIMARY KEY,
-          cita_id INT NOT NULL,
-          accion VARCHAR(50) NOT NULL,
-          usuario VARCHAR(100) NOT NULL DEFAULT 'Administrador',
-          detalles JSONB,
-          ip_origen VARCHAR(45),
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE INDEX IF NOT EXISTS idx_auditoria_cita_id ON auditoria_citas(cita_id);
-        CREATE INDEX IF NOT EXISTS idx_auditoria_created_at ON auditoria_citas(created_at);
-      `);
-      console.log('🌱 [DB] Tablas y datos semilla creados exitosamente en PostgreSQL.');
     }
 
     // Sincronizar secuencias de PostgreSQL para evitar conflictos de clave primaria

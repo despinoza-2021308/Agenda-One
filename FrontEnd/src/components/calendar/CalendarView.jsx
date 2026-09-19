@@ -15,7 +15,8 @@ import {
   MessageSquare,
   X,
   ExternalLink,
-  ArrowLeft
+  ArrowLeft,
+  Sparkles
 } from 'lucide-react';
 
 const MONTH_NAMES = [
@@ -299,12 +300,30 @@ export default function CalendarView({
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <button
-                onClick={handleToday}
-                className="px-3 py-1 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-white dark:hover:bg-slate-700 transition-all cursor-pointer"
+              
+              <select
+                value={`${year}-${month}`}
+                onChange={(e) => {
+                  const [y, m] = e.target.value.split('-').map(Number);
+                  setCurrentDate(new Date(y, m, 1));
+                }}
+                className="bg-transparent text-xs font-black text-slate-800 dark:text-slate-100 border-none outline-none cursor-pointer px-1.5 py-0.5 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 transition-colors"
+                title="Seleccionar mes de la agenda"
               >
-                Hoy
-              </button>
+                <option value="2026-0" className="dark:bg-slate-800 text-slate-900 dark:text-white">Ene 2026</option>
+                <option value="2026-1" className="dark:bg-slate-800 text-slate-900 dark:text-white">Feb 2026</option>
+                <option value="2026-2" className="dark:bg-slate-800 text-slate-900 dark:text-white">Mar 2026</option>
+                <option value="2026-3" className="dark:bg-slate-800 text-slate-900 dark:text-white">Abr 2026 (Oficial)</option>
+                <option value="2026-4" className="dark:bg-slate-800 text-slate-900 dark:text-white">May 2026</option>
+                <option value="2026-5" className="dark:bg-slate-800 text-slate-900 dark:text-white">Jun 2026</option>
+                <option value="2026-6" className="dark:bg-slate-800 text-slate-900 dark:text-white">Jul 2026</option>
+                <option value="2026-7" className="dark:bg-slate-800 text-slate-900 dark:text-white">Ago 2026</option>
+                <option value="2026-8" className="dark:bg-slate-800 text-slate-900 dark:text-white">Sep 2026</option>
+                <option value="2026-9" className="dark:bg-slate-800 text-slate-900 dark:text-white">Oct 2026</option>
+                <option value="2026-10" className="dark:bg-slate-800 text-slate-900 dark:text-white">Nov 2026</option>
+                <option value="2026-11" className="dark:bg-slate-800 text-slate-900 dark:text-white">Dic 2026</option>
+              </select>
+
               <button
                 onClick={handleNext}
                 title="Mes siguiente"
@@ -510,6 +529,38 @@ export default function CalendarView({
             );
           })}
         </div>
+
+        {monthCitas.length === 0 && (
+          <div className="mt-2.5 p-2.5 px-3.5 bg-blue-50/90 dark:bg-blue-950/50 border border-blue-200/80 dark:border-blue-800/60 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-blue-900 dark:text-blue-200 shadow-glass-sm animate-in fade-in duration-200">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+              <span className="font-medium">No hay citas en este mes. Saltar a meses con programación oficial:</span>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setCurrentDate(new Date(2026, 3, 6))}
+                className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-xs cursor-pointer text-[11px]"
+              >
+                Abril 2026 (44)
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentDate(new Date(2026, 4, 1))}
+                className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-xs cursor-pointer text-[11px]"
+              >
+                Mayo 2026 (59)
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentDate(new Date(2026, 8, 1))}
+                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-xs cursor-pointer text-[11px]"
+              >
+                Septiembre 2026 (51)
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* VISTA DE CUADRÍCULA MENSUAL */}
