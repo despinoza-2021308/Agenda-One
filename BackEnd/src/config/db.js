@@ -4,7 +4,23 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
 require('dotenv').config();
 const { Pool, Client } = require('pg');
 
-const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+let connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+
+// Optimización especial para Supabase Pooler en entornos Serverless (Vercel):
+// El puerto 5432 en pooler.supabase.com opera en "Session Mode" (límite estricto de 15 clientes concurrentes).
+// Para funciones Serverless en Vercel, conmutar automáticamente al puerto 6543 ("Transaction Mode")
+// que multiplexa peticiones sin agotar conexiones ni lanzar EMAXCONNSESSION.
+if (connectionString) {
+  try {
+    const parsedUrl = new URL(connectionString);
+    if (parsedUrl.hostname.includes('pooler.supabase.com') && (parsedUrl.port === '5432' || !parsedUrl.port)) {
+      parsedUrl.port = '6543';
+      connectionString = parsedUrl.toString();
+    }
+  } catch (_) {}
+}
+
+const isServerless = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
 
 const poolConfig = {
   host: process.env.PGHOST || 'localhost',
@@ -12,17 +28,17 @@ const poolConfig = {
   user: process.env.PGUSER || 'postgres',
   password: process.env.PGPASSWORD || 'postgres',
   database: process.env.PGDATABASE || 'agenda_db',
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 3000,
+  max: isServerless ? 1 : 10,
+  idleTimeoutMillis: isServerless ? 5000 : 30000,
+  connectionTimeoutMillis: 5000,
 };
 
 let pool = connectionString
   ? new Pool({
       connectionString,
       ssl: { rejectUnauthorized: false },
-      max: 10,
-      idleTimeoutMillis: 30000,
+      max: isServerless ? 1 : 10,
+      idleTimeoutMillis: isServerless ? 5000 : 30000,
       connectionTimeoutMillis: 5000,
     })
   : new Pool(poolConfig);
@@ -55,7 +71,7 @@ async function ensureDatabaseExists() {
   } catch (err) {
     // Si falla, el intento normal de conexión continuará
   } finally {
-    try { await adminClient.end(); } catch (_) {}
+    try { await adminClient.end(); } catch (_) { }
   }
 }
 
