@@ -40,6 +40,7 @@ import { api, trainerAuthStorage } from '../../services/api';
 import DigitalSignatureModal from './DigitalSignatureModal';
 import ServiceSheetModal from './ServiceSheetModal';
 import PwaInstallBanner from '../common/PwaInstallBanner';
+import { getLocalDateString } from '../../utils/dateUtils';
 import { 
   buildGoogleCalendarUrl, 
   generateIcsContent, 
@@ -114,7 +115,7 @@ export default function TrainerPortalView({
     try {
       const year = queryDate.getFullYear();
       const month = queryDate.getMonth() + 1;
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = getLocalDateString();
 
       const data = await api.getTrainerPortal(codeToFetch, { year, month, today: todayStr });
       setPortalData(data);

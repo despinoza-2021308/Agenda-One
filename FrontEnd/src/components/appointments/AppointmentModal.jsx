@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import ConfirmModal from '../common/ConfirmModal';
 import ServiceSheetModal from '../portal/ServiceSheetModal';
+import { getLocalDateString } from '../../utils/dateUtils';
 import { api } from '../../services/api';
 import { 
   buildGoogleCalendarUrl, 
@@ -160,7 +161,7 @@ export default function AppointmentModal({
       });
       setIsManualHours(false);
     } else {
-      const defaultDate = initialDate || new Date().toISOString().split('T')[0];
+      const defaultDate = initialDate || getLocalDateString();
       const initialHoras = calcHours('08:00', '12:00');
       setFormData({
         cliente_nombre: '',
@@ -415,7 +416,7 @@ export default function AppointmentModal({
   // 4. Aviso de Agendamiento en Fecha Pasada
   const isPastDateWarning = useMemo(() => {
     if (!formData.fecha || formData.estado !== 'Programada') return false;
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalDateString();
     return formData.fecha < todayStr;
   }, [formData.fecha, formData.estado]);
 

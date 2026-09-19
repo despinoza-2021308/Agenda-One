@@ -13,6 +13,7 @@ import TrainerPortalView from './components/portal/TrainerPortalView';
 import MobileQrModal from './components/common/MobileQrModal';
 import ExcelImportView from './components/import/ExcelImportView';
 import DbStatusModal from './components/common/DbStatusModal';
+import { getLocalDateString } from './utils/dateUtils';
 import { api, authStorage } from './services/api';
 import { loadMonthUpdates, recordMonthUpdate } from './utils/monthAuditUtils';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
@@ -327,12 +328,12 @@ export default function App() {
     if (prefill) {
       setSelectedAppointment({
         ...prefill,
-        fecha: dateString || currentDate.toISOString().split('T')[0]
+        fecha: dateString || getLocalDateString(currentDate)
       });
     } else {
       setSelectedAppointment(null);
     }
-    setModalInitialDate(dateString || currentDate.toISOString().split('T')[0]);
+    setModalInitialDate(dateString || getLocalDateString(currentDate));
     setIsAppointmentModalOpen(true);
   };
 
@@ -342,7 +343,7 @@ export default function App() {
       setSelectedDayDetails(null);
     }
     setSelectedAppointment(appointment);
-    setModalInitialDate(appointment?.fecha || currentDate.toISOString().split('T')[0]);
+    setModalInitialDate(appointment?.fecha || getLocalDateString(currentDate));
     setIsAppointmentModalOpen(true);
   };
 
@@ -534,7 +535,7 @@ export default function App() {
     }
     setWhatsAppData({
       cita: params.cita || null,
-      date: params.date || currentDate.toISOString().split('T')[0],
+      date: params.date || getLocalDateString(currentDate),
       capacitadorId: params.capacitadorId || null
     });
     setIsWhatsAppModalOpen(true);

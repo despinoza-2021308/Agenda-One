@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import DocumentHeader from './DocumentHeader';
+import { getLocalDateString } from '../../utils/dateUtils';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -244,7 +245,7 @@ export default function CalendarView({
     }
 
     // Días del mes actual
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = getLocalDateString();
     for (let d = 1; d <= lastDayOfMonth.getDate(); d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       days.push({
@@ -1143,7 +1144,7 @@ export default function CalendarView({
               <CalendarIcon className="w-12 h-12 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
               <p className="font-medium text-slate-600 dark:text-slate-400">No hay citas registradas para este periodo o filtro.</p>
               <button
-                onClick={() => onAddCitaDate(new Date().toISOString().split('T')[0])}
+                onClick={() => onAddCitaDate(getLocalDateString())}
                 className="mt-3 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
               >
                 + Registrar la primera cita

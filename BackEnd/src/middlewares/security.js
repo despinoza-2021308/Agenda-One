@@ -26,8 +26,8 @@ const corsOptions = {
     // Permitir dominios definidos en la lista blanca
     if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
 
-    // Permitir cualquier subdominio preview generado por Vercel para este repositorio
-    if (/^https:\/\/.*\.vercel\.app$/.test(origin)) return callback(null, true);
+    // Permitir cualquier subdominio preview generado por Vercel para este repositorio o dominios corporativos
+    if (/^https:\/\/.*\.vercel\.app$/.test(origin) || /oneconsulting|agendaone/i.test(origin)) return callback(null, true);
 
     // Permitir orígenes adicionales mediante variable de entorno si existen
     if (process.env.ALLOWED_ORIGINS && process.env.ALLOWED_ORIGINS.split(',').includes(origin)) {
@@ -43,10 +43,10 @@ const corsOptions = {
 };
 
 // 3. Limitadores de Tasa de Peticiones (Rate Limiting)
-// Limitador general para lecturas y navegación
+// Limitador general para lecturas y navegación (optimizado para equipos compartiendo la misma IP en oficina)
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 250, // Máximo 250 peticiones por cada 15 min por IP
+  max: 1200, // Máximo 1200 peticiones por cada 15 min por IP (permite múltiples usuarios concurrentes en una misma oficina sin bloqueos 429)
   standardHeaders: true, // Cabeceras estándar RateLimit-* (RFC 7807)
   legacyHeaders: false,
   message: {

@@ -4,7 +4,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
 require('dotenv').config();
 const { Pool, Client } = require('pg');
 
-let connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+let connectionString = (process.env.POSTGRES_URL || process.env.DATABASE_URL || '').trim();
 
 // Optimización especial para Supabase Pooler en entornos Serverless (Vercel):
 // El puerto 5432 en pooler.supabase.com opera en "Session Mode" (límite estricto de 15 clientes concurrentes).

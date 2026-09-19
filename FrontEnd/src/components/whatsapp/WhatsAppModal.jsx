@@ -15,6 +15,7 @@ import {
   Share2 
 } from 'lucide-react';
 import { copyTextToClipboard } from '../../utils/clipboardUtils';
+import { getLocalDateString } from '../../utils/dateUtils';
 
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -67,14 +68,11 @@ export default function WhatsAppModal({
 
   // Fecha seleccionada (YYYY-MM-DD)
   const defaultDateStr = useMemo(() => {
-    if (targetCita?.fecha) return String(targetCita.fecha).split('T')[0];
-    if (initialDate instanceof Date) {
-      return initialDate.toISOString().split('T')[0];
+    if (targetCita?.fecha) return getLocalDateString(targetCita.fecha);
+    if (initialDate) {
+      return getLocalDateString(initialDate);
     }
-    if (typeof initialDate === 'string' && initialDate) {
-      return initialDate.split('T')[0];
-    }
-    return new Date().toISOString().split('T')[0];
+    return getLocalDateString();
   }, [targetCita, initialDate]);
 
   const [selectedDate, setSelectedDate] = useState(defaultDateStr);
@@ -109,15 +107,13 @@ export default function WhatsAppModal({
       setSelectedTrainerId(initialCapacitadorId);
       setMode('day');
       if (initialDate) {
-        const d = initialDate instanceof Date ? initialDate.toISOString().split('T')[0] : String(initialDate).split('T')[0];
-        setSelectedDate(d);
+        setSelectedDate(getLocalDateString(initialDate));
       }
     } else {
       // Apertura general desde calendario
       setMode('day');
       if (initialDate) {
-        const d = initialDate instanceof Date ? initialDate.toISOString().split('T')[0] : String(initialDate).split('T')[0];
-        setSelectedDate(d);
+        setSelectedDate(getLocalDateString(initialDate));
       }
       if ((!selectedTrainerId || !capacitadores.some(cp => String(cp.id) === String(selectedTrainerId))) && capacitadores.length > 0) {
         setSelectedTrainerId(capacitadores[0].id);
@@ -169,8 +165,8 @@ export default function WhatsAppModal({
       const sunday = new Date(monday);
       sunday.setDate(monday.getDate() + 6);
 
-      const monStr = monday.toISOString().split('T')[0];
-      const sunStr = sunday.toISOString().split('T')[0];
+      const monStr = getLocalDateString(monday);
+      const sunStr = getLocalDateString(sunday);
 
       return citas.filter(c => {
         const sameCap = String(c.capacitador_id) === String(selectedTrainerId);
