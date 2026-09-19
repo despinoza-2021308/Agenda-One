@@ -145,6 +145,9 @@ export const api = {
   },
   getHistorico: () => request('/reportes/historico'),
 
+  // Diagnóstico y Estado de Base de Datos Cloud (Supabase)
+  getHealth: () => request('/health'),
+
   // Portal Móvil del Capacitador
   loginTrainer: (codigo, pin) => {
     return request('/portal/login', {

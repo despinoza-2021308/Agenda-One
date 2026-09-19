@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, BarChart3, Users, Building2, Plus, Search, Shield, Lock, LogOut, Banknote, Sun, Moon, Smartphone, QrCode, FileSpreadsheet } from 'lucide-react';
+import { Calendar, BarChart3, Users, Building2, Plus, Search, Shield, Lock, LogOut, Banknote, Sun, Moon, Smartphone, QrCode, FileSpreadsheet, Database } from 'lucide-react';
 
 export default function Navbar({ 
   activeTab, 
@@ -12,7 +12,9 @@ export default function Navbar({
   onOpenAdminLogin,
   onLogoutAdmin,
   theme = 'light',
-  onToggleTheme
+  onToggleTheme,
+  dbStatus = null,
+  onOpenDbStatus
 }) {
   const tabs = [
     { id: 'calendar', label: 'Calendario', shortLabel: 'Agenda', icon: Calendar },
@@ -112,6 +114,30 @@ export default function Navbar({
                 >
                   <QrCode className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                   <span className="hidden 2xl:inline">QR Móvil</span>
+                </button>
+              )}
+
+              {/* Indicador de Estado de la Base de Datos (Cloud / Local) */}
+              {dbStatus && (
+                <button
+                  type="button"
+                  onClick={onOpenDbStatus}
+                  className={`hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-glass-sm backdrop-blur-md cursor-pointer shrink-0 hover:scale-102 ${
+                    dbStatus.database?.connected
+                      ? 'border-emerald-300/70 dark:border-emerald-700/60 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300'
+                      : 'border-amber-300 dark:border-amber-700 bg-amber-100/90 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 animate-pulse'
+                  }`}
+                  title={
+                    dbStatus.database?.connected
+                      ? 'Base de Datos Supabase Conectada. Los cambios se guardan permanentemente en la nube.'
+                      : 'Aviso: Modo Memoria Temporal. Haz clic para diagnosticar.'
+                  }
+                >
+                  <span className={`w-2 h-2 rounded-full ${dbStatus.database?.connected ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                  <Database className="w-3.5 h-3.5" />
+                  <span className="hidden 2xl:inline">
+                    {dbStatus.database?.connected ? 'Nube Segura' : 'Modo Memoria'}
+                  </span>
                 </button>
               )}
 

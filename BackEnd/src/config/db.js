@@ -43,6 +43,10 @@ let pool = connectionString
     })
   : new Pool(poolConfig);
 
+pool.on('error', (err) => {
+  console.warn('⚠️ [DB Pool] Error no fatal en conexión inactiva de PostgreSQL:', err.message);
+});
+
 let isPostgresConnected = false;
 
 async function ensureDatabaseExists() {
@@ -753,7 +757,7 @@ function getLastConnectionError() {
 }
 
 function getConnectionDiagnostics() {
-  const raw = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+  const raw = connectionString || process.env.POSTGRES_URL || process.env.DATABASE_URL;
   if (!raw) {
     return {
       hasEnvVar: false,
@@ -762,10 +766,13 @@ function getConnectionDiagnostics() {
   }
   try {
     const parsed = new URL(raw);
+    const isSupabasePooler = parsed.hostname.includes('pooler.supabase.com');
     return {
       hasEnvVar: true,
+      provider: isSupabasePooler ? 'Supabase Connection Pooler' : (parsed.hostname.includes('supabase.co') ? 'Supabase Direct' : 'PostgreSQL'),
       host: parsed.hostname,
-      port: parsed.port || '5432',
+      port: parsed.port || (isSupabasePooler ? '6543' : '5432'),
+      mode: parsed.port === '6543' ? 'Transaction Mode (Multiplexado Serverless)' : (isSupabasePooler ? 'Session Mode' : 'Standard'),
       database: parsed.pathname ? parsed.pathname.replace(/^\//, '') : '',
       isLocalhost: ['localhost', '127.0.0.1', '::1'].includes(parsed.hostname)
     };

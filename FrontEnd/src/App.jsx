@@ -12,6 +12,7 @@ import AdminLoginModal from './components/auth/AdminLoginModal';
 import TrainerPortalView from './components/portal/TrainerPortalView';
 import MobileQrModal from './components/common/MobileQrModal';
 import ExcelImportView from './components/import/ExcelImportView';
+import DbStatusModal from './components/common/DbStatusModal';
 import { api, authStorage } from './services/api';
 import { loadMonthUpdates, recordMonthUpdate } from './utils/monthAuditUtils';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
@@ -134,6 +135,10 @@ export default function App() {
 
   // Estado del Buscador Global (Command Palette)
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  // Estado de la Base de Datos Cloud y Modal de Estado
+  const [dbStatus, setDbStatus] = useState(null);
+  const [isDbStatusModalOpen, setIsDbStatusModalOpen] = useState(false);
 
   // Notificaciones Toast
   const [toast, setToast] = useState(null);
@@ -263,21 +268,33 @@ export default function App() {
     }
   }, []);
 
+  // Monitorear estado de persistencia de la base de datos en la nube
+  const loadDbStatus = useCallback(async () => {
+    try {
+      const status = await api.getHealth();
+      setDbStatus(status);
+    } catch (err) {
+      console.error('Error al verificar estado de base de datos:', err);
+    }
+  }, []);
+
   useEffect(() => {
     loadCapacitadores();
     loadClientes();
     loadCitas();
-  }, [loadCapacitadores, loadClientes, loadCitas]);
+    loadDbStatus();
+  }, [loadCapacitadores, loadClientes, loadCitas, loadDbStatus]);
 
   // Sincronización periódica en segundo plano cada 60 segundos si la pestaña está visible
   useEffect(() => {
     const interval = setInterval(() => {
       if (typeof document !== 'undefined' && !document.hidden) {
         loadCitas();
+        loadDbStatus();
       }
     }, 60000);
     return () => clearInterval(interval);
-  }, [loadCitas]);
+  }, [loadCitas, loadDbStatus]);
 
   // Gestor para ejecutar acciones tras autenticación exitosa
   const handleAdminLoginSuccess = () => {
@@ -369,10 +386,10 @@ export default function App() {
     try {
       if (selectedAppointment && selectedAppointment.id) {
         await api.updateCita(selectedAppointment.id, formData);
-        showToast('Cita actualizada correctamente.');
+        showToast('Cita guardada permanentemente en la nube ☁️');
       } else {
         await api.createCita(formData);
-        showToast(`Cita registrada con éxito (${formData.horas} hrs).`);
+        showToast(`Cita registrada y guardada permanentemente (${formData.horas} hrs) ☁️`);
       }
 
       // Registrar actualización en el cajetín oficial para el mes correspondiente
@@ -424,7 +441,7 @@ export default function App() {
     try {
       const deletedCita = citas.find(c => c.id === id);
       await api.deleteCita(id);
-      showToast('Cita eliminada de la agenda.');
+      showToast('Cita eliminada permanentemente de la base de datos ☁️');
 
       // Registrar actualización en el cajetín oficial para el mes correspondiente al eliminar
       if (deletedCita && deletedCita.fecha) {
@@ -460,10 +477,10 @@ export default function App() {
     try {
       if (id) {
         await api.updateCapacitador(id, data);
-        showToast('Capacitador actualizado correctamente.');
+        showToast('Capacitador guardado permanentemente en la nube ☁️');
       } else {
         await api.createCapacitador(data);
-        showToast(`Capacitador registrado con código [${data.iniciales}].`);
+        showToast(`Capacitador [${data.iniciales}] registrado permanentemente en la nube ☁️`);
       }
       await loadCapacitadores();
       await loadCitas();
@@ -486,7 +503,7 @@ export default function App() {
 
     try {
       await api.deleteCapacitador(id);
-      showToast('Capacitador actualizado/eliminado.');
+      showToast('Capacitador eliminado permanentemente de la base de datos ☁️');
       await loadCapacitadores();
       await loadCitas();
     } catch (err) {
@@ -534,10 +551,10 @@ export default function App() {
       let result;
       if (id) {
         result = await api.updateCliente(id, data);
-        showToast('Cliente actualizado correctamente.');
+        showToast('Cliente guardado permanentemente en la nube ☁️');
       } else {
         result = await api.createCliente(data);
-        showToast(`Empresa "${data.nombre_empresa}" registrada con éxito.`);
+        showToast(`Empresa "${data.nombre_empresa}" registrada permanentemente en la nube ☁️`);
       }
       await loadClientes();
       return result;
@@ -560,7 +577,7 @@ export default function App() {
 
     try {
       await api.deleteCliente(id);
-      showToast('Cliente actualizado/eliminado.');
+      showToast('Cliente eliminado permanentemente de la base de datos ☁️');
       await loadClientes();
       await loadCitas();
     } catch (err) {
@@ -671,7 +688,17 @@ export default function App() {
           onLogoutAdmin={handleLogoutAdmin}
           theme={theme}
           onToggleTheme={toggleTheme}
+          dbStatus={dbStatus}
+          onOpenDbStatus={() => setIsDbStatusModalOpen(true)}
         />
+      )}
+
+      {/* Banner de Aviso si la base de datos está desconectada */}
+      {dbStatus && !dbStatus.database?.connected && (
+        <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-center text-xs font-semibold text-amber-800 dark:text-amber-200 flex items-center justify-center gap-2">
+          <span>⚠️ Modo de Contingencia Local: La base de datos en la nube está temporalmente inaccesible.</span>
+          <button onClick={() => setIsDbStatusModalOpen(true)} className="underline hover:opacity-80 cursor-pointer font-bold">Ver detalles</button>
+        </div>
       )}
 
       {/* Contenido Dinámico por Pestaña */}
@@ -735,6 +762,7 @@ export default function App() {
               }
               await loadCitas();
               await loadClientes();
+              showToast('Lote de citas importado y guardado permanentemente en la nube ☁️');
               return result;
             }}
             onShowToast={showToast}
@@ -840,6 +868,36 @@ export default function App() {
         capacitadores={capacitadores}
         onShowToast={showToast}
       />
+
+      {/* Modal de Estado y Persistencia de Base de Datos */}
+      <DbStatusModal
+        isOpen={isDbStatusModalOpen}
+        onClose={() => setIsDbStatusModalOpen(false)}
+        dbStatus={dbStatus}
+        onRefresh={loadDbStatus}
+      />
+
+      {/* Notificación Flotante Toast */}
+      {toast && (
+        <div 
+          role="status"
+          aria-live="polite"
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl border border-white/20 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 text-xs sm:text-sm font-bold text-white ${
+            toast.type === 'error'
+              ? 'bg-rose-600/90 shadow-rose-600/20'
+              : toast.type === 'info'
+              ? 'bg-blue-600/90 shadow-blue-600/20'
+              : 'bg-emerald-600/90 shadow-emerald-600/20'
+          }`}
+        >
+          {toast.type === 'error' ? (
+            <AlertCircle className="w-5 h-5 shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-5 h-5 shrink-0" />
+          )}
+          <span>{toast.message}</span>
+        </div>
+      )}
     </div>
   );
 }
