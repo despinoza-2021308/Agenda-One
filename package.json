@@ -1,6 +1,6 @@
 {
   "name": "agenda-one",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "Sistema Fullstack de Agenda y Control de Horas (AD-RE-11)",
   "scripts": {

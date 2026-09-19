@@ -337,8 +337,8 @@ export function parseMonthSheet(workbook, sheetName, clientsCatalog = [], option
         const dateStr = `${year}-${String(monthNum).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
         let hoursNum = parseFloat(hoursRaw) || 0;
 
-        // Si no traía columna de horas pero contiene rango de horario en el texto (ej. "8 A 12")
-        if (hoursNum <= 0) {
+        // Solo si la plantilla de la hoja es de 1 sola columna por día (sin columna H) se infieren las horas del texto
+        if (wh.step === 1 && hoursNum <= 0) {
           const { hora_inicio, hora_fin } = extractHorariosFromDesc(desc);
           if (hora_inicio && hora_fin && hora_inicio !== hora_fin) {
             const [h1, m1] = hora_inicio.split(':').map(Number);
@@ -348,6 +348,11 @@ export function parseMonthSheet(workbook, sheetName, clientsCatalog = [], option
               hoursNum = parseFloat(diff.toFixed(2));
             }
           }
+        }
+
+        // Si en la descripción se indica explícitamente 0 horas (ej. "0 H", "0 HORAS", "CERO HORAS")
+        if (/\b0\s*(?:H|HRS|HORAS)\b/i.test(desc) || /\bCERO\s*HORAS\b/i.test(desc)) {
+          hoursNum = 0;
         }
 
         const isBlocked = /BLOQUEADO/i.test(desc);
