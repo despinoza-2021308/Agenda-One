@@ -29,7 +29,9 @@ router.get('/health', (req, res) => {
     service: 'Agenda Centralizada AD-RE-11 API',
     database: {
       connected: db.isPostgresConnected(),
-      mode: db.isPostgresConnected() ? 'PostgreSQL (Cloud Persistente)' : 'Memoria RAM (mockStore fallback)'
+      mode: db.isPostgresConnected() ? 'PostgreSQL (Cloud Persistente)' : 'Memoria RAM (mockStore fallback)',
+      diagnostics: db.getConnectionDiagnostics(),
+      error: db.getLastConnectionError()
     }
   });
 });

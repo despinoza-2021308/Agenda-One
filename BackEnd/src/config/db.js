@@ -773,6 +773,7 @@ async function autoInitTables(client) {
 }
 
 let initPromise = null;
+let lastConnectionError = null;
 
 async function testConnection() {
   await ensureDatabaseExists();
@@ -783,12 +784,43 @@ async function testConnection() {
     await autoInitTables(client);
     client.release();
     isPostgresConnected = true;
+    lastConnectionError = null;
     return true;
   } catch (err) {
     isPostgresConnected = false;
-    console.warn('⚠️ [DB] PostgreSQL no disponible localmente (' + err.message + ').');
+    lastConnectionError = err.message;
+    console.warn('⚠️ [DB] PostgreSQL no disponible (' + err.message + ').');
     console.warn('ℹ️ [DB] Activando motor de datos en memoria local con datos de seed para continuidad operativa.');
     return false;
+  }
+}
+
+function getLastConnectionError() {
+  return lastConnectionError;
+}
+
+function getConnectionDiagnostics() {
+  const raw = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+  if (!raw) {
+    return {
+      hasEnvVar: false,
+      message: 'No existe variable DATABASE_URL ni POSTGRES_URL configurada en Vercel.'
+    };
+  }
+  try {
+    const parsed = new URL(raw);
+    return {
+      hasEnvVar: true,
+      host: parsed.hostname,
+      port: parsed.port || '5432',
+      database: parsed.pathname ? parsed.pathname.replace(/^\//, '') : '',
+      isLocalhost: ['localhost', '127.0.0.1', '::1'].includes(parsed.hostname)
+    };
+  } catch (_) {
+    return {
+      hasEnvVar: true,
+      preview: raw.substring(0, 15) + '...'
+    };
   }
 }
 
@@ -871,6 +903,8 @@ module.exports = {
   pool,
   ensureConnected,
   isPostgresConnected: () => isPostgresConnected,
+  getLastConnectionError,
+  getConnectionDiagnostics,
   mockStore,
   registrarAuditoria,
   obtenerAuditoriaPorCita,
