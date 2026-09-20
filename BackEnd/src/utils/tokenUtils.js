@@ -144,6 +144,46 @@ function verifyTrainerToken(token) {
   return payload;
 }
 
+/**
+ * Cifrado criptográfico unidireccional y verificación de PINs (bcrypt)
+ */
+const bcrypt = require('bcryptjs');
+const BCRYPT_SALT_ROUNDS = 10;
+
+/**
+ * Comprueba si una cadena cumple con el formato estándar de hash bcrypt
+ */
+function isBcryptHash(str) {
+  if (typeof str !== 'string') return false;
+  return /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(str.trim());
+}
+
+/**
+ * Genera un hash seguro para un PIN usando salt de 10 rondas
+ */
+async function hashPin(pin) {
+  if (!pin) return null;
+  const clean = String(pin).trim();
+  return await bcrypt.hash(clean, BCRYPT_SALT_ROUNDS);
+}
+
+/**
+ * Compara un PIN en texto plano contra el hash almacenado (o PIN legado)
+ */
+async function comparePin(plainPin, storedPinOrHash) {
+  if (!plainPin || !storedPinOrHash) return false;
+  const cleanPlain = String(plainPin).trim();
+  const cleanStored = String(storedPinOrHash).trim();
+
+  // 1. Si el valor almacenado es un hash bcrypt estándar
+  if (isBcryptHash(cleanStored)) {
+    return await bcrypt.compare(cleanPlain, cleanStored);
+  }
+
+  // 2. Compatibilidad retroactiva temporal para PINs legados en texto plano
+  return timingSafeEqualString(cleanPlain, cleanStored);
+}
+
 module.exports = {
   JWT_SECRET,
   isWeakPin,
@@ -154,5 +194,8 @@ module.exports = {
   signAdminToken,
   verifyAdminToken,
   signTrainerToken,
-  verifyTrainerToken
+  verifyTrainerToken,
+  isBcryptHash,
+  hashPin,
+  comparePin
 };

@@ -1,9 +1,16 @@
 const db = require('../config/db');
-const { signTrainerToken, verifyTrainerToken, timingSafeEqualString } = require('../utils/tokenUtils');
+const { 
+  signTrainerToken, 
+  verifyTrainerToken, 
+  timingSafeEqualString,
+  comparePin,
+  hashPin,
+  isBcryptHash
+} = require('../utils/tokenUtils');
 const { checkAdminCredential } = require('../middlewares/auth');
 
 // Helper para verificar autorización del capacitador (JWT firmado, PIN directo o bypass de Administrador)
-function authenticateTrainer(req, expectedCodigo, trainerPin) {
+async function authenticateTrainer(req, expectedCodigo, trainerPin) {
   // 1. Permiso total para Administrador autenticado
   if (checkAdminCredential(req)) {
     return { authorized: true, role: 'admin' };
@@ -21,8 +28,11 @@ function authenticateTrainer(req, expectedCodigo, trainerPin) {
 
   // 3. Soporte para PIN directo en header x-trainer-pin o query string ?pin=
   const providedPin = req.headers['x-trainer-pin'] || req.query.pin;
-  if (providedPin && trainerPin && timingSafeEqualString(String(providedPin).trim(), String(trainerPin).trim())) {
-    return { authorized: true, role: 'trainer_pin' };
+  if (providedPin && trainerPin) {
+    const isValid = await comparePin(String(providedPin).trim(), String(trainerPin).trim());
+    if (isValid) {
+      return { authorized: true, role: 'trainer_pin' };
+    }
   }
 
   return { authorized: false };
@@ -71,9 +81,25 @@ async function loginTrainer(req, res, next) {
       return res.status(403).json({ error: true, message: `El capacitador [${cleanCodigo}] está marcado como inactivo.` });
     }
 
-    const expectedPin = String(capacitador.pin || '').trim();
-    if (!expectedPin || !timingSafeEqualString(cleanPin, expectedPin)) {
+    const storedPin = String(capacitador.pin || '').trim();
+    const pinValido = await comparePin(cleanPin, storedPin);
+    if (!storedPin || !pinValido) {
       return res.status(401).json({ error: true, message: 'Código o PIN incorrecto.' });
+    }
+
+    // Migración progresiva transparente (Lazy Re-hash a bcrypt):
+    // Si el PIN almacenado aún estaba en texto plano, lo convertimos a bcrypt en segundo plano
+    if (!isBcryptHash(storedPin)) {
+      try {
+        const hashed = await hashPin(cleanPin);
+        if (db.isPostgresConnected()) {
+          await db.pool.query('UPDATE capacitadores SET pin = $1 WHERE id = $2', [hashed, capacitador.id]);
+        } else {
+          capacitador.pin = hashed;
+        }
+      } catch (lazyErr) {
+        console.warn('⚠️ [Auth] Aviso al migrar PIN de capacitador a hash bcrypt:', lazyErr.message);
+      }
     }
 
     // Generar JWT HS256 firmado con expiración de 30 días para acceso móvil persistente
@@ -145,7 +171,7 @@ async function getTrainerPortalData(req, res, next) {
     }
 
     // Validar autorización mediante Token JWT o PIN de capacitador
-    const auth = authenticateTrainer(req, codigo, capacitador.pin);
+    const auth = await authenticateTrainer(req, codigo, capacitador.pin);
     if (!auth.authorized) {
       return res.status(401).json({
         error: true,
@@ -368,7 +394,7 @@ async function updateTrainerCita(req, res, next) {
       const cap = capCheck.rows[0];
 
       // Validar autorización mediante Token JWT o PIN de capacitador
-      const auth = authenticateTrainer(req, codigo, cap.pin);
+      const auth = await authenticateTrainer(req, codigo, cap.pin);
       if (!auth.authorized) {
         return res.status(401).json({ error: true, code: 'UNAUTHORIZED', message: 'No tienes autorización para modificar esta cita. Inicia sesión con tu PIN.' });
       }
@@ -434,7 +460,7 @@ async function updateTrainerCita(req, res, next) {
     }
 
     // Validar autorización mediante Token JWT o PIN de capacitador
-    const auth = authenticateTrainer(req, codigo, cap.pin);
+    const auth = await authenticateTrainer(req, codigo, cap.pin);
     if (!auth.authorized) {
       return res.status(401).json({ error: true, code: 'UNAUTHORIZED', message: 'No tienes autorización para modificar esta cita. Inicia sesión con tu PIN.' });
     }

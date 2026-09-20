@@ -8,17 +8,18 @@ const citasRoutes = require('./citasRoutes');
 const reportesRoutes = require('./reportesRoutes');
 const portalRoutes = require('./portalRoutes');
 const { requireAdminAuth } = require('../middlewares/auth');
+const { requireDatabaseConnection } = require('../middlewares/databaseGuard');
 
 // Ruta de autenticación y verificación de PIN
 router.use('/auth', authRoutes);
 
-// Portal Móvil del Capacitador (acceso por código de iniciales, sin requerir PIN)
+// Portal Móvil del Capacitador (acceso por código de iniciales y firmas)
 router.use('/portal', portalRoutes);
 
-// Rutas de recursos: Las lecturas (GET) son públicas; las mutaciones (POST, PUT, DELETE) requieren autorización de Administrador
-router.use('/capacitadores', requireAdminAuth, capacitadoresRoutes);
-router.use('/clientes', requireAdminAuth, clientesRoutes);
-router.use('/citas', requireAdminAuth, citasRoutes);
+// Rutas de recursos: Las lecturas (GET) son públicas; las mutaciones requieren autorización de Administrador y base de datos activa
+router.use('/capacitadores', requireAdminAuth, requireDatabaseConnection, capacitadoresRoutes);
+router.use('/clientes', requireAdminAuth, requireDatabaseConnection, clientesRoutes);
+router.use('/citas', requireAdminAuth, requireDatabaseConnection, citasRoutes);
 router.use('/reportes', reportesRoutes);
 
 router.get('/health', (req, res) => {

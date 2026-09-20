@@ -545,7 +545,8 @@ async function autoInitTables(client) {
 
       ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS telefono VARCHAR(30);
       ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS tarifa_hora NUMERIC(10, 2) NOT NULL DEFAULT 150.00;
-      ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS pin VARCHAR(10);
+      ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS pin VARCHAR(255);
+      ALTER TABLE capacitadores ALTER COLUMN pin TYPE VARCHAR(255);
 
       UPDATE capacitadores SET tarifa_hora = 200.00 WHERE iniciales = 'OQ' AND tarifa_hora = 150.00;
       UPDATE capacitadores SET tarifa_hora = 175.00 WHERE iniciales IN ('MO', 'PF') AND tarifa_hora = 150.00;

@@ -1,6 +1,6 @@
 const db = require('../config/db');
 const { validarTelefono } = require('../utils/timeUtils');
-const { generateSecurePin, isWeakPin } = require('../utils/tokenUtils');
+const { generateSecurePin, isWeakPin, hashPin, isBcryptHash } = require('../utils/tokenUtils');
 const { checkAdminCredential } = require('../middlewares/auth');
 
 // Obtener todos los capacitadores (PIN y tarifa_hora solo visibles para Administrador)
@@ -22,7 +22,11 @@ async function getCapacitadores(req, res, next) {
           activo: c.activo
         })));
       }
-      return res.json(result.rows);
+      return res.json(result.rows.map(c => ({
+        ...c,
+        tiene_pin: !!c.pin,
+        pin: c.pin ? (isBcryptHash(c.pin) ? '••••' : c.pin) : null
+      })));
     }
 
     // Modo respaldo en memoria
@@ -40,7 +44,11 @@ async function getCapacitadores(req, res, next) {
       })));
     }
 
-    return res.json(data);
+    return res.json(data.map(c => ({
+      ...c,
+      tiene_pin: !!c.pin,
+      pin: c.pin ? (isBcryptHash(c.pin) ? '••••' : c.pin) : null
+    })));
   } catch (error) {
     next(error);
   }
@@ -70,7 +78,11 @@ async function getCapacitadorById(req, res, next) {
           activo: cap.activo
         });
       }
-      return res.json(cap);
+      return res.json({
+        ...cap,
+        tiene_pin: !!cap.pin,
+        pin: cap.pin ? (isBcryptHash(cap.pin) ? '••••' : cap.pin) : null
+      });
     }
 
     const item = db.mockStore.capacitadores.find(c => c.id === parseInt(id, 10));
@@ -85,7 +97,11 @@ async function getCapacitadorById(req, res, next) {
         activo: cap.activo
       });
     }
-    return res.json(cap);
+    return res.json({
+      ...cap,
+      tiene_pin: !!cap.pin,
+      pin: cap.pin ? (isBcryptHash(cap.pin) ? '••••' : cap.pin) : null
+    });
   } catch (error) {
     next(error);
   }
@@ -142,6 +158,8 @@ async function createCapacitador(req, res, next) {
       cleanPin = generateSecurePin();
     }
 
+    const hashedPin = await hashPin(cleanPin);
+
     if (db.isPostgresConnected()) {
       const checkResult = await db.pool.query('SELECT id FROM capacitadores WHERE iniciales = $1', [cleanInitials]);
       if (checkResult.rows.length > 0) {
@@ -150,9 +168,9 @@ async function createCapacitador(req, res, next) {
 
       const result = await db.pool.query(
         'INSERT INTO capacitadores (nombre_completo, iniciales, color, telefono, tarifa_hora, pin) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, pin, activo, created_at',
-        [cleanNombre, cleanInitials, cleanColor, cleanTel, cleanTarifa, cleanPin]
+        [cleanNombre, cleanInitials, cleanColor, cleanTel, cleanTarifa, hashedPin]
       );
-      return res.status(201).json(result.rows[0]);
+      return res.status(201).json({ ...result.rows[0], pin: cleanPin, tiene_pin: true });
     }
 
     // Modo respaldo
@@ -168,12 +186,12 @@ async function createCapacitador(req, res, next) {
       color: cleanColor,
       telefono: cleanTel || '',
       tarifa_hora: cleanTarifa,
-      pin: cleanPin,
+      pin: hashedPin,
       activo: true,
       created_at: new Date()
     };
     db.mockStore.capacitadores.push(newCap);
-    return res.status(201).json(newCap);
+    return res.status(201).json({ ...newCap, pin: cleanPin, tiene_pin: true });
   } catch (error) {
     next(error);
   }
@@ -214,6 +232,7 @@ async function updateCapacitador(req, res, next) {
     }
 
     let cleanPin = undefined;
+    let hashedPin = undefined;
     if (pin !== undefined && pin !== null && String(pin).trim() !== '') {
       cleanPin = String(pin).trim();
       if (!/^\d{4}$/.test(cleanPin)) {
@@ -222,6 +241,7 @@ async function updateCapacitador(req, res, next) {
       if (isWeakPin(cleanPin)) {
         return res.status(400).json({ message: 'El PIN ingresado es débil o predecible (números consecutivos o repetidos). Elija un PIN seguro.' });
       }
+      hashedPin = await hashPin(cleanPin);
     }
 
     if (db.isPostgresConnected()) {
@@ -245,13 +265,17 @@ async function updateCapacitador(req, res, next) {
              activo = COALESCE($6, activo),
              pin = COALESCE($7, pin)
          WHERE id = $8 RETURNING id, nombre_completo, iniciales, color, telefono, COALESCE(tarifa_hora, 150.00)::FLOAT AS tarifa_hora, pin, activo, created_at`,
-        [cleanNombre, cleanInitials, cleanColor, cleanTel, cleanTarifa, activo, cleanPin, id]
+        [cleanNombre, cleanInitials, cleanColor, cleanTel, cleanTarifa, activo, hashedPin, id]
       );
 
       if (result.rows.length === 0) {
         return res.status(404).json({ message: 'Capacitador no encontrado' });
       }
-      return res.json(result.rows[0]);
+      return res.json({
+        ...result.rows[0],
+        tiene_pin: !!result.rows[0].pin,
+        pin: cleanPin || (result.rows[0].pin ? (isBcryptHash(result.rows[0].pin) ? '••••' : result.rows[0].pin) : null)
+      });
     }
 
     // Modo respaldo
@@ -270,9 +294,14 @@ async function updateCapacitador(req, res, next) {
     if (telefono !== undefined) cap.telefono = telefono;
     if (cleanTarifa !== undefined) cap.tarifa_hora = cleanTarifa;
     if (activo !== undefined) cap.activo = activo;
-    if (cleanPin !== undefined) cap.pin = cleanPin;
+    if (hashedPin !== undefined) cap.pin = hashedPin;
 
-    return res.json({ ...cap, tarifa_hora: Number(cap.tarifa_hora || 150.00) });
+    return res.json({
+      ...cap,
+      tarifa_hora: Number(cap.tarifa_hora || 150.00),
+      tiene_pin: !!cap.pin,
+      pin: cleanPin || (cap.pin ? (isBcryptHash(cap.pin) ? '••••' : cap.pin) : null)
+    });
   } catch (error) {
     next(error);
   }

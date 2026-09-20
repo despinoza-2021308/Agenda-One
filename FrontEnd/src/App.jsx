@@ -288,8 +288,17 @@ export default function App() {
   }, [loadCitas, loadDbStatus]);
 
   // Gestor para ejecutar acciones tras autenticación exitosa
-  const handleAdminLoginSuccess = () => {
+  const handleAdminLoginSuccess = async () => {
     setIsAdmin(true);
+    // Sincronizar inmediatamente todos los datos con las credenciales administrativas activadas
+    try {
+      await Promise.all([
+        loadCapacitadores(),
+        loadCitas(),
+        loadClientes()
+      ]);
+    } catch (_) {}
+
     if (pendingAdminAction) {
       pendingAdminAction();
       setPendingAdminAction(null);

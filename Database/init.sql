@@ -11,10 +11,14 @@ CREATE TABLE IF NOT EXISTS capacitadores (
     color VARCHAR(7) NOT NULL DEFAULT '#3B82F6' CONSTRAINT chk_color_hex CHECK (color ~* '^#[0-9A-Fa-f]{6}$'),
     telefono VARCHAR(30),
     tarifa_hora NUMERIC(10, 2) NOT NULL DEFAULT 150.00 CONSTRAINT chk_tarifa_hora CHECK (tarifa_hora >= 0),
+    pin VARCHAR(255),
     activo BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE capacitadores ADD COLUMN IF NOT EXISTS pin VARCHAR(255);
+ALTER TABLE capacitadores ALTER COLUMN pin TYPE VARCHAR(255);
 
 INSERT INTO capacitadores (id, nombre_completo, iniciales, color, tarifa_hora) VALUES
 (1, 'Mariana Orellana', 'MO', '#2563EB', 175.00),

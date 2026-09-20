@@ -318,26 +318,39 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                   <span className="text-[11px] font-mono font-bold text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
                     Código: {cap.iniciales}
                   </span>
-                  {cap.pin && (
+                  {(cap.tiene_pin || cap.pin) && (
                     <span className="text-[11px] font-mono font-bold bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-full inline-flex items-center gap-1.5 shadow-2xs">
                       <KeyRound className="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
-                      <span>PIN: {revealedPins[cap.id] ? cap.pin : '••••'}</span>
-                      <button
-                        type="button"
-                        onClick={() => toggleRevealPin(cap.id)}
-                        className="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-100 p-0.5 cursor-pointer"
-                        title={revealedPins[cap.id] ? "Ocultar PIN" : "Ver PIN"}
-                      >
-                        {revealedPins[cap.id] ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => copyPin(cap.id, cap.pin)}
-                        className="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-100 p-0.5 cursor-pointer"
-                        title="Copiar PIN"
-                      >
-                        {copiedPinId === cap.id ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                      </button>
+                      <span>{cap.pin && cap.pin !== '••••' && revealedPins[cap.id] ? `PIN: ${cap.pin}` : 'PIN Cifrado 🔒'}</span>
+                      {cap.pin && cap.pin !== '••••' ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => toggleRevealPin(cap.id)}
+                            className="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-100 p-0.5 cursor-pointer"
+                            title={revealedPins[cap.id] ? "Ocultar PIN" : "Ver PIN"}
+                          >
+                            {revealedPins[cap.id] ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => copyPin(cap.id, cap.pin)}
+                            className="text-amber-600 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-100 p-0.5 cursor-pointer"
+                            title="Copiar PIN"
+                          >
+                            {copiedPinId === cap.id ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(cap)}
+                          className="text-[10px] text-amber-700 dark:text-amber-300 hover:underline cursor-pointer ml-0.5 font-bold"
+                          title="Asignar o cambiar PIN confidencial"
+                        >
+                          Cambiar PIN
+                        </button>
+                      )}
                     </span>
                   )}
                   <span
@@ -476,7 +489,7 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                     className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5"
                   >
                     <KeyRound className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                    <span>PIN de Seguridad (4 dígitos) <span className="text-rose-500">*</span></span>
+                    <span>PIN de Seguridad (4 dígitos) {!editingCap && <span className="text-rose-500">*</span>}</span>
                   </label>
                   <button
                     type="button"
@@ -494,14 +507,30 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
                     type="text"
                     maxLength={4}
                     inputMode="numeric"
-                    placeholder="Ej: 8492"
+                    placeholder={editingCap ? "•••• (dejar vacío para mantener actual)" : "Ej: 8492"}
                     value={formData.pin}
                     onChange={(e) => setFormData(prev => ({ ...prev, pin: e.target.value.replace(/\D/g, '').slice(0, 4) }))}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-mono font-bold tracking-widest text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-3.5 pr-11 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-mono font-bold tracking-widest text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   />
+                  {formData.pin && formData.pin.length === 4 && (
+                    <button
+                      type="button"
+                      onClick={() => copyPin('modal', formData.pin)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-200/60 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                      title="Copiar PIN generado para entregar al capacitador"
+                    >
+                      {copiedPinId === 'modal' ? (
+                        <Check className="w-4 h-4 text-emerald-600" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
+                  )}
                 </div>
                 <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
-                  PIN privado que el capacitador usará para acceder a su portal móvil. Se prohíben claves obvias como 1234.
+                  {editingCap 
+                    ? 'Déjalo vacío para mantener el PIN actual, o escribe 4 dígitos para asignar un nuevo PIN cifrado.' 
+                    : 'PIN privado que el capacitador usará para su portal móvil. Se cifra automáticamente con hash bcrypt al guardar.'}
                 </p>
               </div>
 
