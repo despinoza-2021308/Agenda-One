@@ -168,6 +168,25 @@ export default function CalendarView({
     setCurrentDate(new Date());
   };
 
+  // Navegación rápida por teclado: Flechas izquierda y derecha para cambiar de mes
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ignorar si el usuario está escribiendo en inputs, textareas o selects
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+      if (document.querySelector('[role="dialog"]')) return;
+
+      if (e.key === 'ArrowLeft' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        handlePrev();
+      } else if (e.key === 'ArrowRight' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        handleNext();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [calendarMode, currentDate, year, month]);
+
   // Citas pertenecientes al mes visible actualmente (año y mes seleccionados en la cabecera)
   const monthCitas = useMemo(() => {
     return citas.filter(c => {
@@ -292,11 +311,11 @@ export default function CalendarView({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
           
           {/* Navegación de mes / año */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
             <div className="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-2xl border border-slate-200/60 dark:border-white/5 backdrop-blur-md shadow-2xs">
               <button
                 onClick={handlePrev}
-                title="Mes anterior"
+                title="Mes anterior (o tecla flecha izquierda ←)"
                 className="p-1.5 rounded-xl hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -327,11 +346,43 @@ export default function CalendarView({
 
               <button
                 onClick={handleNext}
-                title="Mes siguiente"
+                title="Mes siguiente (o tecla flecha derecha →)"
                 className="p-1.5 rounded-xl hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
+            </div>
+
+            {/* Botón directo HOY */}
+            <button
+              type="button"
+              onClick={handleToday}
+              className="px-2.5 py-1.5 rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-slate-800/80 hover:bg-blue-50 dark:hover:bg-blue-950/40 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 font-bold text-xs shadow-glass-sm transition-all cursor-pointer"
+              title="Ir a la fecha de hoy"
+            >
+              Hoy
+            </button>
+
+            {/* Píldoras de Meses para salto directo en 1 clic */}
+            <div className="hidden lg:flex items-center gap-0.5 bg-slate-100/70 dark:bg-slate-800/60 p-1 rounded-2xl border border-slate-200/60 dark:border-white/5 overflow-x-auto no-scrollbar">
+              {['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((mName, idx) => (
+                <button
+                  key={mName}
+                  type="button"
+                  onClick={() => {
+                    setCurrentDate(new Date(year, idx, 1));
+                    if (calendarMode !== 'month') setCalendarMode('month');
+                  }}
+                  className={`px-2 py-0.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
+                    month === idx
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title={`Saltar a ${mName} ${year}`}
+                >
+                  {mName}
+                </button>
+              ))}
             </div>
 
             {calendarMode === 'day' ? (
