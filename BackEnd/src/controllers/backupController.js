@@ -41,10 +41,15 @@ async function exportBackup(req, res, next) {
       `);
       citas = citasRes.rows;
 
-      const auditRes = await db.pool.query(
-        'SELECT id, cita_id, accion, usuario, detalles, ip_origen, created_at FROM citas_auditoria ORDER BY id ASC'
-      );
-      auditoria = auditRes.rows;
+      try {
+        const auditRes = await db.pool.query(
+          'SELECT id, cita_id, accion, usuario, detalles, ip_origen, created_at FROM auditoria_citas ORDER BY id ASC'
+        );
+        auditoria = auditRes.rows;
+      } catch (auditErr) {
+        console.warn('⚠️ [Backup] Aviso al consultar auditoria_citas:', auditErr.message);
+        auditoria = [];
+      }
     } else {
       // Modo respaldo en memoria
       capacitadores = db.mockStore.capacitadores || [];
