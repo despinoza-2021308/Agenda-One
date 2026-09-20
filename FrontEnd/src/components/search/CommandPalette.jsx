@@ -17,7 +17,9 @@ import {
   CornerDownLeft,
   Banknote,
   Moon,
-  Smartphone
+  Smartphone,
+  Download,
+  Trash2
 } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -110,6 +112,24 @@ const SYSTEM_ACTIONS = [
     color: 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/60',
     type: 'accion',
     actionId: 'toggle-theme'
+  },
+  {
+    id: 'act-open-trash',
+    title: 'Papelera de Citas Eliminadas',
+    subtitle: 'Ver y restaurar citas eliminadas accidentalmente (1-clic)',
+    icon: Trash2,
+    color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60',
+    type: 'accion',
+    actionId: 'open-trash'
+  },
+  {
+    id: 'act-open-backup',
+    title: 'Copias de Seguridad y Respaldo (JSON / Supabase)',
+    subtitle: 'Descargar respaldo completo de citas, clientes y catálogos',
+    icon: Download,
+    color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60',
+    type: 'accion',
+    actionId: 'open-backup'
   }
 ];
 

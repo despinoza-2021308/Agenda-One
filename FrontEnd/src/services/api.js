@@ -4,22 +4,17 @@ const TRAINER_TOKEN_KEY = 'agenda_trainer_token';
 const TRAINER_CODE_KEY = 'agenda_trainer_codigo';
 
 export const authStorage = {
-  // El token de administrador NUNCA se persiste en localStorage.
-  // Solo se mantiene en sessionStorage durante la pestaña activa y se destruye automáticamente al salir o cerrar la agenda.
+  // Sesión administrativa extendida (30 días) en localStorage para la coordinadora de la empresa,
+  // permitiendo que no tenga que ingresar el PIN repetitivamente en cada recarga o cierre de pestaña.
   getToken: () => {
     if (typeof window !== 'undefined') {
-      if (localStorage.getItem(TOKEN_STORAGE_KEY)) {
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
-      }
-      return sessionStorage.getItem(TOKEN_STORAGE_KEY);
+      return localStorage.getItem(TOKEN_STORAGE_KEY) || sessionStorage.getItem(TOKEN_STORAGE_KEY);
     }
     return null;
   },
   setToken: (token) => {
     if (typeof window !== 'undefined') {
-      // Eliminar cualquier persistencia en localStorage
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
-      // Guardar únicamente en sessionStorage (volátil, expira al cerrar la pestaña o el navegador)
+      localStorage.setItem(TOKEN_STORAGE_KEY, token);
       sessionStorage.setItem(TOKEN_STORAGE_KEY, token);
     }
   },
@@ -134,9 +129,18 @@ export const api = {
   createCita: (data) => request('/citas', { method: 'POST', body: JSON.stringify(data) }),
   updateCita: (id, data) => request(`/citas/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteCita: (id) => request(`/citas/${id}`, { method: 'DELETE' }),
+  getCitasEliminadas: () => request('/citas/eliminadas'),
+  restaurarCita: (id) => request(`/citas/${id}/restaurar`, { method: 'POST' }),
   importarLoteCitas: (payload) => request('/citas/importar-lote', {
     method: 'POST',
     body: JSON.stringify(payload)
+  }),
+
+  // Copias de Seguridad y Respaldo Empresarial
+  exportBackup: () => request('/backup/export'),
+  restoreBackup: (data) => request('/backup/restore', {
+    method: 'POST',
+    body: JSON.stringify(data)
   }),
 
   // Reportes y Analítica

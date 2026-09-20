@@ -10,9 +10,11 @@ router.post('/importar-lote', controller.importarLoteCitas);
 router.param('id', validateNumericId);
 
 router.get('/', controller.getCitas);
+router.get('/eliminadas', controller.getCitasEliminadas);
 router.get('/:id', controller.getCitaById);
 router.get('/:id/auditoria', controller.getCitaAuditoria);
 router.post('/', controller.createCita);
+router.post('/:id/restaurar', controller.restaurarCita);
 router.put('/:id', controller.updateCita);
 router.delete('/:id', controller.deleteCita);
 

@@ -78,10 +78,32 @@ function verifyHandler(req, res) {
   });
 }
 
-// Middleware para proteger mutaciones (POST, PUT, DELETE)
+// Middleware estricto: requiere autenticación de Administrador para cualquier método (incluyendo GET)
+function requireAdminStrict(req, res, next) {
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+
+  const adminPayload = checkAdminCredential(req);
+  if (adminPayload) {
+    req.adminUser = adminPayload;
+    return next();
+  }
+
+  return res.status(401).json({
+    error: true,
+    unauthorized: true,
+    message: 'Acceso restringido: Se requiere PIN o Token de Administrador válido para acceder a este recurso.'
+  });
+}
+
+// Middleware para proteger mutaciones (POST, PUT, DELETE) y recursos administrativos sensibles
 function requireAdminAuth(req, res, next) {
-  // Peticiones de solo lectura son públicas para permitir vista de calendario y reportes
-  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+  const url = (req.originalUrl || req.path || '').toLowerCase();
+  const isProtectedPath = url.includes('/backup') || url.includes('/eliminadas');
+
+  // Si no es una ruta administrativa sensible, peticiones de solo lectura son públicas
+  if (!isProtectedPath && ['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     return next();
   }
 
@@ -108,5 +130,6 @@ module.exports = {
   loginHandler,
   verifyHandler,
   requireAdminAuth,
+  requireAdminStrict,
   checkAdminCredential
 };

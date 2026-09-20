@@ -13,11 +13,13 @@ import TrainerPortalView from './components/portal/TrainerPortalView';
 import MobileQrModal from './components/common/MobileQrModal';
 import ExcelImportView from './components/import/ExcelImportView';
 import DbStatusModal from './components/common/DbStatusModal';
+import BackupModal from './components/common/BackupModal';
+import DeletedAppointmentsModal from './components/appointments/DeletedAppointmentsModal';
 import { getLocalDateString } from './utils/dateUtils';
 import { getCachedData, setCachedData, hasCachedData } from './utils/cacheUtils';
 import { api, authStorage } from './services/api';
 import { loadMonthUpdates, recordMonthUpdate } from './utils/monthAuditUtils';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle, RotateCcw } from 'lucide-react';
 
 export default function App() {
   // Detección si se accedió explícitamente vía código QR / enlace directo al Portal (?portal o ?portal=MO)
@@ -143,23 +145,33 @@ export default function App() {
   const [dbStatus, setDbStatus] = useState(null);
   const [isDbStatusModalOpen, setIsDbStatusModalOpen] = useState(false);
 
-  // Notificaciones Toast
+  // Estados de Copia de Seguridad y Papelera de Citas
+  const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+  const [isDeletedAppointmentsModalOpen, setIsDeletedAppointmentsModalOpen] = useState(false);
+  const [deletedCount, setDeletedCount] = useState(0);
+
+  // Notificaciones Toast con soporte de acción instantánea (e.g. Deshacer)
   const [toast, setToast] = useState(null);
 
-  const showToast = (message, type = 'success') => {
-    setToast({ message, type });
+  const showToast = (message, type = 'success', action = null) => {
+    setToast({ message, type, action });
     setTimeout(() => {
-      setToast(null);
-    }, 4000);
+      setToast(curr => (curr && curr.message === message ? null : curr));
+    }, action ? 7500 : 4000);
   };
 
-  // Verificar validez del token en backend al cargar la app (exclusivamente volátil en sessionStorage)
-  useEffect(() => {
-    // Purgar inmediatamente cualquier token persistente en localStorage de versiones anteriores
+  // Cargar conteo de citas eliminadas en papelera
+  const loadDeletedCount = useCallback(async () => {
     try {
-      localStorage.removeItem('agenda_admin_token');
+      const data = await api.getCitasEliminadas();
+      if (Array.isArray(data)) {
+        setDeletedCount(data.length);
+      }
     } catch (_) {}
+  }, []);
 
+  // Verificar validez del token en backend al cargar la app (persistencia de 30 días para la coordinadora)
+  useEffect(() => {
     const token = authStorage.getToken();
     if (token) {
       api.verifyAdmin()
@@ -171,20 +183,18 @@ export default function App() {
     } else {
       setIsAdmin(false);
     }
-  }, []);
+    loadDeletedCount();
+  }, [loadDeletedCount]);
 
-  // La sesión administrativa se mantiene activa durante toda la jornada en sessionStorage.
-  // Solo se destruye automáticamente al salir/cerrar el programa o al pulsar "Cerrar Sesión".
-
-  // Si se accede a la vista de portal de capacitadores, revocar automáticamente la sesión administrativa
+  // Si se accede directamente vía enlace público/QR de capacitador (?portal=XX), no autenticar como admin
   useEffect(() => {
-    if (urlPortalCode || activeTab === 'portal') {
+    if (urlPortalCode) {
       if (authStorage.getToken() || isAdmin) {
         authStorage.clearToken();
         setIsAdmin(false);
       }
     }
-  }, [urlPortalCode, activeTab, isAdmin]);
+  }, [urlPortalCode]);
 
   // Atajo de teclado global Ctrl + K / Cmd + K para abrir el Command Palette
   useEffect(() => {
@@ -432,6 +442,17 @@ export default function App() {
     }
   };
 
+  const handleRestoreAppointment = async (id) => {
+    try {
+      const res = await api.restoreCita(id);
+      showToast(res.message || 'Cita restaurada exitosamente en el calendario', 'success');
+      await loadCitas();
+      await loadDeletedCount();
+    } catch (err) {
+      showToast(err.message || 'Error al restaurar cita', 'error');
+    }
+  };
+
   const handleDeleteAppointment = async (id) => {
     if (!isAdmin) {
       setIsAdminLoginModalOpen(true);
@@ -441,7 +462,12 @@ export default function App() {
     try {
       const deletedCita = citas.find(c => c.id === id);
       await api.deleteCita(id);
-      showToast('Cita eliminada permanentemente de la base de datos ☁️');
+      
+      // Notificación enriquecida con botón instantáneo para [Deshacer]
+      showToast('Cita movida a la papelera con éxito', 'info', {
+        label: 'Deshacer',
+        onClick: () => handleRestoreAppointment(id)
+      });
 
       // Registrar actualización en el cajetín oficial para el mes correspondiente al eliminar
       if (deletedCita && deletedCita.fecha) {
@@ -450,6 +476,7 @@ export default function App() {
       }
 
       await loadCitas();
+      await loadDeletedCount();
 
       // Si se eliminó desde las Citas del Día, regresar a la vista del día actualizado
       if (lastDayDetails) {
@@ -641,6 +668,12 @@ export default function App() {
       case 'toggle-theme':
         toggleTheme();
         break;
+      case 'open-trash':
+        setIsDeletedAppointmentsModalOpen(true);
+        break;
+      case 'open-backup':
+        setIsBackupModalOpen(true);
+        break;
       default:
         break;
     }
@@ -656,25 +689,43 @@ export default function App() {
         <div className="liquid-orb-3 w-[560px] sm:w-[720px] h-[560px] sm:h-[720px] bottom-[-8%] left-[18%] bg-gradient-to-tr from-emerald-500/12 via-teal-400/10 to-indigo-500/15 dark:from-cyan-700/15 dark:via-indigo-800/15 dark:to-emerald-600/10" />
       </div>
 
-      {/* Toast flotante de cristal líquido */}
+      {/* Toast flotante de cristal líquido con soporte para botón [Deshacer] */}
       {toast && (
         <div
-          className={`fixed bottom-5 right-5 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-glass-hover backdrop-blur-xl border text-xs font-bold transition-all animate-in slide-in-from-bottom-5 duration-200 ${
+          role="status"
+          aria-live="polite"
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-glass-hover backdrop-blur-xl border text-xs font-bold transition-all animate-in slide-in-from-bottom-5 duration-200 ${
             toast.type === 'error'
-              ? 'bg-rose-50/90 dark:bg-rose-950/80 border-rose-200 dark:border-rose-900/80 text-rose-800 dark:text-rose-200'
-              : 'bg-white/85 dark:bg-slate-900/85 border-white/60 dark:border-slate-700/80 text-slate-900 dark:text-white shadow-2xl'
-          }`}
+              ? 'bg-rose-50/95 dark:bg-rose-950/90 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-100 shadow-rose-500/20'
+              : toast.type === 'info'
+              ? 'bg-blue-50/95 dark:bg-blue-950/90 border-blue-300 dark:border-blue-800 text-blue-950 dark:text-blue-100 shadow-blue-500/20'
+              : 'bg-white/95 dark:bg-slate-900/95 border-emerald-300/80 dark:border-emerald-700 text-slate-900 dark:text-white shadow-emerald-500/20'
+          } shadow-2xl`}
         >
           {toast.type === 'error' ? (
             <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+          ) : toast.type === 'info' ? (
+            <RotateCcw className="w-4 h-4 text-blue-500 shrink-0" />
           ) : (
             <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
           )}
           <span>{toast.message}</span>
+          {toast.action && (
+            <button
+              onClick={() => {
+                toast.action.onClick();
+                setToast(null);
+              }}
+              className="ml-2 px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black uppercase tracking-wider transition-colors shadow-xs cursor-pointer flex items-center gap-1"
+            >
+              <RotateCcw className="w-3 h-3" />
+              {toast.action.label || 'Deshacer'}
+            </button>
+          )}
         </div>
       )}
 
-      {/* Navbar Superior y Dock Móvil (Oculto en teléfonos Android/iOS en modo Portal para que el capacitador acceda exclusivamente a su itinerario) */}
+      {/* Navbar Superior y Dock Móvil */}
       {!(activeTab === 'portal' && (isDirectPortalAccess || isMobileDevice) && !isAdmin) && (
         <Navbar
           activeTab={activeTab}
@@ -690,6 +741,9 @@ export default function App() {
           onToggleTheme={toggleTheme}
           dbStatus={dbStatus}
           onOpenDbStatus={() => setIsDbStatusModalOpen(true)}
+          onOpenBackupModal={() => setIsBackupModalOpen(true)}
+          onOpenDeletedModal={() => setIsDeletedAppointmentsModalOpen(true)}
+          deletedCount={deletedCount}
         />
       )}
 
@@ -883,27 +937,24 @@ export default function App() {
         onRefresh={loadDbStatus}
       />
 
-      {/* Notificación Flotante Toast */}
-      {toast && (
-        <div 
-          role="status"
-          aria-live="polite"
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl border border-white/20 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 text-xs sm:text-sm font-bold text-white ${
-            toast.type === 'error'
-              ? 'bg-rose-600/90 shadow-rose-600/20'
-              : toast.type === 'info'
-              ? 'bg-blue-600/90 shadow-blue-600/20'
-              : 'bg-emerald-600/90 shadow-emerald-600/20'
-          }`}
-        >
-          {toast.type === 'error' ? (
-            <AlertCircle className="w-5 h-5 shrink-0" />
-          ) : (
-            <CheckCircle2 className="w-5 h-5 shrink-0" />
-          )}
-          <span>{toast.message}</span>
-        </div>
-      )}
+      {/* Modal de Copias de Seguridad y Respaldo Empresarial */}
+      <BackupModal
+        isOpen={isBackupModalOpen}
+        onClose={() => setIsBackupModalOpen(false)}
+        onRefreshData={loadCitas}
+        showToast={showToast}
+      />
+
+      {/* Modal de Papelera de Citas Eliminadas (Soft Delete & 1-Clic Restore) */}
+      <DeletedAppointmentsModal
+        isOpen={isDeletedAppointmentsModalOpen}
+        onClose={() => setIsDeletedAppointmentsModalOpen(false)}
+        onRestored={async () => {
+          await loadCitas();
+          await loadDeletedCount();
+        }}
+        showToast={showToast}
+      />
     </div>
   );
 }

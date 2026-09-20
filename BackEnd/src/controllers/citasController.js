@@ -77,8 +77,9 @@ function formatMockCita(c) {
 // Obtener citas con filtros opcionales (rango de fechas, capacitador, cliente, estado)
 async function getCitas(req, res, next) {
   try {
-    const { start_date, end_date, capacitador_id, cliente_id, month, year, estado, search, q, limit } = req.query;
+    const { start_date, end_date, capacitador_id, cliente_id, month, year, estado, search, q, limit, solo_eliminadas } = req.query;
     const searchTerm = (search || q || '').trim();
+    const isTrash = solo_eliminadas === 'true' || solo_eliminadas === true;
 
     if (db.isPostgresConnected()) {
       let query = `
@@ -103,12 +104,13 @@ async function getCitas(req, res, next) {
           c.firmante_nombre,
           c.firmante_puesto,
           c.firmado_at,
+          TO_CHAR(c.deleted_at, 'YYYY-MM-DD HH24:MI:SS') AS deleted_at,
           c.created_at,
           c.updated_at
         FROM citas c
         LEFT JOIN clientes cl ON c.cliente_id = cl.id
         LEFT JOIN capacitadores cp ON c.capacitador_id = cp.id
-        WHERE 1=1
+        WHERE ${isTrash ? 'c.deleted_at IS NOT NULL' : 'c.deleted_at IS NULL'}
       `;
       const params = [];
 
@@ -165,7 +167,9 @@ async function getCitas(req, res, next) {
     }
 
     // Modo respaldo en memoria
-    let citas = db.mockStore.citas.map(formatMockCita);
+    let citas = db.mockStore.citas
+      .filter(c => isTrash ? !!c.deleted_at : !c.deleted_at)
+      .map(formatMockCita);
 
     if (start_date) {
       citas = citas.filter(c => c.fecha >= start_date);
@@ -822,43 +826,148 @@ async function updateCita(req, res, next) {
   }
 }
 
-// Eliminar cita
+// Eliminar cita (Soft Delete: mueve la cita a la papelera sin destruirla)
 async function deleteCita(req, res, next) {
   try {
     const { id } = req.params;
 
     if (db.isPostgresConnected()) {
-      const result = await db.pool.query('DELETE FROM citas WHERE id = $1 RETURNING id, cliente_nombre, fecha', [id]);
+      const result = await db.pool.query(
+        'UPDATE citas SET deleted_at = CURRENT_TIMESTAMP WHERE id = $1 AND deleted_at IS NULL RETURNING id, cliente_nombre, fecha', 
+        [id]
+      );
       if (result.rows.length === 0) {
-        return res.status(404).json({ message: 'Cita no encontrada.' });
+        return res.status(404).json({ message: 'Cita no encontrada o ya se encuentra en la papelera.' });
       }
       await db.registrarAuditoria({
         cita_id: id,
         accion: 'ELIMINACION',
         usuario: 'Administrador',
-        detalles: { cliente: result.rows[0].cliente_nombre, fecha: result.rows[0].fecha },
+        detalles: { cliente: result.rows[0].cliente_nombre, fecha: result.rows[0].fecha, tipo: 'Papelera de seguridad (Soft Delete)' },
         ip_origen: req.ip || req.headers['x-forwarded-for']
       });
-      return res.json({ message: 'Cita eliminada correctamente.', id: result.rows[0].id });
+      return res.json({ 
+        success: true, 
+        message: 'Cita movida a la papelera correctamente. Puede restaurarla en cualquier momento.', 
+        id: result.rows[0].id 
+      });
     }
 
-    const index = db.mockStore.citas.findIndex(c => c.id === parseInt(id, 10));
-    if (index === -1) {
-      return res.status(404).json({ message: 'Cita no encontrada.' });
+    const cita = db.mockStore.citas.find(c => c.id === parseInt(id, 10));
+    if (!cita || cita.deleted_at) {
+      return res.status(404).json({ message: 'Cita no encontrada o ya se encuentra en la papelera.' });
     }
 
-    const deletedCita = db.mockStore.citas[index];
-    db.mockStore.citas.splice(index, 1);
+    cita.deleted_at = new Date().toISOString();
 
     await db.registrarAuditoria({
       cita_id: id,
       accion: 'ELIMINACION',
       usuario: 'Administrador',
-      detalles: { cliente: deletedCita.cliente_nombre, fecha: deletedCita.fecha },
+      detalles: { cliente: cita.cliente_nombre, fecha: cita.fecha, tipo: 'Papelera de seguridad (Soft Delete)' },
       ip_origen: req.ip || req.headers['x-forwarded-for']
     });
 
-    return res.json({ message: 'Cita eliminada correctamente.', id });
+    return res.json({ 
+      success: true, 
+      message: 'Cita movida a la papelera correctamente. Puede restaurarla en cualquier momento.', 
+      id: cita.id 
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Restaurar cita eliminada (deshacer borrado)
+async function restaurarCita(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    if (db.isPostgresConnected()) {
+      const result = await db.pool.query(
+        'UPDATE citas SET deleted_at = NULL WHERE id = $1 AND deleted_at IS NOT NULL RETURNING id, cliente_nombre, fecha',
+        [id]
+      );
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: 'Cita no encontrada en la papelera o ya está activa.' });
+      }
+      await db.registrarAuditoria({
+        cita_id: id,
+        accion: 'RESTAURACION',
+        usuario: 'Administrador',
+        detalles: { cliente: result.rows[0].cliente_nombre, fecha: result.rows[0].fecha, motivo: 'Restaurada desde papelera' },
+        ip_origen: req.ip || req.headers['x-forwarded-for']
+      });
+      return res.json({ 
+        success: true, 
+        message: 'Cita restaurada exitosamente en el calendario.', 
+        id: result.rows[0].id 
+      });
+    }
+
+    const cita = db.mockStore.citas.find(c => c.id === parseInt(id, 10));
+    if (!cita || !cita.deleted_at) {
+      return res.status(404).json({ message: 'Cita no encontrada en la papelera o ya está activa.' });
+    }
+
+    cita.deleted_at = null;
+
+    await db.registrarAuditoria({
+      cita_id: id,
+      accion: 'RESTAURACION',
+      usuario: 'Administrador',
+      detalles: { cliente: cita.cliente_nombre, fecha: cita.fecha, motivo: 'Restaurada desde papelera' },
+      ip_origen: req.ip || req.headers['x-forwarded-for']
+    });
+
+    return res.json({ 
+      success: true, 
+      message: 'Cita restaurada exitosamente en el calendario.', 
+      id: cita.id 
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Listar citas en la papelera de reciclaje
+async function getCitasEliminadas(req, res, next) {
+  try {
+    if (db.isPostgresConnected()) {
+      const result = await db.pool.query(`
+        SELECT 
+          c.id,
+          c.cliente_id,
+          COALESCE(c.cliente_nombre, cl.nombre_empresa, 'Cliente General') AS cliente_nombre,
+          c.capacitador_id,
+          COALESCE(cp.nombre_completo, 'Capacitador') AS capacitador_nombre,
+          COALESCE(cp.iniciales, 'OQ') AS capacitador_iniciales,
+          COALESCE(cp.color, '#7C3AED') AS capacitador_color,
+          TO_CHAR(c.fecha, 'YYYY-MM-DD') AS fecha,
+          TO_CHAR(c.hora_inicio, 'HH24:MI') AS hora_inicio,
+          TO_CHAR(c.hora_fin, 'HH24:MI') AS hora_fin,
+          c.horas::FLOAT AS horas,
+          c.modalidad,
+          c.tipo_servicio,
+          c.estado,
+          TO_CHAR(c.deleted_at, 'YYYY-MM-DD HH24:MI:SS') AS deleted_at
+        FROM citas c
+        LEFT JOIN clientes cl ON c.cliente_id = cl.id
+        LEFT JOIN capacitadores cp ON c.capacitador_id = cp.id
+        WHERE c.deleted_at IS NOT NULL
+        ORDER BY c.deleted_at DESC
+        LIMIT 100
+      `);
+      return res.json(result.rows);
+    }
+
+    const deleted = db.mockStore.citas
+      .filter(c => !!c.deleted_at)
+      .map(formatMockCita)
+      .sort((a, b) => new Date(b.deleted_at) - new Date(a.deleted_at))
+      .slice(0, 100);
+
+    return res.json(deleted);
   } catch (error) {
     next(error);
   }
@@ -1194,6 +1303,8 @@ module.exports = {
   createCita,
   updateCita,
   deleteCita,
+  restaurarCita,
+  getCitasEliminadas,
   getCitaAuditoria,
   importarLoteCitas
 };

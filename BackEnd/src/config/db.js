@@ -591,6 +591,8 @@ async function autoInitTables(client) {
       ALTER TABLE citas ADD COLUMN IF NOT EXISTS estado VARCHAR(25) NOT NULL DEFAULT 'Programada';
       ALTER TABLE citas ADD COLUMN IF NOT EXISTS bitacora TEXT;
       ALTER TABLE citas ADD COLUMN IF NOT EXISTS tarifa_hora NUMERIC(10, 2) DEFAULT 150.00;
+      ALTER TABLE citas ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL;
+      CREATE INDEX IF NOT EXISTS idx_citas_deleted_at ON citas(deleted_at);
       ALTER TABLE citas ALTER COLUMN tipo_servicio TYPE VARCHAR(50);
       ALTER TABLE citas DROP CONSTRAINT IF EXISTS citas_tipo_servicio_check;
       ALTER TABLE citas ADD CONSTRAINT citas_tipo_servicio_check CHECK (tipo_servicio IN (

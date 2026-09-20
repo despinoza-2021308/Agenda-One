@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, BarChart3, Users, Building2, Plus, Search, Shield, Lock, LogOut, Banknote, Sun, Moon, Smartphone, QrCode, FileSpreadsheet, Database } from 'lucide-react';
+import { Calendar, BarChart3, Users, Building2, Plus, Search, Shield, Lock, LogOut, Banknote, Sun, Moon, Smartphone, QrCode, FileSpreadsheet, Database, Download, Trash2 } from 'lucide-react';
 
 export default function Navbar({ 
   activeTab, 
@@ -14,7 +14,10 @@ export default function Navbar({
   theme = 'light',
   onToggleTheme,
   dbStatus = null,
-  onOpenDbStatus
+  onOpenDbStatus,
+  onOpenBackupModal,
+  onOpenDeletedModal,
+  deletedCount = 0
 }) {
   const tabs = [
     { id: 'calendar', label: 'Calendario', shortLabel: 'Agenda', mobileLabel: 'Agenda', icon: Calendar },
@@ -138,6 +141,37 @@ export default function Navbar({
                   <span className="hidden 2xl:inline">
                     {dbStatus.database?.connected ? 'Nube Segura' : 'Modo Memoria'}
                   </span>
+                </button>
+              )}
+
+              {/* Botón Papelera de Citas Eliminadas */}
+              {onOpenDeletedModal && (
+                <button
+                  type="button"
+                  onClick={onOpenDeletedModal}
+                  className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-amber-200/70 dark:border-amber-800/60 bg-amber-50/70 dark:bg-amber-950/40 hover:bg-amber-100/80 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-bold transition-all shadow-glass-sm cursor-pointer backdrop-blur-md shrink-0 relative"
+                  title="Papelera de citas eliminadas (Protección y restauración con 1-clic)"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  <span className="hidden 2xl:inline">Papelera</span>
+                  {deletedCount > 0 && (
+                    <span className="px-1.5 py-0.2 bg-amber-500 text-white rounded-full text-[10px] font-black">
+                      {deletedCount}
+                    </span>
+                  )}
+                </button>
+              )}
+
+              {/* Botón Copias de Seguridad y Respaldo */}
+              {onOpenBackupModal && (
+                <button
+                  type="button"
+                  onClick={onOpenBackupModal}
+                  className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-indigo-200/70 dark:border-indigo-800/60 bg-indigo-50/70 dark:bg-indigo-950/40 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold transition-all shadow-glass-sm cursor-pointer backdrop-blur-md shrink-0"
+                  title="Copias de seguridad en archivo JSON y guía de backups de Supabase"
+                >
+                  <Download className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                  <span className="hidden 2xl:inline">Respaldos</span>
                 </button>
               )}
 

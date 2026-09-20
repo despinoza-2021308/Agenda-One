@@ -7,6 +7,7 @@ const clientesRoutes = require('./clientesRoutes');
 const citasRoutes = require('./citasRoutes');
 const reportesRoutes = require('./reportesRoutes');
 const portalRoutes = require('./portalRoutes');
+const backupRoutes = require('./backupRoutes');
 const { requireAdminAuth } = require('../middlewares/auth');
 const { requireDatabaseConnection } = require('../middlewares/databaseGuard');
 
@@ -21,6 +22,7 @@ router.use('/capacitadores', requireAdminAuth, requireDatabaseConnection, capaci
 router.use('/clientes', requireAdminAuth, requireDatabaseConnection, clientesRoutes);
 router.use('/citas', requireAdminAuth, requireDatabaseConnection, citasRoutes);
 router.use('/reportes', reportesRoutes);
+router.use('/backup', backupRoutes);
 
 router.get('/health', (req, res) => {
   const db = require('../config/db');
