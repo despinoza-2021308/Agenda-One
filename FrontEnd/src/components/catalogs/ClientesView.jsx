@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Building2, Plus, Search, Phone, Mail, User, MapPin, Edit2, Trash2, Check, X, AlertCircle, ArrowLeft } from 'lucide-react';
 import ConfirmModal from '../common/ConfirmModal';
 
-export default function ClientesView({ clientes = [], citas = [], onSaveCliente, onDeleteCliente, onBackToCalendar }) {
+export default function ClientesView({ clientes = [], citas = [], onSaveCliente, onDeleteCliente, onBackToCalendar, isLoading = false, isSyncing = false }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCliente, setEditingCliente] = useState(null);
@@ -146,10 +146,18 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
             </button>
           )}
           <div>
-            <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              Catálogo de Clientes y Empresas ({clientes.length})
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                Catálogo de Clientes y Empresas ({clientes.length})
+              </h2>
+              {isSyncing && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-950/70 dark:text-blue-300 animate-pulse border border-blue-200 dark:border-blue-800">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span>
+                  Sincronizando nube
+                </span>
+              )}
+            </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               Empresas a las que se les imparten cursos, auditorías y asesorías
             </p>
@@ -179,93 +187,141 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
         </div>
       </div>
 
-      {/* Grid de Clientes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-        {filteredClientes.map((cliente) => {
-          const clientCitas = citas.filter(c =>
-            Number(c.cliente_id) === Number(cliente.id) ||
-            (c.cliente_nombre && c.cliente_nombre.trim().toLowerCase() === cliente.nombre_empresa.trim().toLowerCase())
-          );
-          const totalHoras = clientCitas.reduce((sum, c) => sum + (parseFloat(c.horas) || 0), 0);
-
-          return (
+      {/* Grid de Clientes o Skeletons */}
+      {isLoading && clientes.length === 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+          {[...Array(10)].map((_, i) => (
             <div
-              key={cliente.id}
-              className="glass-card glass-card-hover rounded-3xl p-5 border border-white/80 dark:border-white/10 shadow-glass-sm hover:shadow-glass-hover transition-all duration-200 flex flex-col justify-between group"
+              key={`skeleton-${i}`}
+              className="glass-card rounded-3xl p-5 border border-white/60 dark:border-white/10 shadow-glass-sm animate-pulse flex flex-col justify-between h-52 bg-white/40 dark:bg-slate-800/40"
             >
               <div>
                 <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center font-bold">
-                    <Building2 className="w-5 h-5" />
+                  <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-700/60"></div>
+                  <div className="w-12 h-5 rounded-lg bg-slate-200 dark:bg-slate-700/60"></div>
+                </div>
+                <div className="h-4 bg-slate-200 dark:bg-slate-700/60 rounded w-3/4 mb-3"></div>
+                <div className="space-y-2">
+                  <div className="h-3 bg-slate-200 dark:bg-slate-700/60 rounded w-1/2"></div>
+                  <div className="h-3 bg-slate-200 dark:bg-slate-700/60 rounded w-2/3"></div>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+                <div className="h-3 bg-slate-200 dark:bg-slate-700/60 rounded w-16"></div>
+                <div className="h-3 bg-slate-200 dark:bg-slate-700/60 rounded w-12"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredClientes.length === 0 ? (
+        <div className="glass-card rounded-3xl p-12 text-center border border-white/80 dark:border-white/10 shadow-glass-sm">
+          <Building2 className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
+            {searchTerm ? 'No se encontraron clientes coincidentes' : 'No hay clientes registrados'}
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-4">
+            {searchTerm
+              ? `No hay empresas que coincidan con "${searchTerm}". Intenta con otro término.`
+              : 'Agrega tu primera empresa o cliente usando el botón "Nuevo Cliente".'}
+          </p>
+          {!searchTerm && (
+            <button
+              onClick={openNewModal}
+              className="inline-flex items-center gap-1.5 liquid-btn-primary px-4 py-2 rounded-xl text-xs font-bold shadow-md cursor-pointer"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Nuevo Cliente</span>
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+          {filteredClientes.map((cliente) => {
+            const clientCitas = citas.filter(c =>
+              Number(c.cliente_id) === Number(cliente.id) ||
+              (c.cliente_nombre && c.cliente_nombre.trim().toLowerCase() === cliente.nombre_empresa.trim().toLowerCase())
+            );
+            const totalHoras = clientCitas.reduce((sum, c) => sum + (parseFloat(c.horas) || 0), 0);
+
+            return (
+              <div
+                key={cliente.id}
+                className="glass-card glass-card-hover rounded-3xl p-5 border border-white/80 dark:border-white/10 shadow-glass-sm hover:shadow-glass-hover transition-all duration-200 flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center font-bold">
+                      <Building2 className="w-5 h-5" />
+                    </div>
+                    <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => openEditModal(cliente)}
+                        title="Editar"
+                        className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(cliente.id)}
+                        title="Eliminar"
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => openEditModal(cliente)}
-                      title="Editar"
-                      className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(cliente.id)}
-                      title="Eliminar"
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+
+                  <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-2 line-clamp-2">
+                    {cliente.nombre_empresa}
+                  </h3>
+
+                  <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
+                    {cliente.contacto && (
+                      <div className="flex items-center gap-2">
+                        <User className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="truncate">{cliente.contacto}</span>
+                      </div>
+                    )}
+                    {cliente.telefono && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{cliente.telefono}</span>
+                      </div>
+                    )}
+                    {cliente.correo && (
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="truncate">{cliente.correo}</span>
+                      </div>
+                    )}
+                    {cliente.direccion && (
+                      <div className="flex items-start gap-2 pt-0.5">
+                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                        <span className="line-clamp-2 text-[11px] text-slate-500 dark:text-slate-400 leading-snug">{cliente.direccion}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Métricas de horas de capacitación */}
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">Actividad:</span>
+                    <span className={`font-bold px-2 py-0.5 rounded-full ${clientCitas.length > 0 ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
+                      {clientCitas.length} {clientCitas.length === 1 ? 'cita' : 'citas'} ({totalHoras}h)
+                    </span>
                   </div>
                 </div>
 
-                <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-2 line-clamp-2">
-                  {cliente.nombre_empresa}
-                </h3>
-
-                <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
-                  {cliente.contacto && (
-                    <div className="flex items-center gap-2">
-                      <User className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="truncate">{cliente.contacto}</span>
-                    </div>
-                  )}
-                  {cliente.telefono && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{cliente.telefono}</span>
-                    </div>
-                  )}
-                  {cliente.correo && (
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span className="truncate">{cliente.correo}</span>
-                    </div>
-                  )}
-                  {cliente.direccion && (
-                    <div className="flex items-start gap-2 pt-0.5">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
-                      <span className="line-clamp-2 text-[11px] text-slate-500 dark:text-slate-400 leading-snug">{cliente.direccion}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Métricas de horas de capacitación */}
-                <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500 dark:text-slate-400 font-medium">Actividad:</span>
-                  <span className={`font-bold px-2 py-0.5 rounded-full ${clientCitas.length > 0 ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
-                    {clientCitas.length} {clientCitas.length === 1 ? 'cita' : 'citas'} ({totalHoras}h)
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500">
+                  <span>ID #{cliente.id}</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                    ● Activo
                   </span>
                 </div>
               </div>
-
-              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500">
-                <span>ID #{cliente.id}</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                  ● Activo
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Modal para Crear / Editar Cliente montado en Portal (z-[9999]) */}
       {isModalOpen && createPortal(

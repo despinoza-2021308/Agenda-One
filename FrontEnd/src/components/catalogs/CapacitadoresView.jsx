@@ -46,7 +46,7 @@ function generateRandomSecurePin() {
   return '8492';
 }
 
-export default function CapacitadoresView({ capacitadores = [], citas = [], onSaveCapacitador, onDeleteCapacitador, onBackToCalendar }) {
+export default function CapacitadoresView({ capacitadores = [], citas = [], onSaveCapacitador, onDeleteCapacitador, onBackToCalendar, isLoading = false, isSyncing = false }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCap, setEditingCap] = useState(null);
   const [formData, setFormData] = useState({
@@ -249,10 +249,18 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
             </button>
           )}
           <div>
-            <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              Catálogo de Capacitadores ({capacitadores.length})
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                Catálogo de Capacitadores ({capacitadores.length})
+              </h2>
+              {isSyncing && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-950/70 dark:text-blue-300 animate-pulse border border-blue-200 dark:border-blue-800">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span>
+                  Sincronizando nube
+                </span>
+              )}
+            </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               Personal docente con iniciales, color y PIN privado para acceso al portal móvil
             </p>
@@ -268,7 +276,26 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
         </button>
       </div>
 
-      {/* Grid de Capacitadores */}
+      {/* Grid de Capacitadores o Skeletons */}
+      {isLoading && capacitadores.length === 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={`cap-skel-${i}`}
+              className="glass-card rounded-3xl p-5 border border-white/60 dark:border-white/10 shadow-glass-sm animate-pulse flex items-center justify-between bg-white/40 dark:bg-slate-800/40 h-24"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-slate-700/60"></div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-slate-200 dark:bg-slate-700/60 rounded w-28"></div>
+                  <div className="h-3 bg-slate-200 dark:bg-slate-700/60 rounded w-16"></div>
+                </div>
+              </div>
+              <div className="w-12 h-6 bg-slate-200 dark:bg-slate-700/60 rounded-xl"></div>
+            </div>
+          ))}
+        </div>
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
         {capacitadores.map((cap) => (
           <div
@@ -351,6 +378,7 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
           </div>
         ))}
       </div>
+      )}
 
       {/* Modal Crear / Editar montado en Portal (z-[9999]) para que nunca quede tapado por el navbar ni se corte */}
       {isModalOpen && createPortal(

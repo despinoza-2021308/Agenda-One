@@ -44,7 +44,9 @@ export default function HonorariosView({
   isAdmin = false,
   onOpenAdminLogin,
   onShowToast,
-  onBackToCalendar
+  onBackToCalendar,
+  isLoading = false,
+  isSyncing = false
 }) {
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth());
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
@@ -322,8 +324,13 @@ export default function HonorariosView({
                   Quetzales (GTQ)
                 </span>
               </h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Cálculo en tiempo real basado en tarifas por hora oficiales y registro de citas del modelo AD-RE-11
+              <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2 flex-wrap">
+                <span>Cálculo en tiempo real basado en tarifas por hora oficiales y registro de citas del modelo AD-RE-11</span>
+                {isSyncing && (
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800 animate-pulse">
+                    ● Sincronizando nube
+                  </span>
+                )}
               </p>
             </div>
           </div>
@@ -363,6 +370,16 @@ export default function HonorariosView({
           </button>
         </div>
       </div>
+
+      {/* Banner de Carga Inicial si aún no hay datos en memoria */}
+      {isLoading && (
+        <div className="p-6 rounded-3xl bg-blue-500/10 dark:bg-blue-950/40 border border-blue-400/30 text-blue-900 dark:text-blue-200 flex items-center justify-center gap-3 animate-pulse">
+          <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin shrink-0" />
+          <span className="text-xs sm:text-sm font-bold">
+            Sincronizando y calculando honorarios de consultores desde la nube... ⏳
+          </span>
+        </div>
+      )}
 
       {/* Tarjetas de Métricas Globales (KPIs) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

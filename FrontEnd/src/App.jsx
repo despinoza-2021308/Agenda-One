@@ -14,6 +14,7 @@ import MobileQrModal from './components/common/MobileQrModal';
 import ExcelImportView from './components/import/ExcelImportView';
 import DbStatusModal from './components/common/DbStatusModal';
 import { getLocalDateString } from './utils/dateUtils';
+import { getCachedData, setCachedData, hasCachedData } from './utils/cacheUtils';
 import { api, authStorage } from './services/api';
 import { loadMonthUpdates, recordMonthUpdate } from './utils/monthAuditUtils';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
@@ -115,10 +116,11 @@ export default function App() {
   const [isAdminLoginModalOpen, setIsAdminLoginModalOpen] = useState(false);
   const [pendingAdminAction, setPendingAdminAction] = useState(null);
 
-  // Catálogos y Citas
-  const [capacitadores, setCapacitadores] = useState([]);
-  const [clientes, setClientes] = useState([]);
-  const [citas, setCitas] = useState([]);
+  // Catálogos y Citas con persistencia local instantánea (Stale-While-Revalidate: 0ms de espera)
+  const [capacitadores, setCapacitadores] = useState(() => getCachedData('agenda_capacitadores_cache', []));
+  const [clientes, setClientes] = useState(() => getCachedData('agenda_clientes_cache', []));
+  const [citas, setCitas] = useState(() => getCachedData('agenda_citas_cache', []));
+  const [isSyncingData, setIsSyncingData] = useState(() => !hasCachedData('agenda_citas_cache'));
 
   // Estado del Modal de Cita
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
@@ -219,21 +221,27 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Cargar capacitadores
+  // Cargar capacitadores con sincronización de caché local
   const loadCapacitadores = useCallback(async () => {
     try {
       const capsData = await api.getCapacitadores();
-      setCapacitadores(capsData);
+      if (Array.isArray(capsData) && capsData.length > 0) {
+        setCapacitadores(capsData);
+        setCachedData('agenda_capacitadores_cache', capsData);
+      }
     } catch (err) {
       console.error('Error al cargar capacitadores:', err);
     }
   }, []);
 
-  // Cargar catálogo de clientes
+  // Cargar catálogo de clientes con sincronización de caché local
   const loadClientes = useCallback(async () => {
     try {
       const clientsData = await api.getClientes();
-      setClientes(clientsData);
+      if (Array.isArray(clientsData) && clientsData.length > 0) {
+        setClientes(clientsData);
+        setCachedData('agenda_clientes_cache', clientsData);
+      }
     } catch (err) {
       console.error('Error al cargar clientes:', err);
     }
@@ -243,7 +251,11 @@ export default function App() {
   const loadCitas = useCallback(async () => {
     try {
       const citasData = await api.getCitas();
-      setCitas(citasData);
+      if (Array.isArray(citasData)) {
+        setCitas(citasData);
+        setCachedData('agenda_citas_cache', citasData);
+      }
+      setIsSyncingData(false);
 
       // Auto-enfoque al ciclo con citas registradas si el usuario está en un mes vacío de otro año
       if (Array.isArray(citasData) && citasData.length > 0) {
@@ -266,6 +278,7 @@ export default function App() {
       }
     } catch (err) {
       console.error('Error al cargar citas:', err);
+      setIsSyncingData(false);
     }
   }, []);
 
@@ -741,6 +754,8 @@ export default function App() {
             onOpenAdminLogin={() => setIsAdminLoginModalOpen(true)}
             onShowToast={showToast}
             onBackToCalendar={() => setActiveTab('calendar')}
+            isLoading={isSyncingData && citas.length === 0}
+            isSyncing={isSyncingData}
           />
         )}
 
@@ -791,6 +806,8 @@ export default function App() {
             onSaveCapacitador={handleSaveCapacitador}
             onDeleteCapacitador={handleDeleteCapacitador}
             onBackToCalendar={() => setActiveTab('calendar')}
+            isLoading={isSyncingData && capacitadores.length === 0}
+            isSyncing={isSyncingData}
           />
         )}
 
@@ -801,6 +818,8 @@ export default function App() {
             onSaveCliente={handleSaveCliente}
             onDeleteCliente={handleDeleteCliente}
             onBackToCalendar={() => setActiveTab('calendar')}
+            isLoading={isSyncingData && clientes.length === 0}
+            isSyncing={isSyncingData}
           />
         )}
       </main>
