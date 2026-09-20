@@ -12,7 +12,7 @@ async function getClientes(req, res, next) {
         const result = await db.pool.query(
           'SELECT id, nombre_empresa, contacto, telefono, correo, direccion, facturacion, activo, created_at FROM clientes ORDER BY nombre_empresa ASC'
         );
-        if (result.rows && result.rows.length >= 50) {
+        if (result.rows) {
           if (!isAdmin) {
             return res.json(result.rows.map(c => ({
               id: c.id,

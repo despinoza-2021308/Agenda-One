@@ -394,6 +394,7 @@ async function createCita(req, res, next) {
             AND c.hora_inicio < $3
             AND c.hora_fin > $4
             AND (c.estado IS NULL OR c.estado <> 'Cancelada')
+            AND c.deleted_at IS NULL
           LIMIT 1
         `;
         const overlapCheck = await db.pool.query(overlapQuery, [
@@ -416,6 +417,7 @@ async function createCita(req, res, next) {
           c.capacitador_id === parseInt(capacitador_id, 10) &&
           c.fecha === fecha &&
           c.estado !== 'Cancelada' &&
+          !c.deleted_at &&
           c.hora_inicio < hora_fin &&
           c.hora_fin > hora_inicio
         );
@@ -646,6 +648,7 @@ async function updateCita(req, res, next) {
             AND c.hora_fin > $4
             AND c.id <> $5
             AND (c.estado IS NULL OR c.estado <> 'Cancelada')
+            AND c.deleted_at IS NULL
           LIMIT 1
         `;
         const overlapCheck = await db.pool.query(overlapQuery, [
@@ -670,6 +673,7 @@ async function updateCita(req, res, next) {
           c.fecha === fecha &&
           c.id !== parseInt(id, 10) &&
           c.estado !== 'Cancelada' &&
+          !c.deleted_at &&
           c.hora_inicio < hora_fin &&
           c.hora_fin > hora_inicio
         );

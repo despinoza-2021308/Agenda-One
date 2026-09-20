@@ -624,9 +624,15 @@ async function autoInitTables(client) {
       ALTER TABLE clientes ALTER COLUMN correo TYPE VARCHAR(255);
       ALTER TABLE clientes ADD COLUMN IF NOT EXISTS direccion TEXT;
       ALTER TABLE clientes ADD COLUMN IF NOT EXISTS facturacion TEXT;
+
+      CREATE TABLE IF NOT EXISTS configuracion_sistema (
+        clave VARCHAR(50) PRIMARY KEY,
+        valor TEXT,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
     `);
 
-    // 1. Sincronizar catálogo de capacitadores PRIMERO (para satisfacer las claves foráneas de citas)
+    // 1. Sincronizar catálogo de capacitadores PRIMERO (preservando PINs y modificaciones existentes)
     try {
       for (const cap of mockStore.capacitadores) {
         await client.query(`
@@ -636,7 +642,7 @@ async function autoInitTables(client) {
             nombre_completo = EXCLUDED.nombre_completo,
             color = EXCLUDED.color,
             tarifa_hora = EXCLUDED.tarifa_hora,
-            pin = EXCLUDED.pin;
+            pin = COALESCE(capacitadores.pin, EXCLUDED.pin);
         `, [cap.id, cap.nombre_completo, cap.iniciales, cap.color, cap.tarifa_hora, cap.pin || '1000']);
       }
       await client.query("SELECT setval('capacitadores_id_seq', (SELECT COALESCE(MAX(id), 1) FROM capacitadores));");
@@ -645,47 +651,35 @@ async function autoInitTables(client) {
       console.warn('⚠️ [DB] Aviso al sincronizar capacitadores:', capSyncErr.message);
     }
 
-    // 2. Sincronizar catálogo de clientes SEGUNDO
+    // 2. Sincronizar catálogo de clientes SEGUNDO (solo inicializar si la tabla está completamente vacía)
     try {
       const cliCountRes = await client.query('SELECT COUNT(*) FROM clientes');
       const currentCliCount = parseInt(cliCountRes.rows[0].count, 10);
-      if (currentCliCount < mockStore.clientes.length) {
-        console.log(`📦 [DB] Sincronizando catálogo completo de ${mockStore.clientes.length} clientes en PostgreSQL...`);
+      if (currentCliCount === 0) {
+        console.log(`📦 [DB] Inicializando catálogo de ${mockStore.clientes.length} clientes en PostgreSQL...`);
         for (const cli of mockStore.clientes) {
           await client.query(`
             INSERT INTO clientes (id, nombre_empresa, contacto, telefono, correo, direccion, facturacion)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
-            ON CONFLICT (id) DO UPDATE SET
-              nombre_empresa = EXCLUDED.nombre_empresa,
-              contacto = EXCLUDED.contacto,
-              telefono = EXCLUDED.telefono,
-              correo = EXCLUDED.correo,
-              direccion = EXCLUDED.direccion,
-              facturacion = EXCLUDED.facturacion;
+            ON CONFLICT (id) DO NOTHING;
           `, [cli.id, cli.nombre_empresa, cli.contacto || '', cli.telefono || '', cli.correo || '', cli.direccion || '', cli.facturacion || '']);
         }
         await client.query("SELECT setval('clientes_id_seq', (SELECT COALESCE(MAX(id), 1) FROM clientes));");
-        console.log(`✅ [DB] ${mockStore.clientes.length} clientes sincronizados exitosamente.`);
+        console.log(`✅ [DB] ${mockStore.clientes.length} clientes inicializados exitosamente.`);
       }
     } catch (cliSyncErr) {
       console.warn('⚠️ [DB] Aviso al sincronizar clientes:', cliSyncErr.message);
     }
 
-    // 3. Sincronizar citas TERCERO (poblando todos los meses de 2026 sin duplicados)
+    // 3. Sincronizar citas TERCERO (solo en la primera instalación, nunca resucitar citas eliminadas)
     try {
-      const existingCitasRes = await client.query(`
-        SELECT TO_CHAR(fecha, 'YYYY-MM-DD') AS fecha, TO_CHAR(hora_inicio, 'HH24:MI') AS hora_inicio, capacitador_id
-        FROM citas
-      `);
-      const existingKeys = new Set(
-        existingCitasRes.rows.map(r => `${r.fecha}_${(r.hora_inicio || '').slice(0, 5)}_${r.capacitador_id}`)
-      );
+      const seedCheck = await client.query("SELECT valor FROM configuracion_sistema WHERE clave = 'seed_citas_inicial_completado'");
+      const citasCountRes = await client.query('SELECT COUNT(*) FROM citas');
+      const currentCitasTotal = parseInt(citasCountRes.rows[0].count, 10);
 
-      let insertedCount = 0;
-      for (const cita of mockStore.citas) {
-        const hIni = (cita.hora_inicio || '').slice(0, 5);
-        const key = `${cita.fecha}_${hIni}_${cita.capacitador_id}`;
-        if (!existingKeys.has(key)) {
+      if (seedCheck.rows.length === 0 && currentCitasTotal === 0) {
+        let insertedCount = 0;
+        for (const cita of mockStore.citas) {
           await client.query(`
             INSERT INTO citas (cliente_id, cliente_nombre, capacitador_id, fecha, hora_inicio, hora_fin, horas, modalidad, tipo_servicio, estado, observaciones, bitacora, tarifa_hora)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
@@ -704,14 +698,16 @@ async function autoInitTables(client) {
             cita.bitacora || '',
             cita.tarifa_hora || 150.00
           ]);
-          existingKeys.add(key);
           insertedCount++;
         }
+        await client.query("INSERT INTO configuracion_sistema (clave, valor) VALUES ('seed_citas_inicial_completado', 'true') ON CONFLICT (clave) DO NOTHING;");
+        if (insertedCount > 0) {
+          console.log(`✅ [DB] ${insertedCount} citas iniciales sincronizadas en PostgreSQL.`);
+        }
+        await client.query("SELECT setval('citas_id_seq', (SELECT COALESCE(MAX(id), 1) FROM citas));");
+      } else if (seedCheck.rows.length === 0 && currentCitasTotal > 0) {
+        await client.query("INSERT INTO configuracion_sistema (clave, valor) VALUES ('seed_citas_inicial_completado', 'true') ON CONFLICT (clave) DO NOTHING;");
       }
-      if (insertedCount > 0) {
-        console.log(`✅ [DB] ${insertedCount} citas oficiales 2026 sincronizadas en PostgreSQL.`);
-      }
-      await client.query("SELECT setval('citas_id_seq', (SELECT COALESCE(MAX(id), 1) FROM citas));");
     } catch (seedErr) {
       console.warn('⚠️ [DB] Aviso al sincronizar citas semilla:', seedErr.message);
     }

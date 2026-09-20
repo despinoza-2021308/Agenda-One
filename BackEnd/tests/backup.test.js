@@ -232,5 +232,126 @@ describe('Pruebas de Papelera (Soft Delete), Restauración y Exportación de Bac
     assert.strictEqual(finalPapelera.find(c => c.id === c1.id), undefined);
     assert.strictEqual(finalPapelera.find(c => c.id === c2.id), undefined);
   });
+
+  it('Conflicto de Horario: una cita en papelera NO debe bloquear un nuevo agendamiento en su horario', async () => {
+    // 1. Crear una cita a las 14:00 - 16:00
+    const createRes = await fetch(`${baseUrl}/api/citas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        cliente_nombre: 'Empresa Test Conflicto',
+        capacitador_id: 3,
+        fecha: '2026-12-05',
+        hora_inicio: '14:00',
+        hora_fin: '16:00',
+        horas: 2.0,
+        modalidad: 'Presencial',
+        tipo_servicio: 'Consultoría',
+        estado: 'Programada'
+      })
+    });
+    assert.strictEqual(createRes.status, 201);
+    const citaCreada = await createRes.json();
+
+    // 2. Mover la cita a la papelera (soft delete)
+    const delRes = await fetch(`${baseUrl}/api/citas/${citaCreada.id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    assert.strictEqual(delRes.status, 200);
+
+    // 3. Intentar crear una nueva cita para el mismo capacitador en el mismo horario (14:00 - 16:00)
+    // Debe permitirse (201) y no responder 409 Conflicto
+    const newRes = await fetch(`${baseUrl}/api/citas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        cliente_nombre: 'Empresa Reemplazo Horario',
+        capacitador_id: 3,
+        fecha: '2026-12-05',
+        hora_inicio: '14:00',
+        hora_fin: '16:00',
+        horas: 2.0,
+        modalidad: 'Virtual',
+        tipo_servicio: 'Capacitación',
+        estado: 'Programada'
+      })
+    });
+    assert.strictEqual(newRes.status, 201, 'No debe existir conflicto con citas que están en la papelera');
+  });
+
+  it('Reportes y Portal: citas en papelera NO deben sumar horas en reportes ni mostrarse en el portal móvil', async () => {
+    // Consultar horas iniciales del mes 2026-12
+    const repAntesRes = await fetch(`${baseUrl}/api/reportes/resumen-mensual?year=2026&month=12`);
+    const repAntes = await repAntesRes.json();
+    const horasAntes = repAntes.kpis.totalHorasMes;
+
+    // Crear una cita de 4 horas en 2026-12-15
+    const createRes = await fetch(`${baseUrl}/api/citas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        cliente_nombre: 'Empresa Reporte Test',
+        capacitador_id: 1, // Mariana Orellana (MO)
+        fecha: '2026-12-15',
+        hora_inicio: '08:00',
+        hora_fin: '12:00',
+        horas: 4.0,
+        modalidad: 'Presencial',
+        tipo_servicio: 'Capacitación',
+        estado: 'Programada'
+      })
+    });
+    const cita = await createRes.json();
+
+    // Comprobar que sumó 4 horas
+    const repConCitaRes = await fetch(`${baseUrl}/api/reportes/resumen-mensual?year=2026&month=12`);
+    const repConCita = await repConCitaRes.json();
+    assert.strictEqual(repConCita.kpis.totalHorasMes, horasAntes + 4);
+
+    // Mover a papelera
+    await fetch(`${baseUrl}/api/citas/${cita.id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+
+    // Comprobar que en el reporte ya NO suma las 4 horas
+    const repDespuesRes = await fetch(`${baseUrl}/api/reportes/resumen-mensual?year=2026&month=12`);
+    const repDespues = await repDespuesRes.json();
+    assert.strictEqual(repDespues.kpis.totalHorasMes, horasAntes, 'El reporte no debe sumar horas de citas en papelera');
+
+    // Comprobar que en el portal móvil tampoco aparece
+    const portalRes = await fetch(`${baseUrl}/api/portal/MO?year=2026&month=12`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const portalData = await portalRes.json();
+    const foundInPortal = (portalData.citas_mes || []).find(c => c.id === cita.id);
+    assert.strictEqual(foundInPortal, undefined, 'La cita en papelera no debe aparecer en el portal móvil');
+  });
+
+  it('POST /api/backup/restore debe restaurar los datos sin duplicar registros', async () => {
+    // Exportar el backup actual
+    const exportRes = await fetch(`${baseUrl}/api/backup/export`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const backupJson = await exportRes.json();
+    const totalOriginal = backupJson.stats.total_citas;
+
+    // Restaurar inmediatamente el mismo backup
+    const restoreRes = await fetch(`${baseUrl}/api/backup/restore`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify(backupJson)
+    });
+    assert.strictEqual(restoreRes.status, 200);
+
+    // Exportar de nuevo y comprobar que el número de citas NO se duplicó
+    const export2Res = await fetch(`${baseUrl}/api/backup/export`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const backup2Json = await export2Res.json();
+    assert.strictEqual(backup2Json.stats.total_citas, totalOriginal, 'El total de citas debe ser el mismo y no duplicarse');
+  });
 });
+
 

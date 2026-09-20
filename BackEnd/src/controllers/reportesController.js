@@ -35,6 +35,7 @@ async function getResumenMensual(req, res, next) {
         LEFT JOIN citas ci ON c.id = ci.capacitador_id 
           AND EXTRACT(YEAR FROM ci.fecha) = $1 
           AND EXTRACT(MONTH FROM ci.fecha) = $2
+          AND ci.deleted_at IS NULL
         WHERE c.activo = TRUE
         GROUP BY c.id, c.nombre_completo, c.iniciales, c.color, c.tarifa_hora
         ORDER BY total_horas DESC, c.nombre_completo ASC
@@ -46,7 +47,7 @@ async function getResumenMensual(req, res, next) {
       // Si PostgreSQL no tiene citas para este mes pero mockStore sí tiene, usar mockStore como fallback de seguridad
       const mockMonthCitas = db.mockStore.citas.filter(ci => {
         const [y, m] = String(ci.fecha).split('T')[0].split('-').map(Number);
-        return y === year && m === month && ci.estado !== 'Cancelada';
+        return y === year && m === month && ci.estado !== 'Cancelada' && !ci.deleted_at;
       });
 
       if ((stats.totalHorasMes === 0 || stats.totalCitasMes === 0) && mockMonthCitas.length > 0) {
@@ -64,7 +65,7 @@ async function getResumenMensual(req, res, next) {
     const capacitadores = db.mockStore.capacitadores.filter(c => c.activo);
     const citasDelMes = db.mockStore.citas.filter(ci => {
       const [y, m] = ci.fecha.split('-').map(Number);
-      return y === year && m === month;
+      return y === year && m === month && !ci.deleted_at;
     });
 
     const resumen = capacitadores.map(cap => {
@@ -145,7 +146,7 @@ async function getHistorico(req, res, next) {
           COUNT(CASE WHEN ci.estado = 'Impartida' THEN 1 END)::INT AS citas_impartidas_historico,
           COALESCE(SUM(CASE WHEN ci.estado <> 'Cancelada' OR ci.estado IS NULL THEN ci.horas ELSE 0 END), 0)::FLOAT AS total_horas_historico
         FROM capacitadores c
-        LEFT JOIN citas ci ON c.id = ci.capacitador_id
+        LEFT JOIN citas ci ON c.id = ci.capacitador_id AND ci.deleted_at IS NULL
         WHERE c.activo = TRUE
         GROUP BY c.id, c.nombre_completo, c.iniciales, c.color
         ORDER BY total_horas_historico DESC
@@ -161,7 +162,7 @@ async function getHistorico(req, res, next) {
 
     // Modo respaldo
     const resumen = db.mockStore.capacitadores.filter(c => c.activo).map(cap => {
-      const citasCap = db.mockStore.citas.filter(ci => ci.capacitador_id === cap.id);
+      const citasCap = db.mockStore.citas.filter(ci => ci.capacitador_id === cap.id && !ci.deleted_at);
       const total_citas_historico = citasCap.length;
       const citas_impartidas_historico = citasCap.filter(ci => ci.estado === 'Impartida').length;
       const total_horas_historico = citasCap

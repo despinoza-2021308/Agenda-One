@@ -214,15 +214,15 @@ async function getTrainerPortalData(req, res, next) {
         FROM citas c
         LEFT JOIN clientes cl ON c.cliente_id = cl.id
         INNER JOIN capacitadores cp ON c.capacitador_id = cp.id
-        WHERE c.capacitador_id = $1
+        WHERE c.capacitador_id = $1 AND c.deleted_at IS NULL
         ORDER BY c.fecha ASC, c.hora_inicio ASC`,
         [capacitador.id]
       );
 
-      if (citasRes.rows.length === 0 && db.mockStore.citas.some(c => c.capacitador_id === capacitador.id)) {
+      if (citasRes.rows.length === 0 && db.mockStore.citas.some(c => c.capacitador_id === capacitador.id && !c.deleted_at)) {
         console.warn(`⚠️ [Portal] PostgreSQL retornó 0 citas para capacitador ${codigo}. Usando fallback de mockStore.`);
         citas = db.mockStore.citas
-          .filter(c => c.capacitador_id === capacitador.id)
+          .filter(c => c.capacitador_id === capacitador.id && !c.deleted_at)
           .map(c => {
             const cli = db.mockStore.clientes.find(item => item.id === c.cliente_id) || {};
             return {
@@ -248,7 +248,7 @@ async function getTrainerPortalData(req, res, next) {
       }
     } else {
       citas = db.mockStore.citas
-        .filter(c => c.capacitador_id === capacitador.id)
+        .filter(c => c.capacitador_id === capacitador.id && !c.deleted_at)
         .map(c => {
           const cli = db.mockStore.clientes.find(item => item.id === c.cliente_id) || {};
           return {

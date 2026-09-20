@@ -164,7 +164,12 @@ async function restoreBackup(req, res, next) {
           ]);
         }
 
-        // 3. Restaurar Citas
+        // 3. Restaurar Citas (limpiar previamente para garantizar restauración fiel sin duplicación)
+        await client.query('DELETE FROM citas');
+        try {
+          await client.query("SELECT setval('citas_id_seq', 1, false);");
+        } catch (_) {}
+
         let restoredCitasCount = 0;
         for (const c of citas) {
           if (!c.fecha || !c.hora_inicio || !c.hora_fin) continue;
@@ -217,6 +222,10 @@ async function restoreBackup(req, res, next) {
           restoredCitasCount++;
         }
 
+        try {
+          await client.query("SELECT setval('citas_id_seq', (SELECT COALESCE(MAX(id), 1) FROM citas));");
+        } catch (_) {}
+
         await client.query('COMMIT');
         client.release();
 
@@ -237,9 +246,39 @@ async function restoreBackup(req, res, next) {
     }
 
     // Modo respaldo en memoria
+    if (Array.isArray(citas)) {
+      db.mockStore.citas = citas.map((c, idx) => ({
+        ...c,
+        id: c.id || (idx + 1),
+        horas: Number(c.horas || 1)
+      }));
+    }
+    if (Array.isArray(clientes)) {
+      for (const cli of clientes) {
+        if (!cli.nombre_empresa) continue;
+        const exists = db.mockStore.clientes.find(c => c.nombre_empresa === cli.nombre_empresa);
+        if (exists) {
+          Object.assign(exists, cli);
+        } else {
+          db.mockStore.clientes.push({ id: db.mockStore.clientes.length + 1, ...cli });
+        }
+      }
+    }
+    if (Array.isArray(capacitadores)) {
+      for (const cap of capacitadores) {
+        if (!cap.iniciales) continue;
+        const exists = db.mockStore.capacitadores.find(c => c.iniciales === cap.iniciales);
+        if (exists) {
+          Object.assign(exists, cap);
+        } else {
+          db.mockStore.capacitadores.push({ id: db.mockStore.capacitadores.length + 1, ...cap });
+        }
+      }
+    }
+
     return res.json({
       success: true,
-      message: 'Restauración simulada en memoria completada.',
+      message: 'Restauración completada con éxito (modo en memoria).',
       stats: {
         capacitadores: capacitadores.length,
         clientes: clientes.length,
