@@ -28,13 +28,13 @@ function loginHandler(req, res) {
     });
   }
 
-  // Generar JWT HS256 firmado con expiración de 8 horas
+  // Generar JWT HS256 firmado con expiración extendida de 30 días
   const token = signAdminToken({ user: 'admin' });
   return res.json({
     success: true,
     token,
     role: 'admin',
-    expiresIn: 8 * 3600,
+    expiresIn: 30 * 24 * 3600,
     message: 'Acceso administrativo concedido exitosamente (Token JWT HS256 emitido).'
   });
 }

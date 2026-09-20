@@ -173,31 +173,8 @@ export default function App() {
     }
   }, []);
 
-  // Auto-cierre de sesión administrativa por inactividad (15 min) para evitar dejarla abierta
-  useEffect(() => {
-    if (!isAdmin) return;
-
-    let timeoutId;
-    const INACTIVITY_LIMIT_MS = 15 * 60 * 1000; // 15 minutos
-
-    const resetInactivityTimer = () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        authStorage.clearToken();
-        setIsAdmin(false);
-        showToast('Sesión administrativa cerrada por inactividad (15 min) 🔒', 'info');
-      }, INACTIVITY_LIMIT_MS);
-    };
-
-    const userActivityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
-    userActivityEvents.forEach((evt) => window.addEventListener(evt, resetInactivityTimer, { passive: true }));
-    resetInactivityTimer();
-
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      userActivityEvents.forEach((evt) => window.removeEventListener(evt, resetInactivityTimer));
-    };
-  }, [isAdmin]);
+  // La sesión administrativa se mantiene activa durante toda la jornada en sessionStorage.
+  // Solo se destruye automáticamente al salir/cerrar el programa o al pulsar "Cerrar Sesión".
 
   // Si se accede a la vista de portal de capacitadores, revocar automáticamente la sesión administrativa
   useEffect(() => {

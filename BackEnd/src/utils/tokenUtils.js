@@ -119,10 +119,10 @@ function verifyToken(token, secret = JWT_SECRET) {
 }
 
 /**
- * Tokens específicos de Administración (8 horas de validez)
+ * Tokens específicos de Administración (30 días de validez mientras el programa esté activo)
  */
 function signAdminToken(adminData = {}) {
-  return signToken({ role: 'admin', ...adminData }, 8 * 3600);
+  return signToken({ role: 'admin', ...adminData }, 30 * 24 * 3600);
 }
 
 function verifyAdminToken(token) {
