@@ -330,18 +330,16 @@ export default function CalendarView({
                 className="bg-transparent text-xs font-black text-slate-800 dark:text-slate-100 border-none outline-none cursor-pointer px-1.5 py-0.5 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 transition-colors"
                 title="Seleccionar mes de la agenda"
               >
-                <option value="2026-0" className="dark:bg-slate-800 text-slate-900 dark:text-white">Ene 2026</option>
-                <option value="2026-1" className="dark:bg-slate-800 text-slate-900 dark:text-white">Feb 2026</option>
-                <option value="2026-2" className="dark:bg-slate-800 text-slate-900 dark:text-white">Mar 2026</option>
-                <option value="2026-3" className="dark:bg-slate-800 text-slate-900 dark:text-white">Abr 2026 (Oficial)</option>
-                <option value="2026-4" className="dark:bg-slate-800 text-slate-900 dark:text-white">May 2026</option>
-                <option value="2026-5" className="dark:bg-slate-800 text-slate-900 dark:text-white">Jun 2026</option>
-                <option value="2026-6" className="dark:bg-slate-800 text-slate-900 dark:text-white">Jul 2026</option>
-                <option value="2026-7" className="dark:bg-slate-800 text-slate-900 dark:text-white">Ago 2026</option>
-                <option value="2026-8" className="dark:bg-slate-800 text-slate-900 dark:text-white">Sep 2026</option>
-                <option value="2026-9" className="dark:bg-slate-800 text-slate-900 dark:text-white">Oct 2026</option>
-                <option value="2026-10" className="dark:bg-slate-800 text-slate-900 dark:text-white">Nov 2026</option>
-                <option value="2026-11" className="dark:bg-slate-800 text-slate-900 dark:text-white">Dic 2026</option>
+                {MONTH_NAMES.map((mName, idx) => (
+                  <option key={`${year}-${idx}`} value={`${year}-${idx}`} className="dark:bg-slate-800 text-slate-900 dark:text-white">
+                    {mName.slice(0, 3)} {year} {year === 2026 && idx === 3 ? '(Oficial)' : ''}
+                  </option>
+                ))}
+                {year !== 2026 && (
+                  <option value="2026-3" className="dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-bold">
+                    -- Abr 2026 (Oficial) --
+                  </option>
+                )}
               </select>
 
               <button

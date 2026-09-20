@@ -973,6 +973,96 @@ async function getCitasEliminadas(req, res, next) {
   }
 }
 
+// Eliminar definitivamente una cita de la papelera (Hard Delete permanente)
+async function eliminarCitaPermanente(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    if (db.isPostgresConnected()) {
+      const result = await db.pool.query(
+        'DELETE FROM citas WHERE id = $1 AND deleted_at IS NOT NULL RETURNING id, cliente_nombre, fecha',
+        [id]
+      );
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: 'Cita no encontrada en la papelera o ya fue eliminada permanentemente.' });
+      }
+      await db.registrarAuditoria({
+        cita_id: id,
+        accion: 'ELIMINACION_PERMANENTE',
+        usuario: 'Administrador',
+        detalles: { cliente: result.rows[0].cliente_nombre, fecha: result.rows[0].fecha, tipo: 'Eliminación permanente' },
+        ip_origen: req.ip || req.headers['x-forwarded-for']
+      });
+      return res.json({
+        success: true,
+        message: 'Cita eliminada definitivamente de la base de datos.',
+        id: result.rows[0].id
+      });
+    }
+
+    const idx = db.mockStore.citas.findIndex(c => c.id === parseInt(id, 10) && !!c.deleted_at);
+    if (idx === -1) {
+      return res.status(404).json({ message: 'Cita no encontrada en la papelera o ya fue eliminada permanentemente.' });
+    }
+    const [removed] = db.mockStore.citas.splice(idx, 1);
+    await db.registrarAuditoria({
+      cita_id: id,
+      accion: 'ELIMINACION_PERMANENTE',
+      usuario: 'Administrador',
+      detalles: { cliente: removed.cliente_nombre, fecha: removed.fecha, tipo: 'Eliminación permanente' },
+      ip_origen: req.ip || req.headers['x-forwarded-for']
+    });
+    return res.json({
+      success: true,
+      message: 'Cita eliminada definitivamente de la base de datos.',
+      id: removed.id
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// Vaciar todas las citas de la papelera (Eliminación permanente en lote)
+async function vaciarPapelera(req, res, next) {
+  try {
+    if (db.isPostgresConnected()) {
+      const result = await db.pool.query(
+        'DELETE FROM citas WHERE deleted_at IS NOT NULL RETURNING id'
+      );
+      await db.registrarAuditoria({
+        cita_id: null,
+        accion: 'VACIAR_PAPELERA',
+        usuario: 'Administrador',
+        detalles: { totalEliminadas: result.rows.length },
+        ip_origen: req.ip || req.headers['x-forwarded-for']
+      });
+      return res.json({
+        success: true,
+        message: `Papelera vaciada: Se eliminaron ${result.rows.length} citas definitivamente.`,
+        count: result.rows.length
+      });
+    }
+
+    const prevCount = db.mockStore.citas.length;
+    db.mockStore.citas = db.mockStore.citas.filter(c => !c.deleted_at);
+    const removedCount = prevCount - db.mockStore.citas.length;
+    await db.registrarAuditoria({
+      cita_id: null,
+      accion: 'VACIAR_PAPELERA',
+      usuario: 'Administrador',
+      detalles: { totalEliminadas: removedCount },
+      ip_origen: req.ip || req.headers['x-forwarded-for']
+    });
+    return res.json({
+      success: true,
+      message: `Papelera vaciada: Se eliminaron ${removedCount} citas definitivamente.`,
+      count: removedCount
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 // Consultar trazabilidad / historial de auditoría de una cita
 async function getCitaAuditoria(req, res, next) {
   try {
@@ -1304,6 +1394,8 @@ module.exports = {
   updateCita,
   deleteCita,
   restaurarCita,
+  eliminarCitaPermanente,
+  vaciarPapelera,
   getCitasEliminadas,
   getCitaAuditoria,
   importarLoteCitas

@@ -138,4 +138,99 @@ describe('Pruebas de Papelera (Soft Delete), Restauración y Exportación de Bac
     assert.ok(Array.isArray(backup.data.clientes), 'Debe incluir array de clientes');
     assert.ok(Array.isArray(backup.data.capacitadores), 'Debe incluir array de capacitadores');
   });
+
+  it('DELETE /api/citas/:id/permanente debe eliminar la cita definitivamente de la papelera', async () => {
+    // Primero enviamos la cita de prueba a la papelera (soft delete)
+    await fetch(`${baseUrl}/api/citas/${testCitaId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+
+    // Ahora ejecutamos la eliminación definitiva
+    const res = await fetch(`${baseUrl}/api/citas/${testCitaId}/permanente`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+
+    assert.strictEqual(res.status, 200);
+    const data = await res.json();
+    assert.strictEqual(data.success, true);
+    assert.match(data.message, /definitivamente/i);
+
+    // Verificar que ya no está en la papelera
+    const papeleraRes = await fetch(`${baseUrl}/api/citas/eliminadas`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const eliminadas = await papeleraRes.json();
+    const found = eliminadas.find(c => c.id === testCitaId);
+    assert.strictEqual(found, undefined, 'La cita eliminada permanentemente no debe figurar en la papelera');
+
+    // Intentar eliminarla de nuevo debe responder 404
+    const retryRes = await fetch(`${baseUrl}/api/citas/${testCitaId}/permanente`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    assert.strictEqual(retryRes.status, 404);
+  });
+
+  it('DELETE /api/citas/papelera/vaciar debe eliminar por completo todas las citas en papelera', async () => {
+    // Crear dos citas y enviarlas a la papelera
+    const c1Res = await fetch(`${baseUrl}/api/citas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        cliente_nombre: 'Empresa Vaciar 1',
+        capacitador_id: 1,
+        fecha: '2026-11-10',
+        hora_inicio: '08:00',
+        hora_fin: '10:00',
+        horas: 2.0,
+        modalidad: 'Virtual',
+        tipo_servicio: 'Capacitación',
+        estado: 'Programada'
+      })
+    });
+    const c1 = await c1Res.json();
+
+    const c2Res = await fetch(`${baseUrl}/api/citas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        cliente_nombre: 'Empresa Vaciar 2',
+        capacitador_id: 2,
+        fecha: '2026-11-11',
+        hora_inicio: '10:00',
+        hora_fin: '12:00',
+        horas: 2.0,
+        modalidad: 'Presencial',
+        tipo_servicio: 'Asesoría',
+        estado: 'Programada'
+      })
+    });
+    const c2 = await c2Res.json();
+
+    // Soft delete de ambas
+    await fetch(`${baseUrl}/api/citas/${c1.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
+    await fetch(`${baseUrl}/api/citas/${c2.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
+
+    // Vaciar papelera
+    const vaciarRes = await fetch(`${baseUrl}/api/citas/papelera/vaciar`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+
+    assert.strictEqual(vaciarRes.status, 200);
+    const vaciarData = await vaciarRes.json();
+    assert.strictEqual(vaciarData.success, true);
+    assert.ok(vaciarData.count >= 2, 'El contador debe reflejar al menos las 2 citas eliminadas');
+
+    // La papelera debe estar vacía o sin esas dos citas
+    const finalPapeleraRes = await fetch(`${baseUrl}/api/citas/eliminadas`, {
+      headers: { 'Authorization': `Bearer ${adminToken}` }
+    });
+    const finalPapelera = await finalPapeleraRes.json();
+    assert.strictEqual(finalPapelera.find(c => c.id === c1.id), undefined);
+    assert.strictEqual(finalPapelera.find(c => c.id === c2.id), undefined);
+  });
 });
+

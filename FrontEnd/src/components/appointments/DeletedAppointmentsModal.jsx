@@ -11,7 +11,8 @@ import {
   RefreshCw, 
   AlertCircle,
   CheckCircle2,
-  ShieldCheck
+  ShieldCheck,
+  AlertTriangle
 } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -19,6 +20,8 @@ export default function DeletedAppointmentsModal({ isOpen, onClose, onRestored, 
   const [citas, setCitas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [restoringId, setRestoringId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [clearingTrash, setClearingTrash] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
 
@@ -42,12 +45,12 @@ export default function DeletedAppointmentsModal({ isOpen, onClose, onRestored, 
     }
   }, [isOpen]);
 
+  // 1. Restaurar cita al calendario
   const handleRestore = async (id, clienteNombre) => {
     try {
       setRestoringId(id);
       const res = await api.restoreCita(id);
       
-      // Remover de la lista local
       setCitas(prev => prev.filter(c => c.id !== id));
       
       if (showToast) {
@@ -63,6 +66,68 @@ export default function DeletedAppointmentsModal({ isOpen, onClose, onRestored, 
       }
     } finally {
       setRestoringId(null);
+    }
+  };
+
+  // 2. Eliminar cita definitivamente por completo (Hard Delete)
+  const handleDeletePermanent = async (id, clienteNombre) => {
+    const confirmed = window.confirm(
+      `¿Deseas ELIMINAR POR COMPLETO esta cita de "${clienteNombre || 'Cliente General'}"?\n\n⚠️ Esta acción borrará la cita para siempre de la base de datos y no se podrá recuperar.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingId(id);
+      const res = await api.deleteCitaPermanente(id);
+
+      setCitas(prev => prev.filter(c => c.id !== id));
+
+      if (showToast) {
+        showToast(res.message || 'Cita eliminada por completo de la base de datos', 'info');
+      }
+      if (onRestored) {
+        onRestored(id);
+      }
+    } catch (err) {
+      console.error('Error al eliminar definitivamente la cita:', err);
+      if (showToast) {
+        showToast(err.message || 'No se pudo eliminar la cita permanentemente', 'error');
+      }
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // 3. Vaciar toda la papelera
+  const handleEmptyTrash = async () => {
+    if (citas.length === 0) return;
+
+    const confirmed = window.confirm(
+      `¿Estás seguro de VACIAR TODA LA PAPELERA?\n\n⚠️ Se eliminarán por completo las ${citas.length} citas de la base de datos de manera definitiva e irreversible.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setClearingTrash(true);
+      const res = await api.vaciarPapelera();
+
+      setCitas([]);
+
+      if (showToast) {
+        showToast(res.message || 'La papelera ha sido vaciada por completo', 'info');
+      }
+      if (onRestored) {
+        onRestored();
+      }
+    } catch (err) {
+      console.error('Error al vaciar papelera:', err);
+      if (showToast) {
+        showToast(err.message || 'Error al vaciar la papelera', 'error');
+      }
+    } finally {
+      setClearingTrash(false);
     }
   };
 
@@ -102,7 +167,7 @@ export default function DeletedAppointmentsModal({ isOpen, onClose, onRestored, 
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Protección contra borrado accidental. Puedes restaurar cualquier cita con un solo clic.
+                Puedes restaurar cualquier cita o eliminarla por completo de la base de datos.
               </p>
             </div>
           </div>
@@ -114,9 +179,9 @@ export default function DeletedAppointmentsModal({ isOpen, onClose, onRestored, 
           </button>
         </div>
 
-        {/* Barra de búsqueda y acciones */}
-        <div className="p-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-slate-900/30 flex items-center justify-between gap-3">
-          <div className="relative flex-1">
+        {/* Barra de búsqueda y botón Vaciar Papelera */}
+        <div className="p-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-slate-900/30 flex items-center justify-between gap-3 flex-wrap">
+          <div className="relative flex-1 min-w-[200px]">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
@@ -126,14 +191,33 @@ export default function DeletedAppointmentsModal({ isOpen, onClose, onRestored, 
               className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-white/10 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all"
             />
           </div>
-          <button
-            onClick={fetchDeleted}
-            disabled={loading}
-            className="p-2 rounded-xl border border-slate-200 dark:border-white/10 text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            title="Actualizar lista"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
+
+          <div className="flex items-center gap-2">
+            {citas.length > 0 && (
+              <button
+                onClick={handleEmptyTrash}
+                disabled={clearingTrash}
+                className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-300/60 dark:border-rose-800 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                title="Eliminar definitivamente todas las citas de la papelera"
+              >
+                {clearingTrash ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3.5 h-3.5" />
+                )}
+                <span>Vaciar Papelera</span>
+              </button>
+            )}
+
+            <button
+              onClick={fetchDeleted}
+              disabled={loading}
+              className="p-2 rounded-xl border border-slate-200 dark:border-white/10 text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              title="Actualizar lista"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
         </div>
 
         {/* Contenido de la lista */}
@@ -159,12 +243,13 @@ export default function DeletedAppointmentsModal({ isOpen, onClose, onRestored, 
                 La papelera está vacía
               </p>
               <p className="text-[11px] max-w-sm">
-                No hay citas borradas recientemente. Si la coordinadora elimina una cita por error en el calendario, aparecerá aquí inmediatamente.
+                No hay citas borradas en la papelera.
               </p>
             </div>
           ) : (
             filteredCitas.map(cita => {
               const isRestoring = restoringId === cita.id;
+              const isDeleting = deletingId === cita.id;
               return (
                 <div
                   key={cita.id}
@@ -206,11 +291,12 @@ export default function DeletedAppointmentsModal({ isOpen, onClose, onRestored, 
                     )}
                   </div>
 
-                  <div className="shrink-0 flex items-center gap-2">
+                  {/* Botones de acción: Restaurar o Eliminar por Completo */}
+                  <div className="shrink-0 flex items-center gap-2 flex-wrap">
                     <button
                       onClick={() => handleRestore(cita.id, cita.cliente_nombre)}
-                      disabled={isRestoring}
-                      className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                      disabled={isRestoring || isDeleting}
+                      className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
                       title="Restaurar cita al calendario activo"
                     >
                       {isRestoring ? (
@@ -225,6 +311,25 @@ export default function DeletedAppointmentsModal({ isOpen, onClose, onRestored, 
                         </>
                       )}
                     </button>
+
+                    <button
+                      onClick={() => handleDeletePermanent(cita.id, cita.cliente_nombre)}
+                      disabled={isRestoring || isDeleting}
+                      className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/80 font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                      title="Eliminar definitivamente de la base de datos (irreversible)"
+                    >
+                      {isDeleting ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          Eliminando...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Eliminar por Completo
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
               );
@@ -235,7 +340,7 @@ export default function DeletedAppointmentsModal({ isOpen, onClose, onRestored, 
         {/* Pie de modal */}
         <div className="p-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50 text-xs">
           <span className="text-slate-500 dark:text-slate-400 text-[11px]">
-            Las citas restauradas reaparecerán de inmediato en la vista del calendario.
+            "Restaurar" devuelve la cita al calendario. "Eliminar por Completo" la borra definitivamente.
           </span>
           <button
             onClick={onClose}

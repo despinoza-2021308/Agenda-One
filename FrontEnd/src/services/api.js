@@ -131,6 +131,8 @@ export const api = {
   deleteCita: (id) => request(`/citas/${id}`, { method: 'DELETE' }),
   getCitasEliminadas: () => request('/citas/eliminadas'),
   restaurarCita: (id) => request(`/citas/${id}/restaurar`, { method: 'POST' }),
+  deleteCitaPermanente: (id) => request(`/citas/${id}/permanente`, { method: 'DELETE' }),
+  vaciarPapelera: () => request('/citas/papelera/vaciar', { method: 'DELETE' }),
   importarLoteCitas: (payload) => request('/citas/importar-lote', {
     method: 'POST',
     body: JSON.stringify(payload)
