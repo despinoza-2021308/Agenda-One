@@ -289,7 +289,7 @@ export default function CalendarView({
 
       {/* Barra de control superior: Filtros de capacitador y navegación */}
       <div className="glass-panel rounded-3xl p-3 sm:p-4 shadow-glass space-y-2.5 transition-all duration-200">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
           
           {/* Navegación de mes / año */}
           <div className="flex items-center gap-3">
@@ -825,7 +825,7 @@ export default function CalendarView({
 
                           {/* Fila 2: Empresa y Tema en una sola línea limpia */}
                           <div className="flex items-center gap-1 text-[11px] text-slate-700 dark:text-slate-300 truncate pt-0.5 leading-tight">
-                            <span className="font-bold text-slate-900 dark:text-white truncate">
+                            <span className="font-bold text-slate-900 dark:text-white truncate" title={cita.cliente_nombre}>
                               {cita.cliente_nombre}
                             </span>
                             {cita.observaciones && (
@@ -1280,14 +1280,14 @@ export default function CalendarView({
       {/* MODAL DE DETALLE COMPLETO DEL DÍA (Renderizado con Portal al body para cobertura 100% de pantalla sin recortes) */}
       {selectedDayDetails && typeof document !== 'undefined' && createPortal(
         <div 
-          className="fixed inset-0 z-[9999] w-screen h-screen bg-slate-950/60 dark:bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
+          className="fixed inset-0 z-[9999] w-full h-full min-h-[100dvh] bg-slate-950/60 dark:bg-black/75 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-5 overflow-hidden"
         >
           <div 
-            className="glass-panel rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 w-full max-w-2xl sm:max-w-[700px] max-h-[88vh] flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200"
+            className="glass-panel rounded-2xl sm:rounded-3xl shadow-2xl border border-white/80 dark:border-white/15 w-full max-w-2xl sm:max-w-[700px] max-h-[92dvh] flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Cabecera del Modal Concisa y Moderna con Flechita Volver Atrás */}
-            <div className="px-4 sm:px-5 py-3.5 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10 flex items-center justify-between gap-3">
+            <div className="px-4 sm:px-5 py-3.5 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10 flex items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <button
                   type="button"
@@ -1390,7 +1390,7 @@ export default function CalendarView({
             </div>
 
             {/* Lista Scrollable de Citas del Día */}
-            <div className="p-3.5 sm:p-4 overflow-y-auto max-h-[62vh] space-y-2.5 scrollbar-thin">
+            <div className="p-3.5 sm:p-4 overflow-y-auto flex-1 space-y-2.5 scrollbar-thin">
               {modalDayCitas.length === 0 ? (
                 <div className="py-10 text-center text-slate-500 dark:text-slate-400 space-y-3">
                   <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500">

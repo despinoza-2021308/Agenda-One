@@ -17,13 +17,13 @@ export default function Navbar({
   onOpenDbStatus
 }) {
   const tabs = [
-    { id: 'calendar', label: 'Calendario', shortLabel: 'Agenda', icon: Calendar },
-    { id: 'reports', label: 'Reporte Horas', shortLabel: 'Reportes', icon: BarChart3 },
-    { id: 'fees', label: 'Honorarios', shortLabel: 'Honorarios', icon: Banknote },
-    { id: 'import', label: 'Importar Excel', shortLabel: 'Importar', icon: FileSpreadsheet },
-    { id: 'portal', label: 'Portal Móvil', shortLabel: 'Portal', icon: Smartphone },
-    { id: 'trainers', label: 'Capacitadores', shortLabel: 'Equipo', icon: Users },
-    { id: 'clients', label: 'Clientes', shortLabel: 'Clientes', icon: Building2 },
+    { id: 'calendar', label: 'Calendario', shortLabel: 'Agenda', mobileLabel: 'Agenda', icon: Calendar },
+    { id: 'reports', label: 'Reporte Horas', shortLabel: 'Reportes', mobileLabel: 'Horas', icon: BarChart3 },
+    { id: 'fees', label: 'Honorarios', shortLabel: 'Honorarios', mobileLabel: 'Cobros', icon: Banknote },
+    { id: 'import', label: 'Importar Excel', shortLabel: 'Importar', mobileLabel: 'Excel', icon: FileSpreadsheet },
+    { id: 'portal', label: 'Portal Móvil', shortLabel: 'Portal', mobileLabel: 'Móvil', icon: Smartphone },
+    { id: 'trainers', label: 'Capacitadores', shortLabel: 'Equipo', mobileLabel: 'Equipo', icon: Users },
+    { id: 'clients', label: 'Clientes', shortLabel: 'Clientes', mobileLabel: 'Clientes', icon: Building2 },
   ];
 
   return (
@@ -55,8 +55,8 @@ export default function Navbar({
               </div>
             </div>
 
-            {/* Navegación por pestañas (Optimizada con nombres concisos en laptops y completos en 2xl) */}
-            <nav className="hidden md:flex items-center gap-0.5 lg:gap-1 bg-slate-200/50 dark:bg-slate-900/60 p-1 rounded-2xl border border-slate-200/60 dark:border-white/5 backdrop-blur-md transition-all shrink-0">
+            {/* Navegación por pestañas (Optimizada para laptops, tablets y pantallas panorámicas) */}
+            <nav className="hidden md:flex items-center gap-0.5 lg:gap-1 bg-slate-200/50 dark:bg-slate-900/60 p-1 rounded-2xl border border-slate-200/60 dark:border-white/5 backdrop-blur-md transition-all min-w-0 max-w-full overflow-x-auto no-scrollbar">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -65,15 +65,15 @@ export default function Navbar({
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     title={tab.label}
-                    className={`flex items-center gap-1.5 px-2 lg:px-2.5 xl:px-3 py-1.5 rounded-xl text-xs lg:text-sm font-medium transition-all duration-200 cursor-pointer ${
+                    className={`flex items-center gap-1.5 px-2 lg:px-2.5 xl:px-3 py-1.5 rounded-xl text-xs xl:text-sm font-medium transition-all duration-200 cursor-pointer shrink-0 whitespace-nowrap ${
                       isActive
                         ? 'bg-white/95 dark:bg-slate-800/90 text-blue-600 dark:text-blue-400 shadow-glass-sm font-bold border border-white/90 dark:border-white/10'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
                     }`}
                   >
-                    <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${isActive ? 'text-blue-600 dark:text-blue-400 scale-105' : 'text-slate-500 dark:text-slate-400'}`} />
-                    <span className="hidden 2xl:inline">{tab.label}</span>
-                    <span className="hidden md:inline 2xl:hidden">{tab.shortLabel}</span>
+                    <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform shrink-0 ${isActive ? 'text-blue-600 dark:text-blue-400 scale-105' : 'text-slate-500 dark:text-slate-400'}`} />
+                    <span className="hidden xl:inline">{tab.label}</span>
+                    <span className="hidden md:inline xl:hidden">{tab.shortLabel}</span>
                   </button>
                 );
               })}
@@ -109,7 +109,7 @@ export default function Navbar({
                 <button
                   type="button"
                   onClick={onOpenQrModal}
-                  className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-blue-200/70 dark:border-blue-800/60 bg-blue-50/70 dark:bg-blue-950/40 hover:bg-blue-100/80 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-bold transition-all shadow-glass-sm cursor-pointer backdrop-blur-md shrink-0"
+                  className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-blue-200/70 dark:border-blue-800/60 bg-blue-50/70 dark:bg-blue-950/40 hover:bg-blue-100/80 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-bold transition-all shadow-glass-sm cursor-pointer backdrop-blur-md shrink-0"
                   title="Escanear código QR para abrir el portal en tu celular"
                 >
                   <QrCode className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
@@ -122,7 +122,7 @@ export default function Navbar({
                 <button
                   type="button"
                   onClick={onOpenDbStatus}
-                  className={`hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-glass-sm backdrop-blur-md cursor-pointer shrink-0 hover:scale-102 ${
+                  className={`hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-glass-sm backdrop-blur-md cursor-pointer shrink-0 hover:scale-102 ${
                     dbStatus.database?.connected
                       ? 'border-emerald-300/70 dark:border-emerald-700/60 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300'
                       : 'border-amber-300 dark:border-amber-700 bg-amber-100/90 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 animate-pulse'
@@ -182,7 +182,7 @@ export default function Navbar({
                 >
                   <Lock className="w-3.5 h-3.5 text-slate-400" />
                   <span className="hidden 2xl:inline">Acceso Admin</span>
-                  <span className="hidden lg:inline 2xl:hidden">Admin</span>
+                  <span className="hidden sm:inline 2xl:hidden">Admin</span>
                 </button>
               )}
 
@@ -203,9 +203,9 @@ export default function Navbar({
       {/* DOCK FLOTANTE DE NAVEGACIÓN MÓVIL (VISIBLE SOLO EN CELULARES: < md) */}
       <nav 
         aria-label="Navegación Móvil"
-        className="fixed bottom-0 left-0 right-0 z-40 md:hidden glass-nav border-t border-slate-200/80 dark:border-white/10 backdrop-blur-2xl shadow-2xl pb-safe transition-all duration-200 no-print bg-white/90 dark:bg-[#080d1a]/90"
+        className="fixed bottom-0 left-0 right-0 z-40 md:hidden glass-nav border-t border-slate-200/80 dark:border-white/10 backdrop-blur-2xl shadow-2xl pb-safe transition-all duration-200 no-print bg-white/95 dark:bg-[#080d1a]/95"
       >
-        <div className="grid grid-cols-7 items-center px-1 py-1.5 max-w-lg mx-auto">
+        <div className="grid grid-cols-7 items-center px-0.5 py-1.5 max-w-md mx-auto">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -221,13 +221,13 @@ export default function Navbar({
               >
                 {/* Indicador activo sutil */}
                 {isActive && (
-                  <span className="absolute top-0 w-8 h-1 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full shadow-xs" />
+                  <span className="absolute top-0 w-6 h-1 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full shadow-xs" />
                 )}
                 <div className={`p-1 rounded-lg transition-transform ${isActive ? 'scale-110 bg-blue-50 dark:bg-blue-950/60' : ''}`}>
                   <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`} />
                 </div>
-                <span className="text-[9px] tracking-tight truncate w-full text-center leading-none mt-0.5">
-                  {tab.shortLabel}
+                <span className="text-[8.5px] sm:text-[9.5px] font-semibold tracking-tighter truncate w-full text-center leading-tight mt-0.5">
+                  {tab.mobileLabel || tab.shortLabel}
                 </span>
               </button>
             );

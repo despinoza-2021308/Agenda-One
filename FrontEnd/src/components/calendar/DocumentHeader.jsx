@@ -13,12 +13,12 @@ export default function DocumentHeader({
 
   return (
     <header className="w-full glass-panel rounded-2xl sm:rounded-3xl p-3 sm:p-4 transition-all duration-200 shadow-glass border border-white/80 dark:border-white/10 select-none print:bg-white print:border print:border-black print:rounded-none print:shadow-none print:p-2 mb-3">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-3 sm:gap-4">
         
         {/* ========================================================
             SECCIÓN 1 (IZQUIERDA): IDENTIDAD INSTITUCIONAL ONE
            ======================================================== */}
-        <div className="flex items-center justify-between w-full md:w-auto gap-3">
+        <div className="flex items-center justify-between w-full lg:w-auto gap-3">
           <div className="flex items-center gap-2.5">
             <div className="bg-white p-1.5 rounded-2xl shadow-xs border border-slate-200/80 dark:border-white/15 shrink-0 flex items-center justify-center transition-transform hover:scale-102">
               <img 
@@ -38,8 +38,8 @@ export default function DocumentHeader({
             </div>
           </div>
 
-          {/* En móviles, mostrar Código y Versión compactos a la derecha de la fila superior */}
-          <div className="flex items-center gap-1.5 md:hidden">
+          {/* En móviles y tablets (< lg), mostrar Código y Versión compactos a la derecha de la fila superior */}
+          <div className="flex items-center gap-1.5 lg:hidden">
             <span className="text-[10px] font-mono font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/80 px-2 py-0.5 rounded-lg">
               AD-RE-11
             </span>
@@ -87,9 +87,9 @@ export default function DocumentHeader({
         </div>
 
         {/* ========================================================
-            SECCIÓN 3 (DERECHA): CÓDIGO Y VERSIÓN OFICIAL (ESCRITORIO)
+            SECCIÓN 3 (DERECHA): CÓDIGO Y VERSIÓN OFICIAL (ESCRITORIO LG+)
            ======================================================== */}
-        <div className="hidden md:flex items-center gap-2 shrink-0">
+        <div className="hidden lg:flex items-center gap-2 shrink-0">
           <div className="flex items-center gap-2 bg-blue-50/80 dark:bg-blue-950/50 border border-blue-200/80 dark:border-blue-800/80 px-3 py-1.5 rounded-2xl text-xs shadow-2xs">
             <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
             <div className="flex flex-col text-left">

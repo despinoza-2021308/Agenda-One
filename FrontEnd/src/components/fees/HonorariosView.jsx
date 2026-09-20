@@ -668,7 +668,7 @@ export default function HonorariosView({
                       </p>
                     ) : (
                       <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs">
-                        <table className="w-full text-left text-xs border-collapse">
+                        <table className="w-full text-left text-xs border-collapse min-w-[720px]">
                           <thead>
                             <tr className="bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold">
                               <th className="py-2.5 px-3">Fecha</th>
@@ -699,10 +699,10 @@ export default function HonorariosView({
                                   <td className="py-2.5 px-3 text-slate-500 dark:text-slate-400 font-mono text-[11px] whitespace-nowrap">
                                     {ci.hora_inicio || '--:--'} - {ci.hora_fin || '--:--'}
                                   </td>
-                                  <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-white max-w-[200px] truncate">
+                                  <td className="py-2.5 px-3 font-semibold text-slate-900 dark:text-white min-w-[140px] max-w-[240px] truncate" title={ci.cliente_nombre || 'Cliente General'}>
                                     {ci.cliente_nombre || 'Cliente General'}
                                   </td>
-                                  <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400">
+                                  <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400 max-w-[180px] truncate" title={ci.tipo_servicio || 'Capacitación'}>
                                     {ci.tipo_servicio || 'Capacitación'}
                                   </td>
                                   <td className="py-2.5 px-3 text-center">

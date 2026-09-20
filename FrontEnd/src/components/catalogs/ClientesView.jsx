@@ -164,22 +164,22 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="relative">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-64">
             <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Buscar cliente..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-3.5 py-2 glass-input rounded-xl text-xs font-medium text-slate-800 dark:text-slate-100 focus:outline-none shadow-glass-sm"
+              className="w-full pl-9 pr-3.5 py-2 glass-input rounded-xl text-xs font-medium text-slate-800 dark:text-slate-100 focus:outline-none shadow-glass-sm"
             >
             </input>
           </div>
 
           <button
             onClick={openNewModal}
-            className="inline-flex items-center gap-1.5 liquid-btn-primary px-4 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer active:scale-95"
+            className="inline-flex items-center gap-1.5 liquid-btn-primary px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>Nuevo Cliente</span>
@@ -189,7 +189,7 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
 
       {/* Grid de Clientes o Skeletons */}
       {isLoading && clientes.length === 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5 sm:gap-4">
           {[...Array(10)].map((_, i) => (
             <div
               key={`skeleton-${i}`}
@@ -235,7 +235,7 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5 sm:gap-4">
           {filteredClientes.map((cliente) => {
             const clientCitas = citas.filter(c =>
               Number(c.cliente_id) === Number(cliente.id) ||
@@ -271,31 +271,31 @@ export default function ClientesView({ clientes = [], citas = [], onSaveCliente,
                     </div>
                   </div>
 
-                  <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-2 line-clamp-2">
+                  <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-2 line-clamp-2" title={cliente.nombre_empresa}>
                     {cliente.nombre_empresa}
                   </h3>
 
                   <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
                     {cliente.contacto && (
-                      <div className="flex items-center gap-2">
-                        <User className="w-3.5 h-3.5 text-slate-400" />
+                      <div className="flex items-center gap-2" title={`Contacto: ${cliente.contacto}`}>
+                        <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span className="truncate">{cliente.contacto}</span>
                       </div>
                     )}
                     {cliente.telefono && (
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{cliente.telefono}</span>
+                      <div className="flex items-center gap-2" title={`Teléfono: ${cliente.telefono}`}>
+                        <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="truncate">{cliente.telefono}</span>
                       </div>
                     )}
                     {cliente.correo && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2" title={`Correo: ${cliente.correo}`}>
                         <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span className="truncate">{cliente.correo}</span>
                       </div>
                     )}
                     {cliente.direccion && (
-                      <div className="flex items-start gap-2 pt-0.5">
+                      <div className="flex items-start gap-2 pt-0.5" title={`Dirección: ${cliente.direccion}`}>
                         <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
                         <span className="line-clamp-2 text-[11px] text-slate-500 dark:text-slate-400 leading-snug">{cliente.direccion}</span>
                       </div>

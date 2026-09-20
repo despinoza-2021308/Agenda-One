@@ -278,7 +278,7 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
 
       {/* Grid de Capacitadores o Skeletons */}
       {isLoading && capacitadores.length === 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5 sm:gap-4">
           {[...Array(6)].map((_, i) => (
             <div
               key={`cap-skel-${i}`}
@@ -296,7 +296,7 @@ export default function CapacitadoresView({ capacitadores = [], citas = [], onSa
           ))}
         </div>
       ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3.5 sm:gap-4">
         {capacitadores.map((cap) => (
           <div
             key={cap.id}
