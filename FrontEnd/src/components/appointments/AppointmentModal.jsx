@@ -55,12 +55,42 @@ export const normalizeTipoServicio = (tipo) => {
 };
 
 export const ESTADOS = [
-  { id: 'Programada', label: 'Programada', emoji: '🗓️', colorClass: 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 hover:bg-blue-100/70', activeClass: 'bg-blue-600 text-white shadow-sm shadow-blue-500/30 border-blue-600' },
-  { id: 'En Negociación', label: 'En Negociación', emoji: '🤝', colorClass: 'bg-orange-50 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800 hover:bg-orange-100/70', activeClass: 'bg-orange-500 text-white shadow-sm shadow-orange-500/30 border-orange-500' },
-  { id: 'En Curso', label: 'En Curso', emoji: '⏳', colorClass: 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 hover:bg-amber-100/70', activeClass: 'bg-amber-500 text-white shadow-sm shadow-amber-500/30 border-amber-500' },
-  { id: 'Impartida', label: 'Impartida', emoji: '✅', colorClass: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100/70', activeClass: 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/30 border-emerald-600' },
-  { id: 'Cancelada', label: 'Cancelada', emoji: '❌', colorClass: 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:bg-rose-100/70', activeClass: 'bg-rose-600 text-white shadow-sm shadow-rose-500/30 border-rose-600' },
-  { id: 'Reprogramada', label: 'Reprogramada', emoji: '🔄', colorClass: 'bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 hover:bg-purple-100/70', activeClass: 'bg-purple-600 text-white shadow-sm shadow-purple-500/30 border-purple-600' }
+  { 
+    id: 'Programada', 
+    label: 'Programada', 
+    emoji: '🗓️', 
+    activeClass: 'bg-blue-600 text-white border-blue-600 shadow-blue-500/25 ring-blue-500/50' 
+  },
+  { 
+    id: 'En Negociación', 
+    label: 'En Negociación', 
+    emoji: '🤝', 
+    activeClass: 'bg-orange-500 text-white border-orange-500 shadow-orange-500/25 ring-orange-500/50' 
+  },
+  { 
+    id: 'En Curso', 
+    label: 'En Curso', 
+    emoji: '⏳', 
+    activeClass: 'bg-amber-500 text-white border-amber-500 shadow-amber-500/25 ring-amber-500/50' 
+  },
+  { 
+    id: 'Impartida', 
+    label: 'Impartida', 
+    emoji: '✅', 
+    activeClass: 'bg-emerald-600 text-white border-emerald-600 shadow-emerald-500/25 ring-emerald-500/50' 
+  },
+  { 
+    id: 'Cancelada', 
+    label: 'Cancelada', 
+    emoji: '❌', 
+    activeClass: 'bg-rose-600 text-white border-rose-600 shadow-rose-500/25 ring-rose-500/50' 
+  },
+  { 
+    id: 'Reprogramada', 
+    label: 'Reprogramada', 
+    emoji: '🔄', 
+    activeClass: 'bg-purple-600 text-white border-purple-600 shadow-purple-500/25 ring-purple-500/50' 
+  }
 ];
 
 export default function AppointmentModal({
@@ -1033,36 +1063,37 @@ export default function AppointmentModal({
           )}
 
           {/* Estado de la Cita (Ciclo de Vida de la Capacitación) */}
-          <div className="bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-3.5 space-y-2">
-            <div className="flex items-center justify-between">
+          <div className="bg-slate-50/90 dark:bg-slate-850/80 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <label className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                 <span>Estado de la Cita</span>
                 <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500">· Ciclo AD-RE-11</span>
               </label>
 
               {formData.estado === 'Cancelada' && (
-                <span className="text-[10px] font-bold text-rose-700 dark:text-rose-300 bg-rose-100/90 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-900 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span className="text-[11px] font-bold text-rose-700 dark:text-rose-300 bg-rose-100/90 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-900 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                   <span>Libera horario y no suma horas</span>
                 </span>
               )}
               {formData.estado === 'En Negociación' && (
-                <span className="text-[10px] font-bold text-orange-700 dark:text-orange-300 bg-orange-100/90 dark:bg-orange-950/80 border border-orange-200 dark:border-orange-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span className="text-[11px] font-bold text-orange-700 dark:text-orange-300 bg-orange-100/90 dark:bg-orange-950/80 border border-orange-200 dark:border-orange-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                   <span>Fecha tentativa · En negociación</span>
                 </span>
               )}
               {formData.estado === 'Impartida' && (
-                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                   <span>Computa 100% de horas</span>
                 </span>
               )}
               {formData.estado === 'En Curso' && (
-                <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-100/90 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300 bg-amber-100/90 dark:bg-amber-950/80 border border-amber-200 dark:border-amber-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                   <span>En desarrollo activo</span>
                 </span>
               )}
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5 sm:gap-2">
+            {/* Grid organizado en 3 columnas simétricas (2 filas de 3) para máxima legibilidad */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
               {ESTADOS.map((est) => {
                 const isActive = (formData.estado || 'Programada') === est.id;
                 return (
@@ -1070,22 +1101,24 @@ export default function AppointmentModal({
                     key={est.id}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, estado: est.id }))}
-                    className={`px-2 py-2 rounded-xl text-[11px] sm:text-xs font-bold border transition-all flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap cursor-pointer ${
-                      isActive ? est.activeClass : `${est.colorClass} border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800`
+                    className={`px-3 py-2.5 rounded-xl text-xs font-bold border transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-xs select-none ${
+                      isActive 
+                        ? `${est.activeClass} shadow-md ring-2 ring-offset-1 ring-offset-white dark:ring-offset-slate-900 scale-[1.01]` 
+                        : 'bg-white dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-slate-200/90 dark:border-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-700/70 hover:border-slate-300 dark:hover:border-slate-600'
                     }`}
                   >
-                    <span>{est.emoji}</span>
-                    <span>{est.label}</span>
+                    <span className="text-sm shrink-0 leading-none">{est.emoji}</span>
+                    <span className="truncate leading-none">{est.label}</span>
                   </button>
                 );
               })}
             </div>
 
             {formData.estado === 'En Negociación' && (
-              <div className="bg-orange-50/80 dark:bg-orange-950/40 border border-orange-200/80 dark:border-orange-800/60 rounded-xl p-2.5 flex items-start gap-2 text-xs text-orange-800 dark:text-orange-200 animate-in fade-in duration-150">
-                <span className="text-sm shrink-0">🤝</span>
+              <div className="bg-orange-50/90 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/70 rounded-xl p-3 flex items-start gap-2.5 text-xs text-orange-900 dark:text-orange-200 animate-in fade-in duration-150">
+                <span className="text-base shrink-0 leading-none">🤝</span>
                 <p className="leading-relaxed">
-                  <strong>Cita Tentativa:</strong> Esta fecha aún está en conversación con el cliente. En el calendario aparecerá destacada en color naranja/ámbar para diferenciarla claramente de las confirmadas.
+                  <strong>Cita Tentativa:</strong> Esta fecha aún está en conversación con el cliente. En el calendario aparecerá destacada en color naranja/ámbar con borde punteado para diferenciarla de las confirmadas.
                 </p>
               </div>
             )}
