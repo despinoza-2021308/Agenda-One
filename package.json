@@ -4,6 +4,10 @@
   "private": true,
   "description": "Sistema Fullstack de Agenda y Control de Horas (AD-RE-11)",
   "scripts": {
+    "start": "node BackEnd/server.js",
+    "dev:backend": "npm --prefix BackEnd run dev",
+    "dev:frontend": "npm --prefix FrontEnd run dev",
+    "test:backend": "npm --prefix BackEnd test",
     "build": "npm --prefix FrontEnd run build",
     "postinstall": "npm --prefix FrontEnd install"
   },

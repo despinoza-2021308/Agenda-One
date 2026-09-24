@@ -34,6 +34,7 @@ const HOURS_OF_DAY = [
 
 export const STATUS_CONFIG = {
   'Programada': { label: 'Programada', emoji: '🗓️', badge: 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800', dot: 'bg-blue-500' },
+  'En Negociación': { label: 'En Negociación', emoji: '🤝', badge: 'bg-orange-50 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border-orange-200/80 dark:border-orange-800', dot: 'bg-orange-500' },
   'En Curso': { label: 'En Curso', emoji: '⏳', badge: 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-800', dot: 'bg-amber-500' },
   'Impartida': { label: 'Impartida', emoji: '✅', badge: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800', dot: 'bg-emerald-500' },
   'Cancelada': { label: 'Cancelada', emoji: '❌', badge: 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200/80 dark:border-rose-800 line-through', dot: 'bg-rose-500' },
@@ -810,6 +811,7 @@ export default function CalendarView({
                       const estadoCfg = STATUS_CONFIG[estadoKey] || STATUS_CONFIG['Programada'];
                       const isCancelada = estadoKey === 'Cancelada';
                       const isImpartida = estadoKey === 'Impartida';
+                      const isNegociacion = estadoKey === 'En Negociación';
                       const fullTooltip = `Actividad: ${cita.observaciones || cita.tipo_servicio}\nEstado: ${estadoKey}\nCliente: ${cita.cliente_nombre}\nCapacitador: ${cita.capacitador_nombre} [${cita.capacitador_iniciales}]\nHorario: ${cita.hora_inicio} - ${cita.hora_fin} (${cita.horas}h)\nModalidad: ${cita.modalidad} | Tipo: ${cita.tipo_servicio}`;
 
                       return (
@@ -821,13 +823,15 @@ export default function CalendarView({
                           className={`w-full text-left p-1 sm:p-1.5 rounded-lg border transition-all duration-150 cursor-pointer select-none group/card backdrop-blur-md relative overflow-hidden ${
                             isCancelada
                               ? 'bg-rose-50/70 dark:bg-rose-950/40 border-dashed border-rose-200/90 dark:border-rose-900/60 opacity-70 hover:opacity-100'
+                              : isNegociacion
+                              ? 'bg-orange-50/85 dark:bg-orange-950/45 border-dashed border-orange-300 dark:border-orange-700/80 hover:border-orange-400 dark:hover:border-orange-500 shadow-2xs hover:shadow-glass-sm'
                               : isImpartida
                               ? 'glass-card hover:bg-white/80 dark:hover:bg-slate-800/80 border-emerald-300/40 dark:border-emerald-500/30 shadow-2xs hover:shadow-glass-sm'
                               : 'glass-card hover:bg-white/80 dark:hover:bg-slate-800/80 border-white/80 dark:border-white/10 hover:border-blue-300/60 shadow-2xs hover:shadow-glass-sm'
                           }`}
                           style={{
                             borderLeftWidth: '3.5px',
-                            borderLeftColor: isCancelada ? '#F43F5E' : color
+                            borderLeftColor: isCancelada ? '#F43F5E' : (isNegociacion ? '#EA580C' : color)
                           }}
                         >
                           {/* Fila 1: Iniciales + Horario + Estado + Horas */}
@@ -852,6 +856,8 @@ export default function CalendarView({
                               <span className={`text-[9px] font-black px-1 py-0.2 rounded font-mono ${
                                 isCancelada
                                   ? 'text-rose-500 bg-rose-50 dark:bg-rose-950/60 line-through'
+                                  : isNegociacion
+                                  ? 'text-orange-700 dark:text-orange-300 bg-orange-100/90 dark:bg-orange-900/50'
                                   : 'text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700'
                               }`}>
                                 {cita.horas}h
@@ -1063,6 +1069,7 @@ export default function CalendarView({
                                 const estKey = citaIniciando.estado || 'Programada';
                                 const estCfg = STATUS_CONFIG[estKey] || STATUS_CONFIG['Programada'];
                                 const isCanc = estKey === 'Cancelada';
+                                const isNeg = estKey === 'En Negociación';
 
                                 return (
                                   <div
@@ -1070,9 +1077,11 @@ export default function CalendarView({
                                     className={`w-full border-2 rounded-xl p-2.5 shadow-2xs hover:shadow-md transition-all cursor-pointer space-y-1.5 group/card relative ${
                                       isCanc
                                         ? 'bg-slate-50/90 dark:bg-slate-800/60 border-dashed border-rose-300 dark:border-rose-900 opacity-70 hover:opacity-100'
+                                        : isNeg
+                                        ? 'bg-orange-50/70 dark:bg-orange-950/40 border-dashed border-orange-300 dark:border-orange-800 hover:border-orange-400 shadow-2xs'
                                         : 'bg-white dark:bg-slate-800 border-blue-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500'
                                     }`}
-                                    style={{ borderLeftColor: isCanc ? '#F43F5E' : cap.color, borderLeftWidth: '4px' }}
+                                    style={{ borderLeftColor: isCanc ? '#F43F5E' : (isNeg ? '#EA580C' : cap.color), borderLeftWidth: '4px' }}
                                   >
                                     <div className="flex items-center justify-between gap-1">
                                       <span className="text-[11px] font-mono font-black text-slate-900 dark:text-white flex items-center gap-1">
@@ -1083,7 +1092,11 @@ export default function CalendarView({
                                       </span>
                                       <div className="flex items-center gap-1">
                                         <span className={`text-[10px] font-black px-1.5 py-0.5 rounded font-mono ${
-                                          isCanc ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 line-through' : 'text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600'
+                                          isCanc 
+                                            ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 line-through' 
+                                            : isNeg
+                                            ? 'bg-orange-100 dark:bg-orange-950/70 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800'
+                                            : 'text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600'
                                         }`}>
                                           {citaIniciando.horas}h
                                         </span>
@@ -1222,13 +1235,18 @@ export default function CalendarView({
                     const estKey = cita.estado || 'Programada';
                     const estCfg = STATUS_CONFIG[estKey] || STATUS_CONFIG['Programada'];
                     const isCancelada = estKey === 'Cancelada';
+                    const isNegociacion = estKey === 'En Negociación';
 
                     return (
                       <tr
                         key={cita.id}
                         onClick={() => onSelectCita(cita)}
                         className={`hover:bg-slate-50 dark:hover:bg-slate-800/60 cursor-pointer transition-colors ${
-                          isCancelada ? 'bg-slate-50/60 dark:bg-slate-900/40 opacity-75' : ''
+                          isCancelada 
+                            ? 'bg-slate-50/60 dark:bg-slate-900/40 opacity-75' 
+                            : isNegociacion 
+                            ? 'bg-orange-50/40 dark:bg-orange-950/20 hover:bg-orange-50/70 dark:hover:bg-orange-950/40' 
+                            : ''
                         }`}
                       >
                         <td className="py-3 px-4 font-medium text-slate-900 dark:text-white whitespace-nowrap">
@@ -1239,7 +1257,11 @@ export default function CalendarView({
                         </td>
                         <td className="py-3 px-4 whitespace-nowrap">
                           <span className={`font-bold px-2 py-0.5 rounded-md ${
-                            isCancelada ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 line-through' : 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800'
+                            isCancelada 
+                              ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 line-through' 
+                              : isNegociacion
+                              ? 'bg-orange-100 dark:bg-orange-950/80 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800'
+                              : 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800'
                           }`}>
                             {cita.horas} hrs
                           </span>
@@ -1465,6 +1487,7 @@ export default function CalendarView({
                   const estadoCfg = STATUS_CONFIG[estadoKey] || STATUS_CONFIG['Programada'];
                   const isCancelada = estadoKey === 'Cancelada';
                   const isImpartida = estadoKey === 'Impartida';
+                  const isNegociacion = estadoKey === 'En Negociación';
 
                   return (
                     <div
@@ -1472,13 +1495,15 @@ export default function CalendarView({
                       className={`p-3 sm:p-3.5 rounded-2xl border transition-all duration-200 backdrop-blur-md ${
                         isCancelada
                           ? 'bg-rose-50/50 dark:bg-rose-950/30 border-dashed border-rose-200 dark:border-rose-900/60 opacity-80 hover:opacity-100'
+                          : isNegociacion
+                          ? 'bg-orange-50/60 dark:bg-orange-950/35 border-dashed border-orange-300 dark:border-orange-800 shadow-glass-sm'
                           : isImpartida
                           ? 'glass-card border-emerald-300/40 dark:border-emerald-700/50 shadow-glass-sm'
                           : 'glass-card border-white/80 dark:border-white/10 shadow-glass-sm hover:shadow-glass-hover'
                       }`}
                       style={{
                         borderLeftWidth: '4px',
-                        borderLeftColor: isCancelada ? '#F43F5E' : color
+                        borderLeftColor: isCancelada ? '#F43F5E' : (isNegociacion ? '#EA580C' : color)
                       }}
                     >
                       {/* Fila 1: Horario, Insignias y Acciones */}

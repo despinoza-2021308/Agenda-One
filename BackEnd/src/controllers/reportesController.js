@@ -24,6 +24,7 @@ async function getResumenMensual(req, res, next) {
           COUNT(CASE WHEN ci.estado = 'En Curso' THEN 1 END)::INT AS citas_en_curso,
           COUNT(CASE WHEN ci.estado = 'Cancelada' THEN 1 END)::INT AS citas_canceladas,
           COUNT(CASE WHEN ci.estado = 'Reprogramada' THEN 1 END)::INT AS citas_reprogramadas,
+          COUNT(CASE WHEN ci.estado = 'En Negociación' THEN 1 END)::INT AS citas_en_negociacion,
           COALESCE(SUM(CASE WHEN ci.estado <> 'Cancelada' OR ci.estado IS NULL THEN ci.horas ELSE 0 END), 0)::FLOAT AS total_horas,
           COALESCE(SUM(CASE WHEN (ci.estado <> 'Cancelada' OR ci.estado IS NULL) AND ci.modalidad = 'Presencial' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_presencial,
           COALESCE(SUM(CASE WHEN (ci.estado <> 'Cancelada' OR ci.estado IS NULL) AND ci.modalidad = 'Virtual' THEN ci.horas ELSE 0 END), 0)::FLOAT AS horas_virtual,
@@ -77,6 +78,7 @@ async function getResumenMensual(req, res, next) {
       const citas_en_curso = citasCap.filter(ci => ci.estado === 'En Curso').length;
       const citas_canceladas = citasCap.filter(ci => ci.estado === 'Cancelada').length;
       const citas_reprogramadas = citasCap.filter(ci => ci.estado === 'Reprogramada').length;
+      const citas_en_negociacion = citasCap.filter(ci => ci.estado === 'En Negociación').length;
 
       const total_horas = citasValidas.reduce((acc, curr) => acc + Number(curr.horas), 0);
       const horas_impartidas = citasCap
@@ -108,6 +110,7 @@ async function getResumenMensual(req, res, next) {
         citas_en_curso,
         citas_canceladas,
         citas_reprogramadas,
+        citas_en_negociacion,
         total_horas: Math.round(total_horas * 100) / 100,
         horas_impartidas: Math.round(horas_impartidas * 100) / 100,
         horas_presencial: Math.round(horas_presencial * 100) / 100,
@@ -191,6 +194,7 @@ function calcularKPIs(resumen, year, month) {
   const citasImpartidas = resumen.reduce((sum, item) => sum + (item.citas_impartidas || 0), 0);
   const citasProgramadas = resumen.reduce((sum, item) => sum + (item.citas_programadas || 0), 0);
   const citasCanceladas = resumen.reduce((sum, item) => sum + (item.citas_canceladas || 0), 0);
+  const citasEnNegociacion = resumen.reduce((sum, item) => sum + (item.citas_en_negociacion || 0), 0);
   const horasImpartidas = resumen.reduce((sum, item) => sum + (item.horas_impartidas || 0), 0);
   const horasPresenciales = resumen.reduce((sum, item) => sum + item.horas_presencial, 0);
   const horasVirtuales = resumen.reduce((sum, item) => sum + item.horas_virtual, 0);
@@ -204,6 +208,7 @@ function calcularKPIs(resumen, year, month) {
     citasImpartidas,
     citasProgramadas,
     citasCanceladas,
+    citasEnNegociacion,
     horasImpartidas: Math.round(horasImpartidas * 100) / 100,
     horasPresenciales: Math.round(horasPresenciales * 100) / 100,
     horasVirtuales: Math.round(horasVirtuales * 100) / 100,

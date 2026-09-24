@@ -187,6 +187,7 @@ export default function WhatsAppModal({
 
   const STATUS_EMOJI = {
     'Programada': '🗓️',
+    'En Negociación': '🤝',
     'En Curso': '⏳',
     'Impartida': '✅',
     'Cancelada': '❌',

@@ -344,7 +344,7 @@ async function createCita(req, res, next) {
     }
 
     // Validación de estado
-    const validEstados = ['Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada'];
+    const validEstados = ['Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada', 'En Negociación'];
     const estadoFinal = validEstados.includes(estado) ? estado : 'Programada';
 
     // Validación de observaciones
@@ -378,7 +378,8 @@ async function createCita(req, res, next) {
 
     // Validación inteligente: Verificar si el capacitador ya tiene un compromiso en ese rango de horas
     // (Solo aplica si la nueva cita no es Cancelada, y solo choca con citas no canceladas)
-    if (estadoFinal !== 'Cancelada') {
+    const permitirSolapamiento = req.body.permitir_solapamiento === true || req.body.permitir_conflicto === true || req.body.forzar === true;
+    if (estadoFinal !== 'Cancelada' && !permitirSolapamiento) {
       if (db.isPostgresConnected()) {
         const overlapQuery = `
           SELECT c.id, 
@@ -627,11 +628,12 @@ async function updateCita(req, res, next) {
 
     let horasFinalCalculadas = horasFinal;
 
-    const validEstados = ['Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada'];
+    const validEstados = ['Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada', 'En Negociación'];
     const estadoFinal = estado !== undefined && validEstados.includes(estado) ? estado : undefined;
 
     // Validación inteligente de conflicto de horario al actualizar (solo si no es o no pasa a Cancelada)
-    if (estado !== 'Cancelada' && capacitador_id && fecha && hora_inicio && hora_fin) {
+    const permitirSolapamiento = req.body.permitir_solapamiento === true || req.body.permitir_conflicto === true || req.body.forzar === true;
+    if (estado !== 'Cancelada' && !permitirSolapamiento && capacitador_id && fecha && hora_inicio && hora_fin) {
       if (db.isPostgresConnected()) {
         const overlapQuery = `
           SELECT c.id, 

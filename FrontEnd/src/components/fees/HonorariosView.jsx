@@ -259,7 +259,7 @@ export default function HonorariosView({
     if (trainer.citas_detalle.length > 0) {
       mensaje += `*DESGLOSE DE SERVICIOS:*\n`;
       trainer.citas_detalle.forEach((ci, idx) => {
-        const estadoTag = ci.estado === 'Cancelada' ? '❌ CANCELADA' : (ci.estado === 'Impartida' ? '✅ Impartida' : '⏳ ' + ci.estado);
+        const estadoTag = ci.estado === 'Cancelada' ? '❌ CANCELADA' : (ci.estado === 'Impartida' ? '✅ Impartida' : (ci.estado === 'En Negociación' ? '🤝 EN NEGOCIACIÓN' : '⏳ ' + ci.estado));
         mensaje += `${idx + 1}. ${ci.fecha} | ${ci.cliente_nombre || 'Cliente'} | ${ci.horasNum.toFixed(1)}h | ${estadoTag} | ${formatQuetzales(ci.subtotal)}\n`;
       });
       mensaje += `\n`;
@@ -714,9 +714,10 @@ export default function HonorariosView({
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                                       isDone ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300' :
                                       isCanceled ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 no-underline inline-block' :
+                                      ci.estado === 'En Negociación' ? 'bg-orange-100 dark:bg-orange-950/80 text-orange-800 dark:text-orange-300 border border-orange-200 dark:border-orange-800' :
                                       'bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300'
                                     }`}>
-                                      {ci.estado || 'Programada'}
+                                      {ci.estado === 'En Negociación' ? '🤝 En Negociación' : (ci.estado || 'Programada')}
                                     </span>
                                   </td>
                                   <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-800 dark:text-slate-200">

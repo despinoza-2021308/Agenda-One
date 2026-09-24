@@ -224,6 +224,11 @@ export default function MonthlyReportView({ initialDate = new Date(), onBackToCa
               <span className="flex items-center gap-1 text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-lg border border-blue-200 dark:border-blue-800 text-[11px]">
                 🗓️ {kpis.citasProgramadas || 0} programadas
               </span>
+              {kpis.citasEnNegociacion > 0 && (
+                <span className="flex items-center gap-1 text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/60 px-2 py-0.5 rounded-lg border border-orange-200 dark:border-orange-800 text-[11px]">
+                  🤝 {kpis.citasEnNegociacion} en negociación
+                </span>
+              )}
               {kpis.citasCanceladas > 0 && (
                 <span className="flex items-center gap-1 text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-lg border border-rose-200 dark:border-rose-900 line-through text-[11px]">
                   ❌ {kpis.citasCanceladas} canceladas

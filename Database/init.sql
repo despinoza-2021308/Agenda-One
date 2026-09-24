@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS citas (
     horas NUMERIC(4, 2) NOT NULL CONSTRAINT chk_horas_limite CHECK (horas > 0 AND horas <= 24),
     modalidad VARCHAR(20) NOT NULL CHECK (modalidad IN ('Presencial', 'Virtual', 'Híbrida')),
     tipo_servicio VARCHAR(50) NOT NULL CHECK (tipo_servicio IN ('Consultoría', 'Capacitación', 'Auditoría', 'Normas', 'Requerimientos Legales', 'Mediciones', 'Consultoria', 'Capacitacion', 'Auditoria')),
-    estado VARCHAR(25) NOT NULL DEFAULT 'Programada' CHECK (estado IN ('Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada')),
+    estado VARCHAR(25) NOT NULL DEFAULT 'Programada' CHECK (estado IN ('Programada', 'En Curso', 'Impartida', 'Cancelada', 'Reprogramada', 'En Negociación')),
     observaciones TEXT,
     bitacora TEXT,
     firma_cliente TEXT,

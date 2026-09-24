@@ -710,6 +710,7 @@ export default function TrainerPortalView({
             const isEnCurso = cita.estado === 'En Curso';
             const isImpartida = cita.estado === 'Impartida';
             const isCancelada = cita.estado === 'Cancelada';
+            const isNegociacion = cita.estado === 'En Negociación';
 
             return (
               <div
@@ -717,9 +718,11 @@ export default function TrainerPortalView({
                 className={`glass-card glass-card-hover rounded-3xl border border-white/80 dark:border-white/10 transition-all p-4 sm:p-5 shadow-glass-sm hover:shadow-glass-hover relative overflow-hidden ${
                   isEnCurso 
                     ? 'border-amber-400 dark:border-amber-500/80 ring-2 ring-amber-400/30 shadow-amber-500/15'
-                    : isImpartida
-                      ? 'border-emerald-300/40 dark:border-emerald-900/60 bg-emerald-50/20 dark:bg-emerald-950/10'
-                      : ''
+                    : isNegociacion
+                      ? 'border-dashed border-orange-300 dark:border-orange-700/80 bg-orange-50/20 dark:bg-orange-950/10'
+                      : isImpartida
+                        ? 'border-emerald-300/40 dark:border-emerald-900/60 bg-emerald-50/20 dark:bg-emerald-950/10'
+                        : ''
                 }`}
               >
                 {/* Banda de estado para En Curso */}
@@ -757,13 +760,15 @@ export default function TrainerPortalView({
                   <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-black shrink-0 ${
                     isEnCurso
                       ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 animate-pulse'
-                      : isImpartida
-                        ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
-                        : isCancelada
-                          ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                      : isNegociacion
+                        ? 'bg-orange-100 dark:bg-orange-950 text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-800'
+                        : isImpartida
+                          ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                          : isCancelada
+                            ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                   }`}>
-                    {cita.estado}
+                    {isNegociacion ? '🤝 En Negociación' : cita.estado}
                   </span>
                 </div>
 

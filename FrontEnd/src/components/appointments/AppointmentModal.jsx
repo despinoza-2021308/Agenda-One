@@ -56,6 +56,7 @@ export const normalizeTipoServicio = (tipo) => {
 
 export const ESTADOS = [
   { id: 'Programada', label: 'Programada', emoji: '🗓️', colorClass: 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 hover:bg-blue-100/70', activeClass: 'bg-blue-600 text-white shadow-sm shadow-blue-500/30 border-blue-600' },
+  { id: 'En Negociación', label: 'En Negociación', emoji: '🤝', colorClass: 'bg-orange-50 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800 hover:bg-orange-100/70', activeClass: 'bg-orange-500 text-white shadow-sm shadow-orange-500/30 border-orange-500' },
   { id: 'En Curso', label: 'En Curso', emoji: '⏳', colorClass: 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 hover:bg-amber-100/70', activeClass: 'bg-amber-500 text-white shadow-sm shadow-amber-500/30 border-amber-500' },
   { id: 'Impartida', label: 'Impartida', emoji: '✅', colorClass: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100/70', activeClass: 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/30 border-emerald-600' },
   { id: 'Cancelada', label: 'Cancelada', emoji: '❌', colorClass: 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:bg-rose-100/70', activeClass: 'bg-rose-600 text-white shadow-sm shadow-rose-500/30 border-rose-600' },
@@ -435,8 +436,10 @@ export default function AppointmentModal({
     }
 
     if (conflictingCita) {
-      setError(`Conflicto de horario: ${selectedTrainer ? selectedTrainer.nombre_completo : 'El capacitador'} ya tiene una actividad de ${conflictingCita.hora_inicio} a ${conflictingCita.hora_fin} en esta fecha.`);
-      return;
+      if (formData.estado !== 'En Negociación') {
+        setError(`Conflicto de horario: ${selectedTrainer ? selectedTrainer.nombre_completo : 'El capacitador'} ya tiene una actividad de ${conflictingCita.hora_inicio} a ${conflictingCita.hora_fin} en esta fecha.`);
+        return;
+      }
     }
 
     if (!formData.cliente_nombre.trim()) {
@@ -474,7 +477,8 @@ export default function AppointmentModal({
         cliente_id: matchedClient ? matchedClient.id : (formData.cliente_id || null),
         capacitador_id: parseInt(formData.capacitador_id, 10),
         horas: numHoras,
-        observaciones: obsText
+        observaciones: obsText,
+        permitir_solapamiento: formData.estado === 'En Negociación' && !!conflictingCita
       });
       onClose();
     } catch (err) {
@@ -889,27 +893,27 @@ export default function AppointmentModal({
             </div>
           </div>
 
-          {/* ALERTA PREVENTIVA EN ROJO: Detección inteligente de traslapes/conflictos */}
+          {/* ALERTA PREVENTIVA: Detección inteligente de traslapes/conflictos */}
           {conflictingCita && (
-            <div className="bg-rose-50 dark:bg-rose-950/50 border-2 border-rose-300 dark:border-rose-900 rounded-2xl p-4 flex items-start gap-3.5 text-rose-950 dark:text-rose-200 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-900/60 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
-                <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 stroke-[2.5]" />
+            <div className={`${formData.estado === 'En Negociación' ? 'bg-orange-50 dark:bg-orange-950/50 border-orange-300 dark:border-orange-800 text-orange-950 dark:text-orange-200' : 'bg-rose-50 dark:bg-rose-950/50 border-rose-300 dark:border-rose-900 text-rose-950 dark:text-rose-200'} border-2 rounded-2xl p-4 flex items-start gap-3.5 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200`}>
+              <div className={`w-9 h-9 rounded-xl ${formData.estado === 'En Negociación' ? 'bg-orange-100 dark:bg-orange-900/60 border-orange-200 text-orange-600 dark:text-orange-400' : 'bg-rose-100 dark:bg-rose-900/60 border-rose-200 text-rose-600 dark:text-rose-400'} border flex items-center justify-center shrink-0 mt-0.5 shadow-2xs`}>
+                <AlertTriangle className={`w-5 h-5 ${formData.estado === 'En Negociación' ? 'text-orange-600 dark:text-orange-400' : 'text-rose-600 dark:text-rose-400'} stroke-[2.5]`} />
               </div>
               <div className="text-xs space-y-1.5 flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1">
-                  <p className="font-black text-sm text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
-                    🚨 Conflicto de Horario Detectado
+                  <p className={`font-black text-sm ${formData.estado === 'En Negociación' ? 'text-orange-700 dark:text-orange-300' : 'text-rose-700 dark:text-rose-300'} flex items-center gap-1.5`}>
+                    {formData.estado === 'En Negociación' ? '🤝 Empalme con Cita Tentativa (En Negociación)' : '🚨 Conflicto de Horario Detectado'}
                   </p>
-                  <span className="bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    Empalme
+                  <span className={`${formData.estado === 'En Negociación' ? 'bg-orange-200 dark:bg-orange-900 text-orange-900 dark:text-orange-200' : 'bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200'} text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider`}>
+                    {formData.estado === 'En Negociación' ? 'Tentativa' : 'Empalme'}
                   </span>
                 </div>
                 <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
-                  <strong className="text-rose-900 dark:text-rose-200 font-bold">
+                  <strong className={`${formData.estado === 'En Negociación' ? 'text-orange-900 dark:text-orange-200' : 'text-rose-900 dark:text-rose-200'} font-bold`}>
                     {selectedTrainer ? selectedTrainer.nombre_completo : 'El capacitador'}
                   </strong> ya tiene otra actividad asignada en este mismo horario el {formData.fecha}:
                 </p>
-                <div className="bg-white/90 dark:bg-slate-800 rounded-xl p-2.5 border border-rose-200 dark:border-rose-900 text-slate-800 dark:text-slate-200 space-y-1 shadow-2xs">
+                <div className={`bg-white/90 dark:bg-slate-800 rounded-xl p-2.5 border ${formData.estado === 'En Negociación' ? 'border-orange-200 dark:border-orange-900' : 'border-rose-200 dark:border-rose-900'} text-slate-800 dark:text-slate-200 space-y-1 shadow-2xs`}>
                   <p className="font-extrabold text-xs text-slate-900 dark:text-white">
                     📌 {conflictingCita.observaciones || `${conflictingCita.tipo_servicio} Programado`}
                   </p>
@@ -917,14 +921,20 @@ export default function AppointmentModal({
                     <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>Empresa: <strong className="text-slate-800 dark:text-slate-200">{conflictingCita.cliente_nombre}</strong></span>
                   </p>
-                  <p className="font-mono text-rose-700 dark:text-rose-400 font-bold text-[11px] flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                  <p className={`font-mono ${formData.estado === 'En Negociación' ? 'text-orange-700 dark:text-orange-400' : 'text-rose-700 dark:text-rose-400'} font-bold text-[11px] flex items-center gap-1`}>
+                    <Clock className="w-3.5 h-3.5 shrink-0" />
                     <span>Horario ocupado: {conflictingCita.hora_inicio} - {conflictingCita.hora_fin} ({conflictingCita.horas}h)</span>
                   </p>
                 </div>
-                <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold italic">
-                  ⚠️ Modifica el horario o asigna a otro capacitador disponible para poder guardar.
-                </p>
+                {formData.estado === 'En Negociación' ? (
+                  <p className="text-[11px] text-orange-700 dark:text-orange-300 font-semibold">
+                    ℹ️ Como esta cita está en <strong>negociación</strong>, puedes guardarla como opción tentativa sin cancelar la otra cita.
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-rose-600 dark:text-rose-400 font-semibold italic">
+                    ⚠️ Modifica el horario o asigna a otro capacitador disponible para poder guardar.
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -1035,6 +1045,11 @@ export default function AppointmentModal({
                   <span>Libera horario y no suma horas</span>
                 </span>
               )}
+              {formData.estado === 'En Negociación' && (
+                <span className="text-[10px] font-bold text-orange-700 dark:text-orange-300 bg-orange-100/90 dark:bg-orange-950/80 border border-orange-200 dark:border-orange-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <span>Fecha tentativa · En negociación</span>
+                </span>
+              )}
               {formData.estado === 'Impartida' && (
                 <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
                   <span>Computa 100% de horas</span>
@@ -1047,7 +1062,7 @@ export default function AppointmentModal({
               )}
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5 sm:gap-2">
               {ESTADOS.map((est) => {
                 const isActive = (formData.estado || 'Programada') === est.id;
                 return (
@@ -1055,7 +1070,7 @@ export default function AppointmentModal({
                     key={est.id}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, estado: est.id }))}
-                    className={`px-2 py-2 rounded-xl text-[11px] sm:text-xs font-bold border transition-all flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap ${
+                    className={`px-2 py-2 rounded-xl text-[11px] sm:text-xs font-bold border transition-all flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap cursor-pointer ${
                       isActive ? est.activeClass : `${est.colorClass} border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800`
                     }`}
                   >
@@ -1065,6 +1080,15 @@ export default function AppointmentModal({
                 );
               })}
             </div>
+
+            {formData.estado === 'En Negociación' && (
+              <div className="bg-orange-50/80 dark:bg-orange-950/40 border border-orange-200/80 dark:border-orange-800/60 rounded-xl p-2.5 flex items-start gap-2 text-xs text-orange-800 dark:text-orange-200 animate-in fade-in duration-150">
+                <span className="text-sm shrink-0">🤝</span>
+                <p className="leading-relaxed">
+                  <strong>Cita Tentativa:</strong> Esta fecha aún está en conversación con el cliente. En el calendario aparecerá destacada en color naranja/ámbar para diferenciarla claramente de las confirmadas.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Modalidad y Tipo de Servicio */}
@@ -1405,9 +1429,9 @@ export default function AppointmentModal({
             </button>
             <button
               type="submit"
-              disabled={loading || !!conflictingCita || isTimeRangeInvalid || isTrainerInactive || (formData.descripcion || '').length > 500}
+              disabled={loading || (!!conflictingCita && formData.estado !== 'En Negociación') || isTimeRangeInvalid || isTrainerInactive || (formData.descripcion || '').length > 500}
               title={
-                conflictingCita
+                conflictingCita && formData.estado !== 'En Negociación'
                   ? 'Conflicto de horario: El capacitador ya está ocupado en ese rango'
                   : isTimeRangeInvalid
                   ? 'Horario inválido: Hora fin debe ser mayor a hora inicio'
@@ -1416,13 +1440,19 @@ export default function AppointmentModal({
                   : ''
               }
               className={`inline-flex items-center gap-2 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all transform active:scale-95 cursor-pointer ${
-                conflictingCita || isTimeRangeInvalid || isTrainerInactive || (formData.descripcion || '').length > 500
+                (conflictingCita && formData.estado !== 'En Negociación') || isTimeRangeInvalid || isTrainerInactive || (formData.descripcion || '').length > 500
                   ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600 cursor-not-allowed shadow-none'
+                  : formData.estado === 'En Negociación'
+                  ? 'bg-orange-600 hover:bg-orange-700 shadow-md shadow-orange-500/20'
                   : 'liquid-btn-primary shadow-md'
               }`}
             >
               <Check className="w-4 h-4 stroke-[3]" />
-              {loading ? 'Guardando...' : appointment?.id ? 'Guardar Cambios' : 'Registrar Cita'}
+              {loading 
+                ? 'Guardando...' 
+                : formData.estado === 'En Negociación'
+                ? (appointment?.id ? 'Guardar Cambios (En Negociación)' : 'Registrar en Negociación')
+                : (appointment?.id ? 'Guardar Cambios' : 'Registrar Cita')}
             </button>
           </div>
         </div>
