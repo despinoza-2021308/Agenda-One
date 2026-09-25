@@ -95,8 +95,12 @@ export default function PwaInstallBanner() {
       {deferredPrompt && !isStandalone && !isDismissed && (
         <div className="w-full p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20 flex items-center justify-between gap-3 animate-in slide-in-from-top-3 duration-200">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center shrink-0">
-              <Smartphone className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shrink-0 shadow-md border border-white/20">
+              <img 
+                src="/icon-192.png" 
+                alt="Logo Agenda One" 
+                className="w-full h-full object-contain rounded-lg" 
+              />
             </div>
             <div className="min-w-0">
               <p className="text-xs font-black tracking-tight leading-tight flex items-center gap-1.5">

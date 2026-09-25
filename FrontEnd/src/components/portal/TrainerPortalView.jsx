@@ -346,8 +346,12 @@ export default function TrainerPortalView({
           </div>
 
           <div className="text-center mb-6">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center mx-auto shadow-lg shadow-blue-500/25 mb-3.5">
-              <KeyRound className="w-7 h-7 sm:w-8 sm:h-8" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white dark:bg-slate-850 p-2 flex items-center justify-center mx-auto shadow-lg shadow-blue-500/10 border border-slate-200/80 dark:border-white/10 mb-3.5">
+              <img 
+                src="/logo-one.png" 
+                alt="ONE Consulting" 
+                className="w-full h-full object-contain" 
+              />
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
               Portal del Capacitador
@@ -480,9 +484,17 @@ export default function TrainerPortalView({
       <div className="glass-panel rounded-3xl border border-white/80 dark:border-white/10 p-3.5 sm:p-4 shadow-glass transition-all duration-200">
         <div className="flex items-center justify-between gap-2.5">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            {/* Logo oficial ONE */}
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white dark:bg-slate-800 p-1 flex items-center justify-center border border-slate-200/80 dark:border-white/10 shrink-0 shadow-sm overflow-hidden">
+              <img 
+                src="/logo-one.png" 
+                alt="ONE" 
+                className="w-full h-full object-contain" 
+              />
+            </div>
             {/* Avatar con iniciales */}
             <div 
-              className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center text-white font-black text-base sm:text-lg shadow-md shrink-0"
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center text-white font-black text-sm sm:text-base shadow-md shrink-0"
               style={{ backgroundColor: capacitador.color || '#3B82F6' }}
             >
               {capacitador.iniciales}

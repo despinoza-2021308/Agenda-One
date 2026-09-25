@@ -4,13 +4,19 @@
  * Versión 5: Network-First para navegación y HTML para garantizar actualizaciones instantáneas.
  */
 
-const CACHE_STATIC_NAME = 'agenda-one-static-v11';
+const CACHE_STATIC_NAME = 'agenda-one-static-v12';
 const CACHE_PORTAL_NAME = 'agenda-one-portal-api-v5';
 
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/favicon-32x32.png',
+  '/favicon-16x16.png',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/icon-maskable-512.png',
+  '/apple-touch-icon.png',
   '/favicon.svg',
   '/icons.svg',
   '/logo-one.png'
